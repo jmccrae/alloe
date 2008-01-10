@@ -6,18 +6,33 @@
 
 package nii.alloe.gui;
 
-import javax.swing.JFileChooser;
+import javax.swing.*;
 import java.io.*;
+import java.util.*;
+import nii.alloe.corpus.*;
+import nii.alloe.niceties.AlloeProgressListener;
+import nii.alloe.niceties.CannotPauseException;
 
 /**
  *
  * @author  john
  */
 public class AlloeMain extends javax.swing.JFrame {
+    private Corpus corpus;
+    
+    private String corpusTextFile;
+    private String corpusTermSetFile;
+    private CorpusLoader corpusLoader;
+    private JFileChooser fileChooser;
+    
+    private AlloeMain thisForAnon;
     
     /** Creates new form AlloeMain */
     public AlloeMain() {
         initComponents();
+        corpusTextFile = corpusTermSetFile = "";
+        fileChooser = new JFileChooser();
+        thisForAnon = this;
     }
     
     /** This method is called from within the constructor to
@@ -27,40 +42,95 @@ public class AlloeMain extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        corpusAction = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        loadTextFileName = new javax.swing.JTextField();
-        loadTextBrowse = new javax.swing.JButton();
-        loadTextStart = new javax.swing.JButton();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        loadIndexFileName = new javax.swing.JTextField();
-        loadIndexBrowse = new javax.swing.JButton();
-        loadIndexStart = new javax.swing.JButton();
-        jPanel6 = new javax.swing.JPanel();
         corpusLoadProgress = new javax.swing.JProgressBar();
+        jPanel4 = new javax.swing.JPanel();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        openCorpusTextFile = new javax.swing.JButton();
+        openCorpusTermSet = new javax.swing.JButton();
+        startCorpusLoader = new javax.swing.JButton();
+        jRadioButton2 = new javax.swing.JRadioButton();
+        jRadioButton3 = new javax.swing.JRadioButton();
+        openCorpusLoadProcess = new javax.swing.JButton();
+        openIndexedCorpus = new javax.swing.JButton();
         pauseCorpusLoad = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        jPanel1.setLayout(new java.awt.GridLayout(3, 1));
+        corpusLoadProgress.setRequestFocusEnabled(false);
+        corpusLoadProgress.setString("Corpus Not Loaded");
+        corpusLoadProgress.setStringPainted(true);
 
-        jLabel1.setText("Load Corpus From Text");
-
-        loadTextBrowse.setLabel("Browse");
-        loadTextBrowse.addActionListener(new java.awt.event.ActionListener() {
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Corpus Loader"));
+        corpusAction.add(jRadioButton1);
+        jRadioButton1.setSelected(true);
+        jRadioButton1.setText("Load corpus from text file");
+        jRadioButton1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jRadioButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadTextBrowseActionPerformed(evt);
+                jRadioButton1ActionPerformed(evt);
             }
         });
 
-        loadTextStart.setText("Load");
-        loadTextStart.addActionListener(new java.awt.event.ActionListener() {
+        openCorpusTextFile.setText("Open Text File");
+        openCorpusTextFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadTextStartActionPerformed(evt);
+                openCorpusTextFileActionPerformed(evt);
+            }
+        });
+
+        openCorpusTermSet.setText("Open Term Set");
+        openCorpusTermSet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openCorpusTermSetActionPerformed(evt);
+            }
+        });
+
+        startCorpusLoader.setText("Start");
+        startCorpusLoader.setEnabled(false);
+        startCorpusLoader.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startCorpusLoaderActionPerformed(evt);
+            }
+        });
+
+        corpusAction.add(jRadioButton2);
+        jRadioButton2.setText("Load Indexed Corpus");
+        jRadioButton2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jRadioButton2.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jRadioButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton2ActionPerformed(evt);
+            }
+        });
+
+        corpusAction.add(jRadioButton3);
+        jRadioButton3.setText("Resume Process");
+        jRadioButton3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jRadioButton3.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jRadioButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton3ActionPerformed(evt);
+            }
+        });
+
+        openCorpusLoadProcess.setText("Open Process Save");
+        openCorpusLoadProcess.setEnabled(false);
+        openCorpusLoadProcess.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openCorpusLoadProcessActionPerformed(evt);
+            }
+        });
+
+        openIndexedCorpus.setText("Open Indexed Corpus");
+        openIndexedCorpus.setEnabled(false);
+        openIndexedCorpus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openIndexedCorpusActionPerformed(evt);
             }
         });
 
@@ -71,109 +141,88 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addComponent(loadTextFileName, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(openIndexedCorpus))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(openCorpusLoadProcess))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(openCorpusTextFile)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(loadTextBrowse)
+                        .addComponent(openCorpusTermSet)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(loadTextStart)))
-                .addContainerGap())
+                        .addComponent(startCorpusLoader))
+                    .addComponent(jRadioButton1)
+                    .addComponent(jRadioButton2)
+                    .addComponent(jRadioButton3))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(jRadioButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(loadTextFileName, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(loadTextStart)
-                    .addComponent(loadTextBrowse))
-                .addContainerGap(33, Short.MAX_VALUE))
+                    .addComponent(openCorpusTextFile)
+                    .addComponent(openCorpusTermSet)
+                    .addComponent(startCorpusLoader))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(openIndexedCorpus)
+                .addGap(6, 6, 6)
+                .addComponent(jRadioButton3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(openCorpusLoadProcess)
+                .addContainerGap(13, Short.MAX_VALUE))
         );
-        jPanel1.add(jPanel4);
 
-        jLabel2.setText("Load Indexed Corpus");
-
-        loadIndexBrowse.setLabel("Browse");
-        loadIndexBrowse.addActionListener(new java.awt.event.ActionListener() {
+        pauseCorpusLoad.setText("Pause");
+        pauseCorpusLoad.setEnabled(false);
+        pauseCorpusLoad.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadIndexBrowseActionPerformed(evt);
+                pauseCorpusLoadActionPerformed(evt);
             }
         });
 
-        loadIndexStart.setText("Load");
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(loadIndexFileName, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(corpusLoadProgress, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(loadIndexBrowse)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(loadIndexStart)
+                        .addComponent(pauseCorpusLoad))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2)
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(loadIndexBrowse)
-                    .addComponent(loadIndexFileName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(loadIndexStart))
-                .addContainerGap(33, Short.MAX_VALUE))
-        );
-        jPanel1.add(jPanel5);
-
-        corpusLoadProgress.setString("Corpus not loaded");
-        corpusLoadProgress.setStringPainted(true);
-
-        pauseCorpusLoad.setEnabled(false);
-        pauseCorpusLoad.setLabel("Pause");
-
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(corpusLoadProgress, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pauseCorpusLoad)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pauseCorpusLoad)
+                    .addComponent(corpusLoadProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addContainerGap(39, Short.MAX_VALUE)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(corpusLoadProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pauseCorpusLoad))
-                .addGap(27, 27, 27))
-        );
-        jPanel1.add(jPanel6);
-
         jTabbedPane1.addTab("Corpus", jPanel1);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 410, Short.MAX_VALUE)
+            .addGap(0, 439, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 273, Short.MAX_VALUE)
+            .addGap(0, 242, Short.MAX_VALUE)
         );
         jTabbedPane1.addTab("tab2", jPanel2);
 
@@ -181,11 +230,11 @@ public class AlloeMain extends javax.swing.JFrame {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 410, Short.MAX_VALUE)
+            .addGap(0, 439, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 273, Short.MAX_VALUE)
+            .addGap(0, 242, Short.MAX_VALUE)
         );
         jTabbedPane1.addTab("tab3", jPanel3);
 
@@ -193,45 +242,206 @@ public class AlloeMain extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1)
+                .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void loadTextStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadTextStartActionPerformed
-        try {
-            loadIndexBrowse.setEnabled(false);
-            loadIndexFileName.setEnabled(false);
-            loadIndexStart.setEnabled(false);
-            loadTextBrowse.setEnabled(false);
-            loadTextFileName.setEditable(false);
-            loadTextStart.setEnabled(false);
-            
-            pauseCorpusLoad.setEnabled(true);
-                    
-        } catch(RuntimeException x) {
-            
-            JOptionPane.showMessageDialog(this, x.printStackTrace())
+    private void enableCorpusTopHalf() {
+        if(jRadioButton1.isSelected()) {
+            openCorpusTextFile.setEnabled(true);
+        openCorpusTermSet.setEnabled(true);
+        openCorpusLoadProcess.setEnabled(false);
+        openIndexedCorpus.setEnabled(false);
+        startCorpusLoader.setEnabled(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0);
+        } else if(jRadioButton2.isSelected()) {
+            openCorpusTextFile.setEnabled(false);
+        openCorpusTermSet.setEnabled(false);
+        openCorpusLoadProcess.setEnabled(false);
+        openIndexedCorpus.setEnabled(true);
+        startCorpusLoader.setEnabled(false);
+        } else if(jRadioButton3.isSelected()) {
+            openCorpusTextFile.setEnabled(false);
+        openCorpusTermSet.setEnabled(false);
+        openCorpusLoadProcess.setEnabled(true);
+        openIndexedCorpus.setEnabled(false);
+        startCorpusLoader.setEnabled(false);
         }
-    }//GEN-LAST:event_loadTextStartActionPerformed
-
-    private void loadIndexBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadIndexBrowseActionPerformed
-        JFileChooser jfc = new JFileChooser();
-        jfc.showOpenDialog(this);
-        File f = jfc.getSelectedFile();
-        loadIndexFileName.setText(f.getAbsolutePath());
-    }//GEN-LAST:event_loadIndexBrowseActionPerformed
-
-    private void loadTextBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadTextBrowseActionPerformed
-        JFileChooser jfc = new JFileChooser();
-        jfc.showOpenDialog(this);
-        File f = jfc.getSelectedFile();
-        loadTextFileName.setText(f.getAbsolutePath());
-    }//GEN-LAST:event_loadTextBrowseActionPerformed
+        jRadioButton1.setEnabled(true);
+        jRadioButton2.setEnabled(true);
+        jRadioButton3.setEnabled(true);
+        pauseCorpusLoad.setEnabled(false);
+    }
+    
+    private void enableCorpusBottomHalf() {
+        openCorpusTextFile.setEnabled(false);
+        openCorpusTermSet.setEnabled(false);
+        openCorpusLoadProcess.setEnabled(false);
+        openIndexedCorpus.setEnabled(false);
+        startCorpusLoader.setEnabled(false);
+        pauseCorpusLoad.setEnabled(true);
+        jRadioButton1.setEnabled(false);
+        jRadioButton2.setEnabled(false);
+        jRadioButton3.setEnabled(false);
+    }
+    
+    private void pauseCorpusLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseCorpusLoadActionPerformed
+        try {
+            if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+                return;
+            corpusLoader.pause();
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+            oos.writeObject(corpusLoader);
+            oos.close();
+            enableCorpusTopHalf();
+        } catch(IOException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save corpus indexing process", JOptionPane.ERROR_MESSAGE);
+        } catch(CannotPauseException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not pause process", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_pauseCorpusLoadActionPerformed
+    
+    private void openCorpusLoadProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusLoadProcessActionPerformed
+        try {
+            if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+                return;
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+            Object o = ois.readObject();
+            if(!(o instanceof CorpusLoader)) {
+                JOptionPane.showMessageDialog(this, "Invalid Format", "Could not resume corpus load", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            corpusLoader = (CorpusLoader)o;
+            corpusLoader.addProgressListener(new CorpusLoaderProgressListener());
+            corpusLoader.resume();
+        } catch(IOException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not resume corpus load", JOptionPane.ERROR_MESSAGE);
+        } catch(ClassNotFoundException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not resume corpus load", JOptionPane.ERROR_MESSAGE);
+        }
+        
+    }//GEN-LAST:event_openCorpusLoadProcessActionPerformed
+    
+    private void openIndexedCorpusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openIndexedCorpusActionPerformed
+        try {
+            if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+                return;
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+            Object o = ois.readObject();
+            if(!(o instanceof Corpus)) {
+                JOptionPane.showMessageDialog(this, "Invalid Format", "Could not load corpus", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            corpus = (Corpus)o;
+            corpusLoadProgress.setValue(100);
+            corpusLoadProgress.setString("Corpus loaded");
+        } catch(IOException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not load corpus", JOptionPane.ERROR_MESSAGE);
+        } catch(ClassNotFoundException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not load corpus", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_openIndexedCorpusActionPerformed
+    
+    private void jRadioButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton3ActionPerformed
+        openCorpusTextFile.setEnabled(false);
+        openCorpusTermSet.setEnabled(false);
+        openCorpusLoadProcess.setEnabled(true);
+        openIndexedCorpus.setEnabled(false);
+        startCorpusLoader.setEnabled(false);
+    }//GEN-LAST:event_jRadioButton3ActionPerformed
+    
+    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+        openCorpusTextFile.setEnabled(true);
+        openCorpusTermSet.setEnabled(true);
+        openCorpusLoadProcess.setEnabled(false);
+        openIndexedCorpus.setEnabled(false);
+        startCorpusLoader.setEnabled(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0);
+    }//GEN-LAST:event_jRadioButton1ActionPerformed
+    
+    private void jRadioButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton2ActionPerformed
+        openCorpusTextFile.setEnabled(false);
+        openCorpusTermSet.setEnabled(false);
+        openCorpusLoadProcess.setEnabled(false);
+        openIndexedCorpus.setEnabled(true);
+        startCorpusLoader.setEnabled(false);
+    }//GEN-LAST:event_jRadioButton2ActionPerformed
+    
+    private class CorpusLoaderProgressListener implements AlloeProgressListener {
+        public void finished() {
+            corpusLoadProgress.setValue(100);
+            corpusLoadProgress.setString("Corpus Loaded");
+            startCorpusLoader.setEnabled(true);
+            corpus = corpusLoader.corpus;
+            pauseCorpusLoad.setEnabled(false);
+            int fileOption = fileChooser.showSaveDialog(thisForAnon);
+            while(fileOption != JFileChooser.APPROVE_OPTION &&
+                    JOptionPane.showConfirmDialog(thisForAnon, "Are you sure you don't want to save the corpus?",
+                    "Really?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                fileOption = fileChooser.showSaveDialog(thisForAnon);
+            }
+            if(fileOption == JFileChooser.APPROVE_OPTION) {
+                try {
+                    ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+                    oos.writeObject(corpus);
+                    oos.close();
+                } catch(IOException x) {
+                    JOptionPane.showMessageDialog(thisForAnon, x.getMessage(), "Could not save corpus", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+        public void progressChange(double newProgress) {
+            corpusLoadProgress.setString("Indexing Corpus " + (int)(newProgress * 100) + "%");
+            corpusLoadProgress.setValue((int)(newProgress * 100));
+        }
+    }
+    
+    private void startCorpusLoaderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startCorpusLoaderActionPerformed
+        try {
+            ObjectInputStream tsois = new ObjectInputStream(new FileInputStream(corpusTermSetFile));
+            Object o = tsois.readObject();
+            if(!(o instanceof Vector)) {
+                JOptionPane.showMessageDialog(this, "Invalid file format for term set", "Could not load term set", JOptionPane.ERROR_MESSAGE);
+            }
+            Vector<String> termSet = (Vector<String>)o;
+            corpusLoader = new CorpusLoader(termSet, corpusTextFile);
+            corpusLoader.addProgressListener(new CorpusLoaderProgressListener());
+            corpusLoader.start();
+            enableCorpusBottomHalf();
+        } catch(IOException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not load term set", JOptionPane.ERROR_MESSAGE);
+        } catch(ClassNotFoundException x) {
+            JOptionPane.showMessageDialog(this, "Invalid file format for term set", "Could not load term set", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_startCorpusLoaderActionPerformed
+    
+    private void openCorpusTermSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTermSetActionPerformed
+        fileChooser.showOpenDialog(this);
+        corpusTermSetFile = fileChooser.getSelectedFile().getAbsolutePath();
+        if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0) {
+            startCorpusLoader.setEnabled(true);
+        } else {
+            startCorpusLoader.setEnabled(false);
+        }
+    }//GEN-LAST:event_openCorpusTermSetActionPerformed
+    
+    private void openCorpusTextFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTextFileActionPerformed
+        fileChooser.showOpenDialog(this);
+        corpusTextFile = fileChooser.getSelectedFile().getAbsolutePath();
+        if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0) {
+            startCorpusLoader.setEnabled(true);
+        } else {
+            startCorpusLoader.setEnabled(false);
+        }
+    }//GEN-LAST:event_openCorpusTextFileActionPerformed
     
     /**
      * @param args the command line arguments
@@ -245,23 +455,22 @@ public class AlloeMain extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup corpusAction;
     private javax.swing.JProgressBar corpusLoadProgress;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
+    private javax.swing.JRadioButton jRadioButton1;
+    private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JButton loadIndexBrowse;
-    private javax.swing.JTextField loadIndexFileName;
-    private javax.swing.JButton loadIndexStart;
-    private javax.swing.JButton loadTextBrowse;
-    private javax.swing.JTextField loadTextFileName;
-    private javax.swing.JButton loadTextStart;
+    private javax.swing.JButton openCorpusLoadProcess;
+    private javax.swing.JButton openCorpusTermSet;
+    private javax.swing.JButton openCorpusTextFile;
+    private javax.swing.JButton openIndexedCorpus;
     private javax.swing.JButton pauseCorpusLoad;
+    private javax.swing.JButton startCorpusLoader;
     // End of variables declaration//GEN-END:variables
     
 }

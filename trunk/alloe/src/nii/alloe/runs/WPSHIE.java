@@ -26,9 +26,14 @@ public class WPSHIE {
         System.out.println("Number of Terms = " + terms.size());
         System.out.println("Number of Synonym Links = " +  syns.size());
         System.out.println("Number of Hypernym Links = " + hyps.size());
-        loadCorpus();
         
         try {
+            ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/terms"));
+            Vector<String> termsVec = new Vector<String>(terms);
+            oos2.writeObject(termsVec);
+            oos2.close();
+            loadCorpus();
+            
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/e/wp/wp/corpus"));
             oos.writeObject(corpus);
             oos.writeObject(hyps);
@@ -47,7 +52,7 @@ public class WPSHIE {
     void loadSyns() {
         syns = new TermPairSet();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("/e/wp/wp/syns"));
+            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/syns"));
             String s = in.readLine();
             while(s != null) {
                 if(!s.matches(".*\\w.*")) {
@@ -72,7 +77,7 @@ public class WPSHIE {
     void loadHyps() {
         hyps = new TermPairSet();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("/e/wp/wp/hyps"));
+            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/hyps"));
             String s = in.readLine();
             while(s != null) {
                 String[] ss = s.split(" < " );
