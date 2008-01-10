@@ -1,0 +1,170 @@
+package nii.alloe.simulate;
+import java.util.*;
+import java.io.*;
+import cern.jet.random.*;
+import cern.jet.random.engine.*;
+import nii.alloe.theory.Graph;
+import nii.alloe.theory.Logic;
+import nii.alloe.theory.Model;
+import nii.alloe.theory.ProbabilityGraph;
+import nii.alloe.theory.SpecificGraph;
+
+public class Simulate {
+    public int n;
+    public double p;
+    public double r;
+    private String out;
+    public Logic l;
+    public Model trueModel;
+    public Model probModel;
+    
+    public Simulate(String logicFile, double prec, double recall, int n) {
+        l = new Logic(logicFile);
+        p = prec;
+        r = recall;
+        this.n = n;
+    }
+    
+    
+    public void createModels() {
+        trueModel = makeGraphs(l);
+        l.consistCheck(trueModel, new MakeConsistent());
+        probModel = makeProbGraphs(trueModel);
+    }
+    
+      
+    private Model makeGraphs(Logic l) {
+        Iterator<String> i = l.relationDensity.keySet().iterator();
+        TreeMap<String, Graph> tig = new TreeMap<String, Graph>();
+        Model m = new Model(n);
+        while(i.hasNext()) {
+            String idx = i.next();
+            
+            SpecificGraph g = m.addSpecificGraph(idx);
+            g.makeRandom(Math.pow((double)n,
+                    l.relationDensity.get(idx).doubleValue()));
+            //if(l.useLocking.contains(idx)) {
+            //    g.enableLocking();
+            //}
+            
+            tig.put(idx, g);
+        }
+        
+        m.addBasicGraphs(l);
+        
+        return m;
+    }
+    
+    private Model makeProbGraphs(Model spec) {
+        Iterator<String> i = l.relationDensity.keySet().iterator();
+        Model rval = new Model(spec);
+        while(i.hasNext()) {
+            String idx = i.next();
+            ProbabilityGraph p = rval.addProbabilityGraph(idx);
+            createData(p, spec.graphs.get(idx),l.relationNames.get(idx));
+        }
+        
+        rval.addBasicGraphs(l);
+        
+        return rval;
+    }
+    
+
+    
+    
+    //public void format_error(String problem) {
+    //    System.err.println("Unexpected " + problem);
+    //    System.err.println("Usage:");
+    //    System.err.println("   java theory.Simulate -o outdir -n n -p p -r r logic_file");
+    //    System.err.println(" outdir: output directory");
+    //    System.err.println(" p: desired precision");
+    //    System.err.println(" r: desired recall");
+    //    System.err.println(" n: size of data set");
+     //   System.err.println(" logic_file: logic file");
+    //    System.exit(0);
+    //}
+    
+    
+    private void createData(ProbabilityGraph rval, Graph g, String graph_name) {
+        int pos = g.linkCount();
+        double mu_pos = normal_cdf_inverse(r);
+        double goal = r * (1 -p) * pos / p;
+        double mu_neg = normal_cdf_inverse(goal / (n*(n-1) - pos));
+        Normal pos_normal = new Normal(mu_pos, 1, new MersenneTwister());
+        Normal neg_normal = new Normal(mu_neg, 1, new MersenneTwister());
+        Normal ntr_normal = new Normal(0,1,new MersenneTwister());
+        int tp, fp, fn, tn;
+        tp = fp = fn = tn = 0;
+        
+        for(int i = 0; i < n * n; i++) {
+            if(i % n == i / n)
+                continue;
+            if(g.isConnected(i / n, i % n)) {
+                rval.setPosVal(i/n,i%n,ntr_normal.cdf(pos_normal.nextDouble()));
+                if(rval.isConnected(i/n,i%n)) {
+                    tp++;
+                } else {
+                    fn++;
+                }
+            } else {
+                rval.setPosVal(i/n,i%n,ntr_normal.cdf(neg_normal.nextDouble()));
+                if(rval.isConnected(i/n,i%n)) {
+                    fp++;
+                } else {
+                    tn++;
+                }
+            }
+        }
+        
+        System.out.println("Results for relationship: " + graph_name);
+        System.out.println("\t" + tp + "\t" + fn);
+        System.out.println("\t" + fp + "\t" + tn);
+        double recall =  (((double)tp) / ((double)(tp + fn)));
+        System.out.println("Recall: " + recall);
+        double precision = (((double)tp) / ((double)(tp + fp)));
+        System.out.println("Precision: " + precision);
+        System.out.println("F-Measure: " + (2 * precision * recall / (precision + recall)));
+        
+    }
+    
+    // This function find the inverse of the Normal function
+    // (ie the Normal Quotient function) by gradient descent ( :s )
+    private double normal_cdf_inverse(double d) {
+        double delta = 0.0000001;
+        double x = 0;
+        Normal ntr_normal = new Normal(0,1,new MersenneTwister());
+        
+        while(ntr_normal.cdf(x) - d < -delta ||
+                ntr_normal.cdf(x) - d > delta) {
+            double grad = (ntr_normal.cdf(x + delta) - ntr_normal.cdf(x-delta)) / (2 * delta);
+            if(grad == 0)
+                grad = delta;
+            x -= (ntr_normal.cdf(x) - d) / grad;
+        }
+        return x;
+    }
+    
+    
+    public void output_term_list(String target) {
+        try {
+            PrintStream syn_file = new PrintStream(new FileOutputStream(target + ".synlist"));
+            for(int i = 0; i < n; i++) {
+                syn_file.printf("[ \"%d\" ]\n", i);
+            }
+            syn_file.close();
+            
+            PrintStream pos_file = new PrintStream(new FileOutputStream(target + ".pairs"));
+            for(int j = 0; j < n*n; j++) {
+                if(j%n == j/n)
+                    continue;
+                pos_file.printf("%d => %d\n", j/n, j%n);
+            }
+            pos_file.close();
+            
+            File.createTempFile(target, ".nonpairs");
+        } catch(Exception x) {
+            x.printStackTrace();
+            System.exit(0);
+        }
+    }
+}
