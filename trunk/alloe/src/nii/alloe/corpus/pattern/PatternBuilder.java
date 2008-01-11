@@ -2,7 +2,9 @@ package nii.alloe.corpus.pattern;
 import nii.alloe.corpus.Corpus;
 import nii.alloe.corpus.EachTermPairAction;
 import nii.alloe.corpus.TermPairSet;
+import nii.alloe.niceties.*;
 import java.util.*;
+import java.io.*;
 
 /**
  * Build a set of patterns from the corpus. Initially whenever a term pair is found in the same 
@@ -30,16 +32,21 @@ import java.util.*;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class PatternBuilder {
+public class PatternBuilder implements AlloeProcess, Serializable {
     
     private PriorityQueue<Pattern> patternQueue;
-    private Map<Pattern, Double> patternScores;
+    /** Same as return value of buildPatterns */
+    public Map<Pattern, Double> patternScores;
     private LinkedList<Pattern> usedPatterns;
     /** Maximum number of iterations */
     public int maxIterations;
     private Corpus corpus;
     private TermPairSet termPairSet;
-    private PatternMetric pm;
+    private transient PatternMetric pm;
+    private transient int state;
+    private static final int STATE_OK = 0;
+    private static final int STATE_STOPPING = 1;
+    private static final int STATE_UNPAUSABLE = 2;
     
     /** Creates a new instance of PatternBuilder 
      * @param corpus The corpus
@@ -51,18 +58,21 @@ public class PatternBuilder {
         this.termPairSet = termPairSet;
         this.pm = pm;
         maxIterations = Integer.MAX_VALUE;
+        state = STATE_OK;
     }
     
     /** Build patterns
      * @return A map whose keys are the patterns and values there score as evaluated by the
      * PatternMetric passed to the constructor */
     public Map<Pattern,Double> buildPatterns() {
+        state = STATE_UNPAUSABLE;
         buildBasePatterns();
+        state = STATE_OK;
         
         int iterations = 0;
         usedPatterns = new LinkedList();
         
-        while(patternQueue.peek() != null && iterations < maxIterations) {
+        while(patternQueue.peek() != null && iterations < maxIterations && state == STATE_OK) {
             Pattern pattern = patternQueue.poll();
             
             Iterator<Pattern> unifIter = usedPatterns.iterator();
@@ -144,4 +154,38 @@ public class PatternBuilder {
             
         }
     }
+    
+    private transient LinkedList<AlloeProgressListener> listeners;
+    
+    // AlloeProcess functions
+       /** Register a progress listener */
+    public void addProgressListener(AlloeProgressListener apl) {
+        if(listeners == null)
+            listeners = new LinkedList<AlloeProgressListener>();
+        listeners.add(apl);
+    }
+    
+    /** Start process. It is expected that this function should start the progress
+     * in a new thread */
+    public void start() {
+        buildPatterns();
+    }
+   
+    /** Pause the process. The assumption is that this will work by changing a variable
+     * in the running thread and then wait for this thread to finish by use of join().
+     * It is assumed that the this object is Serializable, otherwise it's your problem
+     * to assure the object is ok when resume() is called.
+     *
+     * @throws CannotPauseException If the process is not in a state where it can be resumed
+     */
+    public void pause() throws CannotPauseException {
+        
+    }
+    
+    /** Resume the process. 
+     * @see #pause()
+     */
+    public void resume() {}
+    
+    public String getStateMessage() { return ""; }
 }

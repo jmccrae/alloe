@@ -24,28 +24,31 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     private transient int state;
     private transient Thread theThread;
     private transient LinkedList<AlloeProgressListener> listeners;
+    private transient String indexFile;
     private static final int STATE_OK = 0;
     private static final int STATE_STOPPING = 1;
     
     /** Creates a new instance of CorpusLoader */
-    public CorpusLoader(Vector<String> terms, String fileName) {
+    public CorpusLoader(Vector<String> terms, String fileName, String indexFile) {
         this.terms = terms;
         this.fileName = fileName;
+        this.indexFile = indexFile;
         linesRead = 0;
         listeners = new LinkedList<AlloeProgressListener>();
     }
     
     /** Register a progress listener */
     public void addProgressListener(AlloeProgressListener apl) {
-        listeners.add(apl);
+        if(!listeners.contains(apl))
+            listeners.add(apl);
     }
     
     /** Start process. It is expected that this function should start the progress
      * in a new thread */
     public void start() {
-        corpus = new Corpus(new Vector<String>(terms));
+        corpus = new Corpus(new Vector<String>(terms),indexFile);
         try {
-            corpus.openIndex();
+            corpus.openIndex(true);
             fileSize = (new File(fileName)).length();
             in = new BufferedReader(new FileReader(fileName),256);
             state = STATE_OK;
@@ -75,7 +78,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     /** Resume the process. */
     public void resume() {
         try {
-            corpus.openIndex();
+            corpus.openIndex(false);
             fileSize = (new File(fileName)).length();
             in = new BufferedReader(new FileReader(fileName),256);
             for(int i = 0; i < linesRead; i++) {
@@ -155,4 +158,6 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
             apliter.next().finished();
         }
     }
+    
+    public String getStateMessage() { return "Indexing corpus: "; }
 }

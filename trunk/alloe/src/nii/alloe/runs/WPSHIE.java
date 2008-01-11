@@ -128,9 +128,9 @@ public class WPSHIE {
     }
     
     void loadCorpus() {
-        corpus = new Corpus(new Vector<String>(terms));
+        corpus = new Corpus(new Vector<String>(terms), "/e/wp/wp/corpus.idx");
         try {
-            corpus.openIndex();
+            corpus.openIndex(true);
             BufferedReader in = new BufferedReader(new FileReader("/e/wp/wp/corpus.txt"),256);
             String s = in.readLine();
             while(s != null) {

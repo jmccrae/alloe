@@ -19,7 +19,7 @@ import java.util.regex.*;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class Pattern {
+public class Pattern implements java.io.Serializable {
     
     /** The string representation of the pattern */
     private String val;

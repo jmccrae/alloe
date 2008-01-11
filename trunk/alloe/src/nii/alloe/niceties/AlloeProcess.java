@@ -28,4 +28,7 @@ public interface AlloeProcess {
      */
     public void resume();
     
+    /** Get a string representation of the current action being performed */
+    public String getStateMessage();
+    
 }
