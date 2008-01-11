@@ -18,20 +18,21 @@ public class Corpus implements Serializable {
     
     private transient IndexWriter indexWriter;
     private transient IndexSearcher indexSearcher;
-    private Vector<String> terms;
-    private Directory directory;
+    public Vector<String> terms;
+    private transient Directory directory;
+    private String indexFile;
     
     /** Creates a new instance of Corpus */
-    public Corpus(Vector<String> terms) {
+    public Corpus(Vector<String> terms, String indexFile) {
         this.terms = terms;
+        this.indexFile = indexFile;
     }
     
-    /** Opens the corpus so that new documents can be added */
-    public void openIndex() throws IOException {
-        if(directory == null)
-            directory = new RAMDirectory();
-        Analyzer analyzer = new StandardAnalyzer();
-        indexWriter = new IndexWriter(directory, analyzer, true);
+    /** Opens the corpus so that new documents can be added 
+     * @param newIndex If true any index on existing path will be removed
+     */
+    public void openIndex(boolean newIndex) throws IOException {
+        indexWriter = new IndexWriter(indexFile, new StandardAnalyzer(), newIndex);
     }
     
     /** Add a new document to corpus
@@ -57,9 +58,24 @@ public class Corpus implements Serializable {
     /** Close the corpus, after which no more documents can be added */
     public void closeIndex() throws IOException {
         indexWriter.optimize();
+        Directory d = indexWriter.getDirectory();
         indexWriter.close();
+        
+        indexSearcher = new IndexSearcher(d);
         indexWriter = null;
-        indexSearcher = new IndexSearcher(directory);
+    }
+    
+    /** Return the occurences of a particular string */
+    public int getHitsForTerm(String term) {
+         try {
+            QueryParser qp = new QueryParser("term", new StandardAnalyzer());
+            Query q = qp.parse("\"" + term + "\"");
+            Hits hits = indexSearcher.search(q);
+            return hits.length();
+        } catch(Exception x) {
+            x.printStackTrace();
+            return -1;
+        }
     }
     
     /** Get all contexts containing term1 and term2 */
@@ -140,7 +156,7 @@ public class Corpus implements Serializable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         // We need to restore indexSearcher after loading
-        indexSearcher = new IndexSearcher(directory);
+        indexSearcher = new IndexSearcher(indexFile);
     }
     
     private class HitsIterator implements Iterator<String> {
@@ -258,6 +274,15 @@ public class Corpus implements Serializable {
                 return idx - m.group(1).length();
             else //after
                 return idx + m.group(1).length();
+        }
+    }
+    
+    public int getTotalDocs() {
+        try {
+            return indexSearcher.maxDoc();
+        } catch(IOException x) {
+            x.printStackTrace();
+            return -1;
         }
     }
     
