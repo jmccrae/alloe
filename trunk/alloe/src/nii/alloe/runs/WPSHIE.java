@@ -32,13 +32,22 @@ public class WPSHIE {
             Vector<String> termsVec = new Vector<String>(terms);
             oos2.writeObject(termsVec);
             oos2.close();
-            loadCorpus();
             
+            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/syns.atps"));
+            oos2.writeObject(syns);
+            oos2.close();
+            
+            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/hyps.atps"));
+            oos2.writeObject(hyps);
+            oos2.close();
+            
+            loadCorpus();
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/e/wp/wp/corpus"));
             oos.writeObject(corpus);
             oos.writeObject(hyps);
             oos.writeObject(syns);
             oos.close();
+            
         } catch(Exception x) {
             x.printStackTrace();
             System.exit(-1);

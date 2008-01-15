@@ -1,5 +1,5 @@
 package nii.alloe.corpus;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class TermPairSet implements Serializable {
     
-    private TreeSet<String> termPairs;
+    private transient TreeSet<String> termPairs;
     static final String glue = " => ";
     
     /** Create a new instance */
@@ -90,5 +90,23 @@ public class TermPairSet implements Serializable {
     /** number of elements in set */
     public int size() {
         return termPairs.size();
+    }
+    
+    private void writeObject(ObjectOutputStream oos) throws IOException  {
+        oos.defaultWriteObject();
+        oos.writeObject(new Vector<String>(termPairs));
+    }
+    
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        termPairs = new TreeSet<String>(new Comparator<String>() {
+            public int compare(String s1, String s2) {
+                return s1.toLowerCase().compareTo(s2.toLowerCase());
+            }
+            public boolean equals(Object object) {
+               if(this == object) return true; return false;
+            }
+        });
+        termPairs.addAll((Vector<String>)ois.readObject());
     }
 }

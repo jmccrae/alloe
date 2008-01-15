@@ -11,8 +11,8 @@ import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import nii.alloe.corpus.*;
-import nii.alloe.niceties.AlloeProgressListener;
-import nii.alloe.niceties.CannotPauseException;
+import nii.alloe.corpus.pattern.*;
+import nii.alloe.niceties.*;
 
 /**
  *
@@ -27,6 +27,8 @@ public class AlloeMain extends javax.swing.JFrame {
     private CorpusLoader corpusLoader;
     private JFileChooser fileChooser;
     private CorpusLoaderProgressListener clProgListener;
+    private HashMap<String, String> termSetFileName;
+    private HashMap<String, PatternBuilder> patternBuilderProcess;
     
     private AlloeMain thisForAnon;
     
@@ -37,6 +39,8 @@ public class AlloeMain extends javax.swing.JFrame {
         fileChooser = new JFileChooser();
         thisForAnon = this;
         corpusDisplayTableModel = new CorpusTableModel();
+        termSetFileName = new HashMap<String,String>();
+        patternBuilderProcess = new HashMap<String,PatternBuilder>();
     }
     
     /** This method is called from within the constructor to
@@ -48,8 +52,6 @@ public class AlloeMain extends javax.swing.JFrame {
     private void initComponents() {
         corpusAction = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel2 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         openCorpusTextFile = new javax.swing.JButton();
@@ -57,6 +59,9 @@ public class AlloeMain extends javax.swing.JFrame {
         textFileLabel = new javax.swing.JLabel();
         termSetLabel = new javax.swing.JLabel();
         indexerProgressMonitor = new nii.alloe.gui.ProcessMonitor();
+        if(clProgListener == null)
+        clProgListener = new CorpusLoaderProgressListener();
+        indexerProgressMonitor.addExtraListener(clProgListener);
         indexLocationLabel = new javax.swing.JLabel();
         setIndexButton = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
@@ -65,32 +70,27 @@ public class AlloeMain extends javax.swing.JFrame {
         corpusDisplayScroll = new javax.swing.JScrollPane();
         corpusDisplay = new javax.swing.JTable();
         corpusTotalLabel = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        termPairSetLabel = new javax.swing.JLabel();
+        openTermPairSet = new javax.swing.JButton();
+        patternGeneratorRelationship = new javax.swing.JComboBox();
+        jLabel2 = new javax.swing.JLabel();
+        patternGeneratorProgressMonitor = new nii.alloe.gui.ProcessMonitor();
+        patternBuilderMetric = new javax.swing.JComboBox();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel7 = new javax.swing.JPanel();
+        patternViewerRelationshipLabel = new javax.swing.JLabel();
+        patternViewerRelationship = new javax.swing.JComboBox();
+        openPatternSet = new javax.swing.JButton();
+        savePatternSet = new javax.swing.JButton();
+        totalPatternsLabel = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        patternTable = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 483, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 553, Short.MAX_VALUE)
-        );
-        jTabbedPane1.addTab("tab2", jPanel2);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 483, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 553, Short.MAX_VALUE)
-        );
-        jTabbedPane1.addTab("tab3", jPanel3);
-
+        setTitle("Alloe");
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Corpus Indexer"));
         openCorpusTextFile.setText("Open Text File");
         openCorpusTextFile.addActionListener(new java.awt.event.ActionListener() {
@@ -135,7 +135,7 @@ public class AlloeMain extends javax.swing.JFrame {
                             .addComponent(termSetLabel)
                             .addComponent(textFileLabel)
                             .addComponent(indexLocationLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 130, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 168, Short.MAX_VALUE)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(setIndexButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(openCorpusTextFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -189,7 +189,7 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+                    .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(openIndexedCorpus)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -207,8 +207,8 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(saveIndexedCorpus)
                     .addComponent(corpusTotalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -233,24 +233,253 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         jTabbedPane1.addTab("Corpus", jPanel1);
 
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Generate Patterns"));
+        termPairSetLabel.setText("Term Pair Set:");
+        termPairSetLabel.setEnabled(false);
+
+        openTermPairSet.setText("Open Term Pair Set");
+        openTermPairSet.setEnabled(false);
+        openTermPairSet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openTermPairSetActionPerformed(evt);
+            }
+        });
+
+        patternGeneratorRelationship.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "New..." }));
+        patternGeneratorRelationship.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                patternGeneratorRelationshipActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Relationship:");
+
+        patternBuilderMetric.setModel(new DefaultComboBoxModel(PatternMetricFactory.getPatternMetrics()));
+        patternBuilderMetric.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                patternBuilderMetricActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Metric::");
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(patternGeneratorRelationship, 0, 360, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addComponent(termPairSetLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 215, Short.MAX_VALUE)
+                        .addComponent(openTermPairSet))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(patternBuilderMetric, 0, 397, Short.MAX_VALUE))
+                    .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(patternGeneratorRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(termPairSetLabel)
+                    .addComponent(openTermPairSet))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(patternBuilderMetric, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Pattern Sets"));
+        patternViewerRelationshipLabel.setText("Relationship:");
+        patternViewerRelationshipLabel.setEnabled(false);
+
+        patternViewerRelationship.setEnabled(false);
+
+        openPatternSet.setText("Open Pattern Set");
+
+        savePatternSet.setText("Save Pattern Set");
+        savePatternSet.setEnabled(false);
+
+        totalPatternsLabel.setText("Total Patterns:");
+
+        patternTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Pattern", "Score"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Double.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(patternTable);
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(patternViewerRelationshipLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(patternViewerRelationship, 0, 360, Short.MAX_VALUE))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(openPatternSet)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(savePatternSet)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(totalPatternsLabel)))
+                .addContainerGap())
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(patternViewerRelationshipLabel)
+                    .addComponent(patternViewerRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(openPatternSet)
+                    .addComponent(savePatternSet)
+                    .addComponent(totalPatternsLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jTabbedPane1.addTab("Patterns", jPanel2);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 521, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 558, Short.MAX_VALUE)
+        );
+        jTabbedPane1.addTab("tab3", jPanel3);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 585, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    private void patternBuilderMetricActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternBuilderMetricActionPerformed
+        PatternBuilder pb = patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString());
+        if(pb != null && !pb.isRunning()) {
+            pb.setPatternMetric(patternBuilderMetric.getSelectedItem().toString());
+        }
+    }//GEN-LAST:event_patternBuilderMetricActionPerformed
+    
+    private void initPatternBuilderProcess(String name) {
+        if(!patternBuilderProcess.containsKey(name)) {
+            try {
+                ObjectInputStream ios = new ObjectInputStream(new FileInputStream(termSetFileName.get(name)));
+                Object o = ios.readObject();
+                if(!(o instanceof TermPairSet)) {
+                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                patternBuilderProcess.put(name, new PatternBuilder(corpus, (TermPairSet)o,
+                        (String)patternBuilderMetric.getSelectedItem()));
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void openTermPairSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openTermPairSetActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            termSetFileName.put(patternGeneratorRelationship.getSelectedItem().toString(),
+                    fileChooser.getSelectedFile().getAbsolutePath());
+            termPairSetLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getPath());
+            if(corpus != null) {
+                initPatternBuilderProcess(patternGeneratorRelationship.getSelectedItem().toString());
+            }
+        }
+    }//GEN-LAST:event_openTermPairSetActionPerformed
+    
+    private void patternGeneratorRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternGeneratorRelationshipActionPerformed
+        if(patternGeneratorRelationship.getSelectedItem().equals("New...")) {
+            String name = JOptionPane.showInputDialog(this, "New Relation", "");
+            ((DefaultComboBoxModel)patternGeneratorRelationship.getModel()).insertElementAt(name,0);
+            if(patternGeneratorRelationship.getItemAt(1).equals("")) {
+                patternGeneratorRelationship.removeItemAt(1);
+            }
+            
+            patternGeneratorRelationship.setSelectedItem(name);
+        }
+        
+        termPairSetLabel.setEnabled(true);
+        String s = termSetFileName.get(patternGeneratorRelationship.getSelectedItem().toString());
+        termPairSetLabel.setText("Term Pair Set: " + (s == null ? "" : s));
+        openTermPairSet.setEnabled(true);
+        
+        patternGeneratorProgressMonitor.setProcess(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
+    }//GEN-LAST:event_patternGeneratorRelationshipActionPerformed
+    
     private void saveIndexedCorpusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveIndexedCorpusActionPerformed
         if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
@@ -290,13 +519,12 @@ public class AlloeMain extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid File Format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-                
+            
             corpusLoader = new CorpusLoader((Vector<String>)o, corpusTextFile, corpusIndexFile);
             indexerProgressMonitor.setProcess(corpusLoader);
-            if(clProgListener == null) 
+            if(clProgListener == null)
                 clProgListener = new CorpusLoaderProgressListener();
             corpusLoader.addProgressListener(clProgListener);
-            indexerProgressMonitor.addExtraListener(clProgListener);
             
         } catch(IOException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not initialize indexer", JOptionPane.ERROR_MESSAGE);
@@ -304,7 +532,7 @@ public class AlloeMain extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not initialize indexer", JOptionPane.ERROR_MESSAGE);
         }
     }
-  
+    
     private class CorpusTableModel extends AbstractTableModel {
         public int getColumnCount() { return 2; }
         public int getRowCount() { return corpus == null ? 0 : corpus.terms.size(); }
@@ -318,7 +546,7 @@ public class AlloeMain extends javax.swing.JFrame {
                 return null;
             }
         }
-        public String getColumnName(int j) { 
+        public String getColumnName(int j) {
             if(j == 0) {
                 return "Term";
             } else if(j == 1) {
@@ -358,7 +586,10 @@ public class AlloeMain extends javax.swing.JFrame {
     
     private class CorpusLoaderProgressListener implements AlloeProgressListener {
         public void finished() {
-            corpus = corpusLoader.corpus;
+            //corpus = corpusLoader.corpus;
+            AlloeProcess p = indexerProgressMonitor.getProcess();
+            assert p instanceof CorpusLoader;
+            corpus = ((CorpusLoader)p).corpus;
             onCorpusLoad();
         }
         public void progressChange(double newProgress) {
@@ -403,26 +634,42 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel corpusTotalLabel;
     private javax.swing.JLabel indexLocationLabel;
     private nii.alloe.gui.ProcessMonitor indexerProgressMonitor;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JButton openCorpusTermSet;
     private javax.swing.JButton openCorpusTextFile;
     private javax.swing.JButton openIndexedCorpus;
+    private javax.swing.JButton openPatternSet;
+    private javax.swing.JButton openTermPairSet;
+    private javax.swing.JComboBox patternBuilderMetric;
+    private nii.alloe.gui.ProcessMonitor patternGeneratorProgressMonitor;
+    private javax.swing.JComboBox patternGeneratorRelationship;
+    private javax.swing.JTable patternTable;
+    private javax.swing.JComboBox patternViewerRelationship;
+    private javax.swing.JLabel patternViewerRelationshipLabel;
     private javax.swing.JButton saveIndexedCorpus;
+    private javax.swing.JButton savePatternSet;
     private javax.swing.JButton setIndexButton;
+    private javax.swing.JLabel termPairSetLabel;
     private javax.swing.JLabel termSetLabel;
     private javax.swing.JLabel textFileLabel;
+    private javax.swing.JLabel totalPatternsLabel;
     // End of variables declaration//GEN-END:variables
-
+    
     /**
      * Holds value of property corpusDisplayTableModel.
      */
     private CorpusTableModel corpusDisplayTableModel;
-
+    
     /**
      * Getter for property corpusDisplayTableModel.
      * @return Value of property corpusDisplayTableModel.
@@ -430,10 +677,10 @@ public class AlloeMain extends javax.swing.JFrame {
     public CorpusTableModel getCorpusDisplayTableModel() {
         if(corpusDisplayTableModel != null)
             return this.corpusDisplayTableModel;
-        else 
+        else
             return corpusDisplayTableModel = new CorpusTableModel();
     }
-
+    
     /**
      * Setter for property corpusDisplayTableModel.
      * @param corpusDisplayTableModel New value of property corpusDisplayTableModel.

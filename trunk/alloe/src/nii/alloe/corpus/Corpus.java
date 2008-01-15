@@ -43,13 +43,13 @@ public class Corpus implements Serializable {
         if(indexWriter == null)
             throw new IllegalStateException("Attempting to add document to closed index");
         Document d = new Document();
-        d.add(new Field("contents", contents, Field.Store.YES, Field.Index.TOKENIZED));
+        d.add(new Field("contents", contents.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
         Iterator<String> termIter = terms.iterator();
         while(termIter.hasNext()) {
             String term = termIter.next();
             
-            if(contents.contains(term)) {
-                d.add(new Field("term",term, Field.Store.YES, Field.Index.TOKENIZED));
+            if(contents.contains(term.toLowerCase())) {
+                d.add(new Field("term",term.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
             }
         }
         indexWriter.addDocument(d);
@@ -69,7 +69,7 @@ public class Corpus implements Serializable {
     public int getHitsForTerm(String term) {
          try {
             QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term + "\"");
+            Query q = qp.parse("\"" + term.toLowerCase() + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length();
         } catch(Exception x) {
@@ -82,7 +82,7 @@ public class Corpus implements Serializable {
     public Iterator<String> getContextsForTerms(String term1, String term2) {
         try {
             QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term1 + "\" AND \"" +  term2 + "\"");
+            Query q = qp.parse("\"" + term1.toLowerCase() + "\" AND \"" +  term2.toLowerCase() + "\"");
             Hits hits = indexSearcher.search(q);
             return new HitsIterator(hits);
         } catch(Exception x) {
@@ -108,8 +108,8 @@ public class Corpus implements Serializable {
     /** Get all the contexts matching pattern with term1 and term inserted */
     public Iterator<String> getContextsForTermInPattern(nii.alloe.corpus.pattern.Pattern p, String term1, String term2) {
         try {
-            String[] queries = { p.getQueryWithTerms(term1, term2),
-            "\"" + term1 + "\" AND \"" +  term2 + "\"" };
+            String[] queries = { p.getQueryWithTerms(term1, term2).toLowerCase(),
+            "\"" + term1.toLowerCase() + "\" AND \"" +  term2.toLowerCase() + "\"" };
             String[] fields = { "contents", "terms" };
             MultiFieldQueryParser qp = new MultiFieldQueryParser(fields, new StandardAnalyzer());
             Query q = MultiFieldQueryParser.parse(queries, fields, new StandardAnalyzer());
@@ -126,7 +126,7 @@ public class Corpus implements Serializable {
     public boolean isTermInCorpus(String term1) {
         try {
             QueryParser  qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term1 + "\"");
+            Query q = qp.parse("\"" + term1.toLowerCase() + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length() != 0;
         } catch(Exception x) {
@@ -139,7 +139,7 @@ public class Corpus implements Serializable {
     public boolean areTermsInCorpus(String term1, String term2) {
         try {
             QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term1 + "\" AND \"" +  term2 + "\"");
+            Query q = qp.parse("\"" + term1.toLowerCase() + "\" AND \"" +  term2.toLowerCase() + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length() != 0;
         } catch(Exception x) {

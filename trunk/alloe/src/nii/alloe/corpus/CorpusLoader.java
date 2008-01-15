@@ -94,7 +94,6 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     
     private void readObject(ObjectInputStream ois)  throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-         linesRead = 0;
         listeners = new LinkedList<AlloeProgressListener>();
     }
     

@@ -20,6 +20,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     private static final int STATE_NOTSTARTED = 0;
     private static final int STATE_RUNNING = 1;
     private static final int STATE_COMPLETED = 2;
+    private static final int STATE_PAUSED = 3;
     
     /** Creates new form ProcessMonitor */
     public ProcessMonitor() {
@@ -97,6 +98,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
             while(listIter.hasNext())
                 getProcess().addProgressListener(listIter.next());
             getProcess().resume();
+            setState(STATE_RUNNING);
         } catch(IOException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not resume", JOptionPane.ERROR_MESSAGE);
         } catch(ClassNotFoundException x) {
@@ -105,14 +107,18 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     }//GEN-LAST:event_resumeButtonActionPerformed
         
     private void startPauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPauseButtonActionPerformed
-        if(state == STATE_NOTSTARTED) {
+        if(state == STATE_NOTSTARTED || state == STATE_COMPLETED) {
             process.addProgressListener(this);
             process.start();
             startPauseButton.setText("Pause");
+            setState(STATE_RUNNING);
         } else if(state == STATE_RUNNING) {
             try {
-                if(fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+                setState(STATE_PAUSED);
+                if(fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+                    setState(STATE_RUNNING);
                     return;
+                }
                 process.pause();
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(process);
@@ -123,6 +129,10 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
             } catch(CannotPauseException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not pause process", JOptionPane.ERROR_MESSAGE);
             }
+        } else if(state == STATE_PAUSED) {
+            // TODO: Add synchronization in case the process has not yet paused
+            process.resume();
+            setState(STATE_RUNNING);
         }
     }//GEN-LAST:event_startPauseButtonActionPerformed
     
@@ -213,10 +223,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     public void finished() {
         progressBar.setValue(100);
         progressBar.setString(getProcessCompletedText());
-        startPauseButton.setEnabled(false);
-        startPauseButton.setText("Start");
-        resumeButton.setEnabled(false);
-        
+        setState(STATE_COMPLETED);        
     }
     public void progressChange(double newProgress) {
         progressBar.setString(progressText = process.getStateMessage() + (int)(newProgress * 100) + "%");
@@ -228,5 +235,26 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     /** The point of this class is to register listeners to be readded on a resume action */
     public void addExtraListener(AlloeProgressListener apl) {
         listeners.add(apl);
+    }
+    
+    private void setState(int state) {
+        this.state = state;
+        if(state == STATE_NOTSTARTED) {
+            startPauseButton.setText("Start");
+            startPauseButton.setEnabled(process != null);
+            resumeButton.setEnabled(true);
+        } else if(state == STATE_RUNNING) {
+            startPauseButton.setText("Pause");
+            startPauseButton.setEnabled(true);
+            resumeButton.setEnabled(false);
+        } else if(state == STATE_COMPLETED) {
+            startPauseButton.setText("Clear");
+            startPauseButton.setEnabled(true);
+            resumeButton.setEnabled(true);
+        } else if(state == STATE_PAUSED) {
+            startPauseButton.setText("Unpause");
+            startPauseButton.setEnabled(true);
+            resumeButton.setEnabled(true);
+        }
     }
 }
