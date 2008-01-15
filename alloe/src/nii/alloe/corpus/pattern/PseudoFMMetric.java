@@ -55,4 +55,7 @@ public class PseudoFMMetric implements PatternMetric {
             }
         }
     }
+    
+    
+    public String getName() { return PatternMetricFactory.PSEUDO_FM; }
 }
