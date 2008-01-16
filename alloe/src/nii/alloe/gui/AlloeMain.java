@@ -27,8 +27,10 @@ public class AlloeMain extends javax.swing.JFrame {
     private CorpusLoader corpusLoader;
     private JFileChooser fileChooser;
     private CorpusLoaderProgressListener clProgListener;
+    private PatternGeneratorListener pbListener;
     private HashMap<String, String> termSetFileName;
     private HashMap<String, PatternBuilder> patternBuilderProcess;
+    private HashMap<String, PatternSet> patternSets;
     
     private AlloeMain thisForAnon;
     
@@ -41,6 +43,7 @@ public class AlloeMain extends javax.swing.JFrame {
         corpusDisplayTableModel = new CorpusTableModel();
         termSetFileName = new HashMap<String,String>();
         patternBuilderProcess = new HashMap<String,PatternBuilder>();
+        patternSets = new HashMap<String,PatternSet>();
     }
     
     /** This method is called from within the constructor to
@@ -129,8 +132,8 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                    .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(termSetLabel)
                             .addComponent(textFileLabel)
@@ -272,6 +275,9 @@ public class AlloeMain extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(patternGeneratorRelationship, 0, 360, Short.MAX_VALUE))
@@ -282,8 +288,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternBuilderMetric, 0, 397, Short.MAX_VALUE))
-                    .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(patternBuilderMetric, 0, 397, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -301,7 +306,8 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(patternBuilderMetric, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Pattern Sets"));
@@ -311,9 +317,19 @@ public class AlloeMain extends javax.swing.JFrame {
         patternViewerRelationship.setEnabled(false);
 
         openPatternSet.setText("Open Pattern Set");
+        openPatternSet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openPatternSetActionPerformed(evt);
+            }
+        });
 
         savePatternSet.setText("Save Pattern Set");
         savePatternSet.setEnabled(false);
+        savePatternSet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savePatternSetActionPerformed(evt);
+            }
+        });
 
         totalPatternsLabel.setText("Total Patterns:");
 
@@ -367,7 +383,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(savePatternSet)
                     .addComponent(totalPatternsLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -424,6 +440,88 @@ public class AlloeMain extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    private void onPatternSetLoad(String relationship) {
+        DefaultComboBoxModel dcbm = (DefaultComboBoxModel)patternViewerRelationship.getModel();
+        if(dcbm.getIndexOf(relationship) == -1) {
+            patternViewerRelationship.addItem(relationship);
+        }
+        patternViewerRelationship.setSelectedItem(relationship);
+        patternViewerRelationship.setEnabled(true);
+        patternViewerRelationshipLabel.setEnabled(true);
+        PatternSet ps = patternSets.get(relationship);
+        
+        totalPatternsLabel.setText("Total Patterns: " + ps.size());
+        
+        DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
+        Object[][] o = new Object[ps.size()][2];
+        Iterator<Map.Entry<Pattern,Double>> iter = ps.entrySet().iterator();
+        int i = 0;
+        while(iter.hasNext()) {
+            Map.Entry<Pattern,Double> e = iter.next();
+            o[i][0] = e.getKey().toString();
+            o[i++][1] = e.getValue();
+        }
+        String [] s = { "Pattern", "Score" };
+        dtm.setDataVector(o,s);
+    }
+    
+    private class PatternGeneratorListener implements PatternBuilderListener {
+        String relationship;
+        
+        public PatternGeneratorListener(String rel) { relationship = rel; }
+        /** Called whenever progress is made
+         * @param newProgress The new progress percentage (as double between 0 and 1) */
+        public void progressChange(double newProgress) {}
+        
+        /** Called when the process finishes */
+        public void finished() { 
+            patternSets.put(relationship, patternBuilderProcess.get(relationship).patternScores);
+            onPatternSetLoad(relationship); }
+        
+        public void patternGenerated(Pattern p, double score) {
+            if(patternViewerRelationship.getSelectedItem().toString().equals(relationship)) {
+                DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
+                Object[] row = new Object[2];
+                row[0] = p.toString();
+                row[1] = new Double(score);
+                dtm.addRow(row);
+                totalPatternsLabel.setText("Total Patterns: " + patternBuilderProcess.get(relationship).patternScores.size());
+            }
+        }
+    }
+    
+    private void savePatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePatternSetActionPerformed
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+                oos.writeObject(patternSets.get(patternViewerRelationship.getSelectedItem().toString()));
+                oos.close();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save pattern set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_savePatternSetActionPerformed
+    
+    private void openPatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openPatternSetActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                Object o = ois.readObject();
+                if(!(o instanceof PatternSet)) {
+                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                PatternSet ps = (PatternSet)o;
+                patternSets.put(ps.getRelationship(),ps);
+                onPatternSetLoad(ps.getRelationship());
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_openPatternSetActionPerformed
+    
     private void patternBuilderMetricActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternBuilderMetricActionPerformed
         PatternBuilder pb = patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString());
         if(pb != null && !pb.isRunning()) {
@@ -440,8 +538,10 @@ public class AlloeMain extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                patternBuilderProcess.put(name, new PatternBuilder(corpus, (TermPairSet)o,
-                        (String)patternBuilderMetric.getSelectedItem()));
+                PatternBuilder pb =  new PatternBuilder(corpus, (TermPairSet)o,
+                        (String)patternBuilderMetric.getSelectedItem());
+                patternBuilderProcess.put(name,pb);
+                patternGeneratorProgressMonitor.setProcess(pb);
             } catch(IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
             } catch(ClassNotFoundException x) {
@@ -515,12 +615,12 @@ public class AlloeMain extends javax.swing.JFrame {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(corpusTermSetFile));
             Object o = ois.readObject();
-            if(!(o instanceof Vector)) {
+            if(!(o instanceof TermList)) {
                 JOptionPane.showMessageDialog(this, "Invalid File Format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            corpusLoader = new CorpusLoader((Vector<String>)o, corpusTextFile, corpusIndexFile);
+            corpusLoader = new CorpusLoader((TermList)o, corpusTextFile, corpusIndexFile);
             indexerProgressMonitor.setProcess(corpusLoader);
             if(clProgListener == null)
                 clProgListener = new CorpusLoaderProgressListener();

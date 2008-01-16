@@ -92,11 +92,11 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="indexerProgressMonitor" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Group type="102" alignment="1" attributes="0">
+                              <Component id="indexerProgressMonitor" alignment="0" pref="463" max="32767" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="termSetLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="textFileLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -330,9 +330,13 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="12" pref="12" max="12" attributes="0"/>
+                                  <Component id="patternGeneratorProgressMonitor" min="-2" max="-2" attributes="0"/>
+                              </Group>
                               <Group type="102" attributes="0">
                                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -348,7 +352,6 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="patternBuilderMetric" pref="397" max="32767" attributes="0"/>
                               </Group>
-                              <Component id="patternGeneratorProgressMonitor" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -373,6 +376,7 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="patternGeneratorProgressMonitor" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -477,7 +481,7 @@
                               <Component id="totalPatternsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" pref="257" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="245" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -502,12 +506,18 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Open Pattern Set"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openPatternSetActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="savePatternSet">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Save Pattern Set"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="savePatternSetActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="totalPatternsLabel">
                   <Properties>

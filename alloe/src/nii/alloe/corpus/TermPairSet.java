@@ -1,6 +1,7 @@
 package nii.alloe.corpus;
 import java.io.*;
 import java.util.*;
+import nii.alloe.niceties.*;
 
 /**
  * A set of term pairs. Implemented via a tree set on the string "term1 => term2"
@@ -56,6 +57,45 @@ public class TermPairSet implements Serializable {
     }
     
     /**
+     * Similar to {@link #forEachPair(EachTermPairAction)} but allows the action to be stopped
+     * and resumed at will
+     * @param etpa The action to be performed in the doAction method of etpa
+     * @param from null to start a new search otherwise, use this value to restart the search
+     * @param signal A variable that can be polled to check if this process should be paused
+     * @return the next value to be passed to from to resume, null is action complete
+     */
+    public String forEachPair(EachTermPairAction etpa, String from, PauseSignal signal) {
+        Iterator<String> i;
+        if(from != null) {
+            i = termPairs.tailSet(from).iterator();
+        } else {
+            i = termPairs.iterator();
+        }
+        while(i.hasNext() && !signal.shouldPause()) {
+            String s = i.next();
+            String []ss = s.split(glue);
+            etpa.doAction(ss[0],ss[1]);
+        }
+        return i.hasNext() ? i.next() : null;
+    }
+    
+    /**
+     * Get the progress of a forEachPair action
+     * @return the ratio of term pairs done over all term pairs */
+    public double getForEachPairProgress(String term1, String term2) {
+        return getForEachPairProgress(term1 + glue + term2);
+    }
+    
+    /**
+     * Get the progress of a forEachPair action
+     * @param v Internal representation of a term pair, for example return value of 
+     * {@link #forEachPair(EachTermPairAction,String,PauseSignal}
+     * @return the ratio of term pairs done over all term pairs */
+     public double getForEachPairProgress(String v) {
+        return (double)termPairs.headSet(v).size() / (double)termPairs.size();
+     }
+     
+    /**
      * Apply an action to each term pair whose left hand side is term1. If you have a choice
      * this function is faster than forEachLHS.
      * @param etpa The action to be performed in the doAction method of etpa, the term1
@@ -69,6 +109,8 @@ public class TermPairSet implements Serializable {
             etpa.doAction(term1,ss[1]);
         }
     }
+    
+    // TODO: Resumable/Progress monitors for forEachRHS&LHS
     
     /**
      * Apply an action to each term pair whose right hand side is term2. For speed forEachRHS 

@@ -36,7 +36,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     
     private PriorityQueue<Pattern> patternQueue;
     /** Same as return value of buildPatterns */
-    public Map<Pattern, Double> patternScores;
+    public PatternSet patternScores;
     private LinkedList<Pattern> usedPatterns;
     /** Maximum number of iterations */
     public int maxIterations;
@@ -44,12 +44,13 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     private TermPairSet termPairSet;
     private int iterations;
     private String patternMetricName;
+    private String basePatternResume;
     private transient PatternMetric pm;
     private transient int state;
     private transient Thread theThread;
     private static final int STATE_OK = 0;
     private static final int STATE_STOPPING = 1;
-    private static final int STATE_UNPAUSABLE = 2;
+    private static final int STATE_BASE = 2;
     
     /** Creates a new instance of PatternBuilder
      * @param corpus The corpus
@@ -64,22 +65,22 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         maxIterations = Integer.MAX_VALUE;
         state = STATE_OK;
         iterations = 0;
+        basePatternResume = null;
     }
     
     /** Build patterns
      * @return A map whose keys are the patterns and values there score as evaluated by the
      * PatternMetric passed to the constructor */
-    public Map<Pattern,Double> buildPatterns() {
+    public PatternSet buildPatterns() {
         run();
         return patternScores;
     }
     
     public void run() {
         
-        state = STATE_UNPAUSABLE;
-        if(patternQueue == null)
+        state = STATE_BASE;
+        if(patternQueue == null || basePatternResume != null)
             buildBasePatterns();
-        fireNewProgressChange(0);
         state = STATE_OK;
         
         if(usedPatterns == null)
@@ -103,7 +104,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             iterations++;
             if(maxIterations == Integer.MAX_VALUE)
                 fireNewProgressChange((double)iterations / (double)(iterations + patternQueue.size()));
-            else 
+            else
                 fireNewProgressChange((double)iterations / (double)maxIterations);
         }
         if(state == STATE_OK)
@@ -121,9 +122,13 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
                 if(object == this) return true; return false;
             }
         });
-        patternScores = new TreeMap<Pattern,Double>();
+        patternScores = new PatternSet();
         
-        termPairSet.forEachPair(new BaseBuilder());
+        termPairSet.forEachPair(new BaseBuilder(), basePatternResume, new PauseSignal() {
+            public boolean shouldPause() {
+                return state == STATE_STOPPING;
+            }
+        });
     }
     
     
@@ -139,22 +144,26 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             
             for(int i = 0; i < patternSplit1.length; i++) {
                 if(patternSplit1[i].equals(patternSplit2[i])) {
-                    pat.concat(patternSplit1[i]);
+                    pat = pat.concat(patternSplit1[i]);
                 } else if(patternSplit1[i].equals("*") ||
-                        patternSplit1[i].matches("\\w+")) {
-                    pat.concat("*");
+                        patternSplit1[i].matches(Pattern.word + "+")) {
+                    pat = pat.concat("*");
                 } else {
-                    pat.concat(" ");
+                    pat = pat.concat(" ");
                 }
             }
             rpattern.setVal(pat);
-            return rpattern;
+            return rpattern.isTrivial() ? null : rpattern;
         }
     }
     
     private void addPattern(Pattern p) {
+        if(patternScores.get(p) != null)
+            return;
         patternScores.put(p,pm.scorePattern(p));
         patternQueue.add(p);
+        //System.out.println(p.toString() + " {" + patternScores.get(p) + "}");
+        firePatternGenerated(p,patternScores.get(p));
     }
     
     private class BaseBuilder implements EachTermPairAction {
@@ -162,17 +171,49 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             Iterator<String> learnData = corpus.getContextsForTerms(term1,term2);
             while(learnData.hasNext()) {
                 String s1 = learnData.next();
-                String s2 = s1.replaceAll(term1, "1");
-                s2 = s2.replaceAll(term2, "2");
-                addPattern(new Pattern(s2));
-                s2 = s1.replaceAll(term1, "2");
-                s2 = s2.replaceAll(term2, "1");
-                addPattern(new Pattern(s2));
+                s1 = Pattern.makeSafe(s1);
+                String[] splitsByTerm1 = s1.split(term1);
+                String s2;
+                for(int i = 1; i < splitsByTerm1.length; i++) {
+                    s2 = "";
+                    for(int j = 0; j < i; j++) {
+                        s2 = s2 + splitsByTerm1[j];
+                        if(j + 1 < i) {
+                            s2 = s2 + term1;
+                        }
+                    }
+                    s2 = s2 + "1";
+                    for(int j = i; j < splitsByTerm1.length; j++) {
+                        s2 = s2 + splitsByTerm1[j];
+                        if(j + 1 < splitsByTerm1.length) {
+                            s2 = s2 + term1;
+                        }
+                    }
+                    String[] splitsByTerm2 = s2.split(term2);
+                    for(int k = 1; k < splitsByTerm2.length; k++) {
+                        s2 = "";
+                        for(int j = 0; j < k; j++) {
+                            s2 = s2 + splitsByTerm2[j];
+                            if(j + 1 < k) {
+                                s2 = s2 + term2;
+                            }
+                        }
+                        s2 = s2 + "2";
+                        for(int j = k; j < splitsByTerm2.length; j++) {
+                            s2 = s2 + splitsByTerm2[j];
+                            if(j + 1 < splitsByTerm2.length) {
+                                s2 = s2 + term2;
+                            }
+                        }
+                        addPattern(new Pattern(s2));
+                    }
+                }
             }
-            
+            fireNewProgressChange(termPairSet.getForEachPairProgress(term1,term2));
         }
     }
     
+   
     private transient LinkedList<AlloeProgressListener> listeners;
     
     // AlloeProcess functions
@@ -183,7 +224,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         listeners.add(apl);
     }
     
- 
+    
     private void fireNewProgressChange(double newProgress) {
         Iterator<AlloeProgressListener> apliter = listeners.iterator();
         while(apliter.hasNext()) {
@@ -197,6 +238,17 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             apliter.next().finished();
         }
     }
+    
+    private void firePatternGenerated(Pattern p, double score) {
+        Iterator<AlloeProgressListener> apliter = listeners.iterator();
+        while(apliter.hasNext()) {
+            AlloeProgressListener apl = apliter.next();
+            if(apl instanceof PatternBuilderListener) {
+                ((PatternBuilderListener)apl).patternGenerated(p,score);
+            }
+        }
+    }
+    
     
     /** Start process. It is expected that this function should start the progress
      * in a new thread */
@@ -213,9 +265,6 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
      * @throws CannotPauseException If the process is not in a state where it can be resumed
      */
     public void pause() throws CannotPauseException {
-        if(state == STATE_UNPAUSABLE) {
-            throw new CannotPauseException("Building Base Patterns, please wait");
-        }
         state = STATE_STOPPING;
         try {
             theThread.join();
@@ -235,7 +284,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     }
     
     public String getStateMessage() {
-        if(state == STATE_UNPAUSABLE)
+        if(state == STATE_BASE)
             return "Building Base Patterns: ";
         else
             return "Generating Patterns: ";
@@ -247,7 +296,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         pm = PatternMetricFactory.getPatternMetric(patternMetricName, corpus, termPairSet);
     }
     
-    /** Set the pattern metric 
+    /** Set the pattern metric
      * @throws PatternMetricUnknown If the pattern metric is not recognissed but PatternMetricFactory
      * @see PatternMetricFactory
      */

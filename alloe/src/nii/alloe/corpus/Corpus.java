@@ -18,12 +18,12 @@ public class Corpus implements Serializable {
     
     private transient IndexWriter indexWriter;
     private transient IndexSearcher indexSearcher;
-    public Vector<String> terms;
+    public TermList terms;
     private transient Directory directory;
     private String indexFile;
     
     /** Creates a new instance of Corpus */
-    public Corpus(Vector<String> terms, String indexFile) {
+    public Corpus(TermList terms, String indexFile) {
         this.terms = terms;
         this.indexFile = indexFile;
     }
@@ -48,7 +48,7 @@ public class Corpus implements Serializable {
         while(termIter.hasNext()) {
             String term = termIter.next();
             
-            if(contents.contains(term.toLowerCase())) {
+            if(contents.matches(".*\\b" + term.toLowerCase() + "\\b.*")) {
                 d.add(new Field("term",term.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
             }
         }
@@ -69,7 +69,7 @@ public class Corpus implements Serializable {
     public int getHitsForTerm(String term) {
          try {
             QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term.toLowerCase() + "\"");
+            Query q = qp.parse("\"" + cleanQuery(term) + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length();
         } catch(Exception x) {
@@ -82,7 +82,7 @@ public class Corpus implements Serializable {
     public Iterator<String> getContextsForTerms(String term1, String term2) {
         try {
             QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term1.toLowerCase() + "\" AND \"" +  term2.toLowerCase() + "\"");
+            Query q = qp.parse("\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"");
             Hits hits = indexSearcher.search(q);
             return new HitsIterator(hits);
         } catch(Exception x) {
@@ -96,7 +96,7 @@ public class Corpus implements Serializable {
     public Iterator<String> getContextsForPattern(nii.alloe.corpus.pattern.Pattern p) {
         try {
             QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
-            Query q = qp.parse(p.getQuery());
+            Query q = qp.parse(cleanQuery2(p.getQuery()));
             Hits hits = indexSearcher.search(q);
             return new HitsIterator(hits);
         } catch(Exception x) {
@@ -108,8 +108,8 @@ public class Corpus implements Serializable {
     /** Get all the contexts matching pattern with term1 and term inserted */
     public Iterator<String> getContextsForTermInPattern(nii.alloe.corpus.pattern.Pattern p, String term1, String term2) {
         try {
-            String[] queries = { p.getQueryWithTerms(term1, term2).toLowerCase(),
-            "\"" + term1.toLowerCase() + "\" AND \"" +  term2.toLowerCase() + "\"" };
+            String[] queries = { cleanQuery2(p.getQueryWithTerms(term1, term2)),
+            "\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"" };
             String[] fields = { "contents", "terms" };
             MultiFieldQueryParser qp = new MultiFieldQueryParser(fields, new StandardAnalyzer());
             Query q = MultiFieldQueryParser.parse(queries, fields, new StandardAnalyzer());
@@ -126,7 +126,7 @@ public class Corpus implements Serializable {
     public boolean isTermInCorpus(String term1) {
         try {
             QueryParser  qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term1.toLowerCase() + "\"");
+            Query q = qp.parse("\"" + cleanQuery(term1) + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length() != 0;
         } catch(Exception x) {
@@ -139,13 +139,28 @@ public class Corpus implements Serializable {
     public boolean areTermsInCorpus(String term1, String term2) {
         try {
             QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + term1.toLowerCase() + "\" AND \"" +  term2.toLowerCase() + "\"");
+            Query q = qp.parse("\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length() != 0;
         } catch(Exception x) {
             x.printStackTrace();
             return false;
         }
+    }
+    
+    private String cleanQuery(String s) {
+        s = s.toLowerCase();
+        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\]|\\|\\||\\&\\&)", "\\\\$1");
+        return s;
+    }
+    
+    private String cleanQuery2(String s) {
+        s = s.toLowerCase();
+        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\]|\\|\\||\\&\\&)", "\\\\$1");
+        s = s.replaceAll("^\\s*","");
+        s = s.replaceAll("\\s*$", "");
+        s = s.replaceAll("\\s+", " AND ");
+        return s;
     }
     
     /** @return number of documents in the corpus */
