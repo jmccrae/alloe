@@ -19,10 +19,16 @@ import java.util.regex.*;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class Pattern implements java.io.Serializable {
+public class Pattern implements java.io.Serializable, Comparable<Pattern> {
     
     /** The string representation of the pattern */
     private String val;
+    
+    public static final String word = "[\\w\\*\uff11\uff12]";
+    public static final String wordDBS = "[\\\\w\\\\*\uff11\uff12]";
+    public static final String nonWord = "[^\\w\\*\uff11\uff12]";
+    public static final String nonWordDBS = "[^\\\\w\\\\*\uff11\uff12]";
+    
     
     /** Creates a new instance of Pattern */
     public Pattern() {
@@ -117,29 +123,34 @@ public class Pattern implements java.io.Serializable {
         val = val.replaceAll("[\\* ]*$","");
     }
     
+    /** True if there is no non basic parts to the pattern */
+    public boolean isTrivial() {
+        return val.matches("[12\\* ]*");
+    }
+    
     /** @return true if this pattern matches str, with the capturers replaced by term1 and term2
      * @param term1 the left hand side of the relation
      * @param term2 the right hand side of the relation */
     public boolean matches(String str, String term1, String term2) {
         String regex = val.replaceAll("([\\.\\[\\]\\^\\$\\(\\)\\\\\\+\\{\\}])", "\\$1");
-        regex = regex.replaceAll("\\*","(\\\\w+)");
-        regex = regex.replaceAll("\\s","(\\\\W+)");
+        regex = regex.replaceAll("\\*","(" + wordDBS + "+)");
+        regex = regex.replaceAll("\\s","(" + nonWordDBS + "+)");
         regex = regex.replaceAll("1",term1);
         regex = regex.replaceAll("2",term2);
         
-        return str.matches(regex);
+        return str.matches(deSafe(regex));
     }
     
     /** Match this pattern to str
      * @return A two element array where the first element is the left hand side and the second
      * element is the right hand side */
     public String[] getTermMatch(String str) {
-        String regex = val.replaceAll("([\\.\\[\\]\\^\\$\\(\\)\\\\\\+\\{\\}])", "\\$1");
-        regex = regex.replaceAll("\\*","\\\\w+");
-        regex = regex.replaceAll("\\s","\\\\W+");
-        regex = regex.replaceAll("1","(\\\\w+)");
-        regex = regex.replaceAll("2","(\\\\w+)");
-        Matcher m = java.util.regex.Pattern.compile(regex).matcher(str);
+        String regex = val.replaceAll("([\\.\\[\\]\\^\\$\\(\\)\\\\\\+\\{\\}])", "\\\\$1");
+        regex = regex.replaceAll("\\*",wordDBS + "+");
+        regex = regex.replaceAll("\\s",nonWordDBS + "+");
+        regex = regex.replaceAll("1","(" + wordDBS + "+)");
+        regex = regex.replaceAll("2","(" + wordDBS + "+)");
+        Matcher m = java.util.regex.Pattern.compile(deSafe(regex)).matcher(str);
         if(m.matches()) {
             String[] rval = new String[2];
             rval[0] = m.group(1);
@@ -154,7 +165,7 @@ public class Pattern implements java.io.Serializable {
         String rval = val.replaceAll("\\*"," ");
         rval = rval.replace("1"," ");
         rval = rval.replace("2"," ");
-        return rval;
+        return deSafe(rval);
     }
     
     /** @return The pattern with all wildcards stripped out and capturers replaced as usual */
@@ -162,7 +173,7 @@ public class Pattern implements java.io.Serializable {
         String rval = val.replaceAll("\\*", "");
         rval = rval.replaceAll("1", term1);
         rval = rval.replaceAll("2", term2);
-        return rval;
+        return deSafe(rval);
     }
     
     /** Get the pattern's string representation */
@@ -173,7 +184,7 @@ public class Pattern implements java.io.Serializable {
      */
     public void setVal(String s) {
         if(!checkPattern(s))
-            throw new IllegalArgumentException("Attempting to set pattern to invalid value");
+            throw new IllegalArgumentException("Attempting to set pattern to invalid value: " + s);
         val = s;
     }
     
@@ -182,9 +193,30 @@ public class Pattern implements java.io.Serializable {
                 s.indexOf("2") != s.lastIndexOf("2") ||
                 s.indexOf("1") == -1 ||
                 s.indexOf("2") == -1 ||
-                s.matches(".*\\w\\*.*") ||
-                s.matches(".*\\*\\w.*"))
+                s.matches(".*" + word + "\\*.*") ||
+                s.matches(".*\\*" + word + ".*"))
             return false;
         return true;
+    }
+    
+    public int compareTo(Pattern p) {
+        return val.compareTo(p.val);
+    }
+    
+    public String toString() { return deSafe(val); }
+    
+    /** Convert a string to a safe version. This replaces literal versions of normal characters with full width versions */
+    public static String makeSafe(String str) {
+        str = str.replaceAll("1", "\uff11");
+        str = str.replaceAll("2", "\uff12");
+        str = str.replaceAll("\\*", "\uff0a");
+        return str;
+    }
+    
+    private static String deSafe(String str) {
+        str = str.replaceAll("\uff11", "1");
+        str = str.replaceAll("\uff12", "2");
+        str = str.replaceAll("\uff0a", "*");
+        return str;
     }
 }

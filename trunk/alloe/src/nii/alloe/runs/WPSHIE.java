@@ -1,7 +1,5 @@
 package nii.alloe.runs;
-import nii.alloe.corpus.Corpus;
-import nii.alloe.corpus.EachTermPairAction;
-import nii.alloe.corpus.TermPairSet;
+import nii.alloe.corpus.*;
 import java.io.*;
 import java.util.*;
 
@@ -29,7 +27,7 @@ public class WPSHIE {
         
         try {
             ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/terms"));
-            Vector<String> termsVec = new Vector<String>(terms);
+            TermList termsVec = new TermList(terms);
             oos2.writeObject(termsVec);
             oos2.close();
             
@@ -137,7 +135,7 @@ public class WPSHIE {
     }
     
     void loadCorpus() {
-        corpus = new Corpus(new Vector<String>(terms), "/e/wp/wp/corpus.idx");
+        corpus = new Corpus(new TermList(terms), "/e/wp/wp/corpus.idx");
         try {
             corpus.openIndex(true);
             BufferedReader in = new BufferedReader(new FileReader("/e/wp/wp/corpus.txt"),256);

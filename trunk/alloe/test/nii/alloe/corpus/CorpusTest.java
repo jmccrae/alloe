@@ -32,7 +32,7 @@ public class CorpusTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        Vector<String> terms = new Vector<String>();
+        TermList = new TermList();
         terms.add("alice");
         terms.add("bob");
         terms.add("joe bob");

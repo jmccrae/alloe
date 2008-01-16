@@ -12,7 +12,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     /** The Corpus, when it is loaded */
     public Corpus corpus;
     /** The set of terms */
-    public Vector<String> terms;
+    public TermList terms;
     /** Filename where the terms start */
     public String fileName;
     
@@ -29,7 +29,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     private static final int STATE_STOPPING = 1;
     
     /** Creates a new instance of CorpusLoader */
-    public CorpusLoader(Vector<String> terms, String fileName, String indexFile) {
+    public CorpusLoader(TermList terms, String fileName, String indexFile) {
         this.terms = terms;
         this.fileName = fileName;
         this.indexFile = indexFile;
@@ -46,7 +46,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     /** Start process. It is expected that this function should start the progress
      * in a new thread */
     public void start() {
-        corpus = new Corpus(new Vector<String>(terms),indexFile);
+        corpus = new Corpus(terms,indexFile);
         try {
             corpus.openIndex(true);
             fileSize = (new File(fileName)).length();

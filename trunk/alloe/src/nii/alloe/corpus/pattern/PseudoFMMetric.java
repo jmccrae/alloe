@@ -21,7 +21,7 @@ public class PseudoFMMetric implements PatternMetric {
         this.corpus = corpus;
         this.termPairs = termPairs;
     }
-
+    
     public double scorePattern(Pattern pattern) {
         SPSearch sps = new SPSearch(pattern);
         termPairs.forEachPair(sps);
@@ -37,9 +37,14 @@ public class PseudoFMMetric implements PatternMetric {
             N++;
         }
         
-        double pseudoRecall = sps.spCount / termPairs.size();
-        double pseudoPrecision = n / N;
-        return 2 * pseudoRecall * pseudoPrecision / (pseudoPrecision + pseudoRecall);
+        assert N != 0;
+        
+        double pseudoRecall = (double)sps.spCount / (double)termPairs.size();
+        double pseudoPrecision = (double)n / (double)N;
+        if(pseudoRecall == 0 && pseudoPrecision == 0)
+            return 0;
+        else
+            return 2 * pseudoRecall * pseudoPrecision / (pseudoPrecision + pseudoRecall);
     }
     
     private class SPSearch implements EachTermPairAction {
