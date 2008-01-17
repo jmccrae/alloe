@@ -391,7 +391,6 @@
                 <Component class="javax.swing.JButton" name="openTermPairSet">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Open Term Pair Set"/>
-                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openTermPairSetActionPerformed"/>
@@ -416,6 +415,13 @@
                   </Properties>
                 </Component>
                 <Component class="nii.alloe.gui.ProcessMonitor" name="patternGeneratorProgressMonitor">
+                  <Properties>
+                    <Property name="processCompletedText" type="java.lang.String" value="Pattern Set Generated"/>
+                    <Property name="processNotStartedText" type="java.lang.String" value="Ready"/>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="if(pbListener == null)&#xa;    pbListener = new PatternGeneratorListener();&#xa;patternGeneratorProgressMonitor.addExtraListener(pbListener);"/>
+                  </AuxValues>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="patternBuilderMetric">
                   <Properties>
@@ -501,6 +507,9 @@
                     </Property>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="patternViewerRelationshipActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="openPatternSet">
                   <Properties>

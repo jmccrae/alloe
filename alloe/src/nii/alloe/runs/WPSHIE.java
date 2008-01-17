@@ -39,13 +39,13 @@ public class WPSHIE {
             oos2.writeObject(hyps);
             oos2.close();
             
-            loadCorpus();
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/e/wp/wp/corpus"));
-            oos.writeObject(corpus);
-            oos.writeObject(hyps);
-            oos.writeObject(syns);
-            oos.close();
-            
+//            loadCorpus();
+//            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/e/wp/wp/corpus"));
+//            oos.writeObject(corpus);
+//            oos.writeObject(hyps);
+//            oos.writeObject(syns);
+//            oos.close();
+//            
         } catch(Exception x) {
             x.printStackTrace();
             System.exit(-1);

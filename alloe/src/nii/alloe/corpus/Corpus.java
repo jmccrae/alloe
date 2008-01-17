@@ -156,7 +156,7 @@ public class Corpus implements Serializable {
     
     private String cleanQuery2(String s) {
         s = s.toLowerCase();
-        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\]|\\|\\||\\&\\&)", "\\\\$1");
+        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\\\*]|\\|\\||\\&\\&)", "\\\\$1");
         s = s.replaceAll("^\\s*","");
         s = s.replaceAll("\\s*$", "");
         s = s.replaceAll("\\s+", " AND ");
@@ -260,8 +260,13 @@ public class Corpus implements Serializable {
         return rval;
     }
     
+    /** The maximum number of non-word characters to count as a single window */
+    private static final String nonWordMax = nii.alloe.corpus.pattern.Pattern.nonWord + "{10,}";
+    
     private int findNWordsBeforeAfter(boolean before, String doc, int idx, int window) {
         String regex;
+       
+        
         if(before)
             regex = ".*?(";
         else // after
@@ -278,12 +283,31 @@ public class Corpus implements Serializable {
             doc2 = doc.substring(0,idx);
         else //after
             doc2 = doc.substring(idx,doc.length());
+        
+         int offSet = 0;
+        // Check for really long whitespace sections
+        if(doc2.matches(".*" + nonWordMax + ".*")) {
+            String[] ss = doc2.split(nonWordMax);
+            if(ss.length == 0) {
+                if(before)
+                    return doc2.length();
+                else
+                    return idx;
+            }
+            if(before) {
+                offSet = doc2.length() - ss[ss.length - 1].length();
+                doc2 = ss[ss.length - 1];
+            } else {
+                doc2 = ss[0];
+                offSet = idx + doc2.length();
+            }
+        }
         Matcher m = java.util.regex.Pattern.compile(regex).matcher(doc2);
         if(!m.matches()) {
             if(before)
-                return 0;
+                return offSet;
             else
-                return doc.length();
+                return offSet == 0 ? doc.length() : offSet;
         } else {
             if(before)
                 return idx - m.group(1).length();

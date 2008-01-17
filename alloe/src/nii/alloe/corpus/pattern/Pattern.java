@@ -128,17 +128,38 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         return val.matches("[12\\* ]*");
     }
     
+    // Caching for matches
+    private transient String matchesCache1,matchesCache2,matchesCache3;
+    private transient int matchesCacheOr;
+    
     /** @return true if this pattern matches str, with the capturers replaced by term1 and term2
      * @param term1 the left hand side of the relation
      * @param term2 the right hand side of the relation */
     public boolean matches(String str, String term1, String term2) {
-        String regex = val.replaceAll("([\\.\\[\\]\\^\\$\\(\\)\\\\\\+\\{\\}])", "\\$1");
-        regex = regex.replaceAll("\\*","(" + wordDBS + "+)");
-        regex = regex.replaceAll("\\s","(" + nonWordDBS + "+)");
-        regex = regex.replaceAll("1",term1);
-        regex = regex.replaceAll("2",term2);
+        String regex;
+        if(matchesCacheOr == 0) {
+            regex = val.replaceAll("([\\.\\[\\]\\^\\$\\|\\?\\(\\)\\\\\\+\\{\\}\uff0a])", "\\$1");
+            regex = regex.replaceAll("\\*","(" + wordDBS + "+)");
+            regex = regex.replaceAll("\\s","(" + nonWordDBS + "+)");
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.*)([12])(.*)([12])(.*)").matcher(regex);
+            if(!m.matches()) assert false;
+            matchesCache1 = deSafe(m.group(1));
+            matchesCache2 = deSafe(m.group(3));
+            matchesCache3 = deSafe(m.group(5));
+            if(m.group(2).equals("1") && m.group(4).equals("2")) {
+                matchesCacheOr = 1;
+            } else if(m.group(2).equals("2") && m.group(4).equals("1")) {
+                matchesCacheOr = -1;
+            } else assert false;
+            regex = regex.replaceAll("1",term1);
+            regex = deSafe(regex.replaceAll("2",term2));
+        } else if(matchesCacheOr == +1) {
+            regex = matchesCache1 + term1 + matchesCache2 + term2 + matchesCache3;
+        } else {
+            regex = matchesCache1 + term2 + matchesCache2 + term1 + matchesCache3;
+        }
         
-        return str.matches(deSafe(regex));
+        return str.matches(regex);
     }
     
     /** Match this pattern to str
@@ -162,9 +183,9 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
     
     /** @return The pattern with all wildcards & capturers stripped out (for use with indexer) */
     public String getQuery() {
-        String rval = val.replaceAll("\\*"," ");
-        rval = rval.replace("1"," ");
-        rval = rval.replace("2"," ");
+        String rval = val.replaceAll("[\\*12]"," ");
+        //rval = rval.replace("1"," ");
+        //rval = rval.replace("2"," ");
         return deSafe(rval);
     }
     

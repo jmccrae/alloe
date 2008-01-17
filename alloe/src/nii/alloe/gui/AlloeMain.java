@@ -80,6 +80,9 @@ public class AlloeMain extends javax.swing.JFrame {
         patternGeneratorRelationship = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
         patternGeneratorProgressMonitor = new nii.alloe.gui.ProcessMonitor();
+        if(pbListener == null)
+        pbListener = new PatternGeneratorListener();
+        patternGeneratorProgressMonitor.addExtraListener(pbListener);
         patternBuilderMetric = new javax.swing.JComboBox();
         jLabel3 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
@@ -242,7 +245,6 @@ public class AlloeMain extends javax.swing.JFrame {
         termPairSetLabel.setEnabled(false);
 
         openTermPairSet.setText("Open Term Pair Set");
-        openTermPairSet.setEnabled(false);
         openTermPairSet.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openTermPairSetActionPerformed(evt);
@@ -257,6 +259,9 @@ public class AlloeMain extends javax.swing.JFrame {
         });
 
         jLabel2.setText("Relationship:");
+
+        patternGeneratorProgressMonitor.setProcessCompletedText("Pattern Set Generated");
+        patternGeneratorProgressMonitor.setProcessNotStartedText("Ready");
 
         patternBuilderMetric.setModel(new DefaultComboBoxModel(PatternMetricFactory.getPatternMetrics()));
         patternBuilderMetric.addActionListener(new java.awt.event.ActionListener() {
@@ -315,6 +320,11 @@ public class AlloeMain extends javax.swing.JFrame {
         patternViewerRelationshipLabel.setEnabled(false);
 
         patternViewerRelationship.setEnabled(false);
+        patternViewerRelationship.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                patternViewerRelationshipActionPerformed(evt);
+            }
+        });
 
         openPatternSet.setText("Open Pattern Set");
         openPatternSet.addActionListener(new java.awt.event.ActionListener() {
@@ -439,16 +449,25 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void patternViewerRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternViewerRelationshipActionPerformed
+        onPatternSetLoad(patternViewerRelationship.getSelectedItem().toString(),false);
+    }//GEN-LAST:event_patternViewerRelationshipActionPerformed
     
-    private void onPatternSetLoad(String relationship) {
+    private void onPatternSetLoad(String relationship) { onPatternSetLoad(relationship,true); }
+    private void onPatternSetLoad(String relationship, boolean select) {
         DefaultComboBoxModel dcbm = (DefaultComboBoxModel)patternViewerRelationship.getModel();
         if(dcbm.getIndexOf(relationship) == -1) {
-            patternViewerRelationship.addItem(relationship);
+            dcbm.addElement(relationship);
         }
-        patternViewerRelationship.setSelectedItem(relationship);
+        if(select)
+            patternViewerRelationship.setSelectedItem(relationship);
         patternViewerRelationship.setEnabled(true);
         patternViewerRelationshipLabel.setEnabled(true);
+        savePatternSet.setEnabled(true);
         PatternSet ps = patternSets.get(relationship);
+        if(ps == null)
+            return;
         
         totalPatternsLabel.setText("Total Patterns: " + ps.size());
         
@@ -466,26 +485,25 @@ public class AlloeMain extends javax.swing.JFrame {
     }
     
     private class PatternGeneratorListener implements PatternBuilderListener {
-        String relationship;
+        private String getRelationship() { return ((PatternBuilder)patternGeneratorProgressMonitor.getProcess()).getRelationship(); }
         
-        public PatternGeneratorListener(String rel) { relationship = rel; }
         /** Called whenever progress is made
          * @param newProgress The new progress percentage (as double between 0 and 1) */
         public void progressChange(double newProgress) {}
         
         /** Called when the process finishes */
         public void finished() { 
-            patternSets.put(relationship, patternBuilderProcess.get(relationship).patternScores);
-            onPatternSetLoad(relationship); }
+            patternSets.put(getRelationship(), patternBuilderProcess.get(getRelationship()).patternScores);
+            onPatternSetLoad(getRelationship()); }
         
         public void patternGenerated(Pattern p, double score) {
-            if(patternViewerRelationship.getSelectedItem().toString().equals(relationship)) {
+            if(patternViewerRelationship.getSelectedItem().toString().equals(getRelationship())) {
                 DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
                 Object[] row = new Object[2];
                 row[0] = p.toString();
                 row[1] = new Double(score);
                 dtm.addRow(row);
-                totalPatternsLabel.setText("Total Patterns: " + patternBuilderProcess.get(relationship).patternScores.size());
+                totalPatternsLabel.setText("Total Patterns: " + patternBuilderProcess.get(getRelationship()).patternScores.size());
             }
         }
     }
@@ -512,6 +530,9 @@ public class AlloeMain extends javax.swing.JFrame {
                     return;
                 }
                 PatternSet ps = (PatternSet)o;
+                if(ps.getRelationship() == null) {
+                    throw new NullPointerException();
+                }
                 patternSets.put(ps.getRelationship(),ps);
                 onPatternSetLoad(ps.getRelationship());
             } catch(IOException x) {
@@ -539,8 +560,11 @@ public class AlloeMain extends javax.swing.JFrame {
                     return;
                 }
                 PatternBuilder pb =  new PatternBuilder(corpus, (TermPairSet)o,
-                        (String)patternBuilderMetric.getSelectedItem());
+                        (String)patternBuilderMetric.getSelectedItem(), name);
                 patternBuilderProcess.put(name,pb);
+                if(pbListener == null)
+                    pbListener = new PatternGeneratorListener();
+                pb.addProgressListener(pbListener);
                 patternGeneratorProgressMonitor.setProcess(pb);
             } catch(IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
@@ -565,19 +589,23 @@ public class AlloeMain extends javax.swing.JFrame {
         if(patternGeneratorRelationship.getSelectedItem().equals("New...")) {
             String name = JOptionPane.showInputDialog(this, "New Relation", "");
             ((DefaultComboBoxModel)patternGeneratorRelationship.getModel()).insertElementAt(name,0);
+            ((DefaultComboBoxModel)patternViewerRelationship.getModel()).insertElementAt(name,0);
             if(patternGeneratorRelationship.getItemAt(1).equals("")) {
                 patternGeneratorRelationship.removeItemAt(1);
             }
             
             patternGeneratorRelationship.setSelectedItem(name);
+            patternViewerRelationship.setSelectedItem(name);
         }
         
         termPairSetLabel.setEnabled(true);
         String s = termSetFileName.get(patternGeneratorRelationship.getSelectedItem().toString());
         termPairSetLabel.setText("Term Pair Set: " + (s == null ? "" : s));
         openTermPairSet.setEnabled(true);
+        PatternBuilder pb = (PatternBuilder)patternGeneratorProgressMonitor.getProcess();
+        if(pb == null || !pb.isRunning())
+            patternGeneratorProgressMonitor.setProcess(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
         
-        patternGeneratorProgressMonitor.setProcess(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
     }//GEN-LAST:event_patternGeneratorRelationshipActionPerformed
     
     private void saveIndexedCorpusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveIndexedCorpusActionPerformed
@@ -697,7 +725,8 @@ public class AlloeMain extends javax.swing.JFrame {
     }
     
     private void openCorpusTermSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTermSetActionPerformed
-        fileChooser.showOpenDialog(this);
+        if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+            return;
         corpusTermSetFile = fileChooser.getSelectedFile().getAbsolutePath();
         termSetLabel.setText("Term Set: " + fileChooser.getSelectedFile().getPath());
         if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0 &&
@@ -707,7 +736,8 @@ public class AlloeMain extends javax.swing.JFrame {
     }//GEN-LAST:event_openCorpusTermSetActionPerformed
     
     private void openCorpusTextFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTextFileActionPerformed
-        fileChooser.showOpenDialog(this);
+        if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+            return;
         corpusTextFile = fileChooser.getSelectedFile().getAbsolutePath();
         textFileLabel.setText("Text File: " + fileChooser.getSelectedFile().getPath());
         if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0&&
