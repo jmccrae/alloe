@@ -32,13 +32,13 @@ public class CorpusTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        TermList = new TermList();
+        TermList terms = new TermList();
         terms.add("alice");
         terms.add("bob");
         terms.add("joe bob");
         terms.add("joe");
-        instance = new Corpus(terms);
-        instance.openIndex();
+        instance = new Corpus(terms, "test.idx");
+        instance.openIndex(true);
         instance.addDoc("alice likes bob");
         instance.addDoc("bob is nice");
         instance.addDoc("joe bob is a hillbilly");

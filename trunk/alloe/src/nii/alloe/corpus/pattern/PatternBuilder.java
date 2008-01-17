@@ -43,6 +43,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     private Corpus corpus;
     private TermPairSet termPairSet;
     private int iterations;
+    private String relationship;
     private String patternMetricName;
     private String basePatternResume;
     private transient PatternMetric pm;
@@ -57,11 +58,12 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
      * @param termPairSet The term pairs
      * @param pm A metric used to score new patterns
      */
-    public PatternBuilder(Corpus corpus, TermPairSet termPairSet, String patternMetric) {
+    public PatternBuilder(Corpus corpus, TermPairSet termPairSet, String patternMetric, String relationship) {
         this.corpus = corpus;
         this.termPairSet = termPairSet;
         patternMetricName = patternMetric;
         this.pm = PatternMetricFactory.getPatternMetric(patternMetric, corpus, termPairSet);
+        this.relationship = relationship;
         maxIterations = Integer.MAX_VALUE;
         state = STATE_OK;
         iterations = 0;
@@ -123,6 +125,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             }
         });
         patternScores = new PatternSet();
+        patternScores.setRelationship(relationship);
         
         termPairSet.forEachPair(new BaseBuilder(), basePatternResume, new PauseSignal() {
             public boolean shouldPause() {
@@ -307,4 +310,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     
     /** @return true is variables like pattern metric should be possible to change */
     public boolean isRunning() { return state == STATE_OK; }
+    
+    /** Get the relationship name */
+    public String getRelationship() { return relationship; }
 }

@@ -23,6 +23,7 @@ public class PseudoFMMetric implements PatternMetric {
     }
     
     public double scorePattern(Pattern pattern) {
+        System.out.println(pattern.toString());
         SPSearch sps = new SPSearch(pattern);
         termPairs.forEachPair(sps);
         
