@@ -1,7 +1,8 @@
 package nii.alloe.corpus;
 import java.util.*;
 import java.io.*;
-import java.util.regex.*;
+import nii.alloe.corpus.pattern.*;
+import nii.alloe.corpus.analyzer.*;
 import org.apache.lucene.index.*;
 import org.apache.lucene.store.*;
 import org.apache.lucene.analysis.*;
@@ -21,18 +22,20 @@ public class Corpus implements Serializable {
     public TermList terms;
     private transient Directory directory;
     private String indexFile;
+    private transient HashMap<String,TreeSet<Integer>> termHits;
     
     /** Creates a new instance of Corpus */
     public Corpus(TermList terms, String indexFile) {
         this.terms = terms;
         this.indexFile = indexFile;
+        termHits = new HashMap<String,TreeSet<Integer>>(terms.size());
     }
     
-    /** Opens the corpus so that new documents can be added 
+    /** Opens the corpus so that new documents can be added
      * @param newIndex If true any index on existing path will be removed
      */
     public void openIndex(boolean newIndex) throws IOException {
-        indexWriter = new IndexWriter(indexFile, new StandardAnalyzer(), newIndex);
+        indexWriter = new IndexWriter(indexFile, new AlloeAnalyzer(), newIndex);
     }
     
     /** Add a new document to corpus
@@ -65,40 +68,51 @@ public class Corpus implements Serializable {
         indexWriter = null;
     }
     
+    private HitsIterator queryTerm(String term) {
+        TreeSet<Integer> h = termHits.get(term);
+        if(h == null) {
+            try {
+                QueryParser qp = new QueryParser("term", new AlloeAnalyzer());
+                Query q = qp.parse("\"" + cleanQuery(term) + "\"");
+                HitsIterator hi = new HitsIterator();
+                indexSearcher.search(q,hi);
+                termHits.put(term,hi.hits);
+                return hi;
+            } catch(Exception x) {
+                x.printStackTrace();
+                return null;
+            }
+        } else {
+            return new HitsIterator(h);
+        }
+    }
+    
+    private HitsIterator queryTerms(String term1, String term2) {
+        TreeSet<Integer> h1 = queryTerm(term1).hits;
+        TreeSet<Integer> h2 = queryTerm(term2).hits;
+        TreeSet<Integer> hr = (TreeSet<Integer>)h1.clone();
+        hr.retainAll(h2);
+        return new HitsIterator(hr);
+    }
+    
     /** Return the occurences of a particular string */
     public int getHitsForTerm(String term) {
-         try {
-            QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + cleanQuery(term) + "\"");
-            Hits hits = indexSearcher.search(q);
-            return hits.length();
-        } catch(Exception x) {
-            x.printStackTrace();
-            return -1;
-        }
+        return queryTerm(term).hits.size();
     }
     
     /** Get all contexts containing term1 and term2 */
     public Iterator<String> getContextsForTerms(String term1, String term2) {
-        try {
-            QueryParser qp = new QueryParser("term", new StandardAnalyzer());
-            Query q = qp.parse("\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"");
-            Hits hits = indexSearcher.search(q);
-            return new HitsIterator(hits);
-        } catch(Exception x) {
-            x.printStackTrace();
-            return null;
-        }
-        
+        return queryTerms(term1,term2);
     }
     
     /** Get all contexts which match the pattern p */
     public Iterator<String> getContextsForPattern(nii.alloe.corpus.pattern.Pattern p) {
         try {
-            QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
+            QueryParser qp = new QueryParser("contents", new AlloeAnalyzer());
             Query q = qp.parse(cleanQuery2(p.getQuery()));
-            Hits hits = indexSearcher.search(q);
-            return new HitsIterator(hits);
+            HitsIterator hi = new HitsIterator();
+            indexSearcher.search(q,hi);
+            return hi;
         } catch(Exception x) {
             x.printStackTrace();
             return null;
@@ -111,21 +125,93 @@ public class Corpus implements Serializable {
             String[] queries = { cleanQuery2(p.getQueryWithTerms(term1, term2)),
             "\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"" };
             String[] fields = { "contents", "terms" };
-            MultiFieldQueryParser qp = new MultiFieldQueryParser(fields, new StandardAnalyzer());
-            Query q = MultiFieldQueryParser.parse(queries, fields, new StandardAnalyzer());
+            MultiFieldQueryParser qp = new MultiFieldQueryParser(fields, new AlloeAnalyzer());
+            Query q = MultiFieldQueryParser.parse(queries, fields, new AlloeAnalyzer());
             
-            Hits hits = indexSearcher.search(q);
-            return new HitsIterator(hits);
+            HitsIterator hi = new HitsIterator();
+            indexSearcher.search(q,hi);
+            return hi;
         } catch(Exception x) {
             x.printStackTrace();
             return null;
         }
     }
     
+    /** Call this if you want to check every term pair with a pattern. This first
+     * initializes the query and then call {@link #getContextsForTermPrepared}.
+     * @return The prepared query data
+     */
+    public Object prepareQueryPattern(Pattern p) {
+        try {
+            QueryParser qp = new QueryParser("contents", new AlloeAnalyzer());
+            Query q = qp.parse(cleanQuery2(p.getQuery()));
+            HitsIterator hi = new PreparedQuery();
+            indexSearcher.search(q,hi);
+            return hi;
+        } catch(Exception x) {
+            x.printStackTrace();
+            return null;
+        }
+    }
+    
+    /** Find the number of hits found by a prepared query
+     * @param query The query object as returned from prepareQueryPattern
+     */
+    public int getPreparedQueryHits(Object query) {
+        if(!(query instanceof PreparedQuery))
+            throw new IllegalArgumentException("query passed to getPreparedQueryHits not valid");
+        return ((PreparedQuery)query).preparedHits.size();
+    }
+    
+    /** Get the string iterator for a prepared query
+     * @param query The query object as returned from prepareQueryPattern
+     */
+    public Iterator<String> getPreparedQuery(Object query) {
+        if(!(query instanceof PreparedQuery))
+            throw new IllegalArgumentException("query passed to getPreparedQuery not valid");
+        return new HitsIterator(((PreparedQuery)query).preparedHits);
+    }
+    
+    /** Find term pairs on a prepared query. = getContextsForTermPrepared(term1,term2,query,true)
+     * @see #preparedQueryPattern
+     * @param query The query object as returned from prepareQueryPattern
+     */
+    public Iterator<String> getContextsForTermPrepared(String term1, String term2, Object query) {
+        return getContextsForTermPrepared(term1,term2,query,true);
+    }
+    
+    /** Find term pairs on a prepared query.
+     *
+     * @see #preparedQueryPattern
+     * @param query The query object as returned from prepareQueryPattern
+     * @param cache If true attempt to cache term hits */
+    public Iterator<String> getContextsForTermPrepared(String term1, String term2, Object query, boolean cache) {
+        if(!(query instanceof PreparedQuery))
+            throw new IllegalArgumentException("query passed to getContextsForTermPrepared not valid");
+        
+        if((termHits.get(term1) == null || termHits.get(term2) == null) && !cache) {
+            try {
+                QueryParser qp = new QueryParser("term", new AlloeAnalyzer());
+                Query q = qp.parse("\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"");
+                HitsIterator hi = ((PreparedQuery)query).preparedCopy();
+                indexSearcher.search(q,hi);
+                return hi;
+            } catch(Exception x) {
+                x.printStackTrace();
+                return null;
+            }
+        } else {
+            HitsIterator th = queryTerms(term1,term2);
+            TreeSet<Integer> th2 = (TreeSet<Integer>)th.hits.clone();
+            th2.retainAll(((PreparedQuery)query).preparedHits);
+            return new HitsIterator(th2);
+        }
+    }
+    
     /** @return true if term1 occurs in the corpus */
     public boolean isTermInCorpus(String term1) {
         try {
-            QueryParser  qp = new QueryParser("term", new StandardAnalyzer());
+            QueryParser  qp = new QueryParser("term", new AlloeAnalyzer());
             Query q = qp.parse("\"" + cleanQuery(term1) + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length() != 0;
@@ -138,7 +224,7 @@ public class Corpus implements Serializable {
     /** @return true if term1 and term2 occur in the same document in the corpus */
     public boolean areTermsInCorpus(String term1, String term2) {
         try {
-            QueryParser qp = new QueryParser("term", new StandardAnalyzer());
+            QueryParser qp = new QueryParser("term", new AlloeAnalyzer());
             Query q = qp.parse("\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"");
             Hits hits = indexSearcher.search(q);
             return hits.length() != 0;
@@ -148,7 +234,8 @@ public class Corpus implements Serializable {
         }
     }
     
-    private String cleanQuery(String s) {
+    /** Put to lower case and bs all reserved terms */
+    public static String cleanQuery(String s) {
         s = s.toLowerCase();
         s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\]|\\|\\||\\&\\&)", "\\\\$1");
         return s;
@@ -172,15 +259,29 @@ public class Corpus implements Serializable {
         in.defaultReadObject();
         // We need to restore indexSearcher after loading
         indexSearcher = new IndexSearcher(indexFile);
+        termHits = new HashMap<String,TreeSet<Integer>>();
     }
     
-    private class HitsIterator implements Iterator<String> {
-        Hits hits;
-        int i;
+    
+    public Directory getDirectory() {
+        return directory;
+    }
+    class HitsIterator extends HitCollector implements Iterator<String> {
+        TreeSet<Integer> hits;
+        Iterator<Integer> i;
         
-        HitsIterator(Hits hits) {
+        HitsIterator() {
+            hits = new TreeSet<Integer>();
+            i = null;
+        }
+        
+        HitsIterator(TreeSet<Integer> hits) {
             this.hits = hits;
-            i = 0;
+            i = null;
+        }
+        
+        public void collect(int doc, float score) {
+            hits.add(doc);
         }
         
         public void remove() {
@@ -188,10 +289,12 @@ public class Corpus implements Serializable {
         }
         
         public String next() {
+            if(i == null)
+                i = hits.iterator();
             try {
-                Document d = hits.doc(i);
-                String s = d.getField("term").stringValue();
-                return hits.doc(i++).getField("contents").stringValue();
+                Document d = indexSearcher.doc(i.next());
+                //String s = d.getField("term").stringValue();
+                return d.getField("contents").stringValue();
             } catch(IOException x) {
                 x.printStackTrace();
                 throw new RuntimeException("An IO Exception occurred");
@@ -199,10 +302,39 @@ public class Corpus implements Serializable {
         }
         
         public boolean hasNext() {
-            return i < hits.length();
+            if(i == null)
+                i = hits.iterator();
+            return i.hasNext();
         }
     }
     
+    private class PreparedQuery extends HitsIterator {
+        private TreeSet<Integer> preparedHits;
+        boolean preparing;
+        
+        PreparedQuery() {
+            super();
+            preparedHits = new TreeSet<Integer>();
+            hits = new TreeSet<Integer>();
+            preparing = true;
+        }
+        
+        public void collect(int doc, float score) {
+            if(preparing) {
+                preparedHits.add(doc);
+            } else {
+                if(preparedHits.contains(doc))
+                    hits.add(doc);
+            }
+        }
+        
+        public PreparedQuery preparedCopy() {
+            PreparedQuery pq = new PreparedQuery();
+            pq.preparedHits = this.preparedHits;
+            pq.preparing = this.preparing;
+            return pq;
+        }
+    }
     /** Returns only those areas in a fixed window of a particular term */
     public Vector<String> getContexts(String doc, int wordWindow) {
         TreeSet<Integer> bounds = new TreeSet<Integer>();
@@ -214,7 +346,7 @@ public class Corpus implements Serializable {
             int idx = doc.indexOf(term,0);
             while(idx >= 0) {
                 if((idx > 0 && !Character.isWhitespace(doc.charAt(idx-1))) ||
-                        (idx + term.length() < doc.length() && 
+                        (idx + term.length() < doc.length() &&
                         !Character.isWhitespace(doc.charAt(idx + term.length())))) {
                     idx = doc.indexOf(term, idx + term.length());
                     continue;
@@ -231,7 +363,7 @@ public class Corpus implements Serializable {
                     if(!beforeFound && oldBefore < before && before <= oldAfter) {
                         before = oldBefore;
                         beforeFound = true;
-                    } 
+                    }
                     if(!afterFound &&  after >= oldBefore && oldAfter > after) {
                         after = oldAfter;
                         afterFound = true;
@@ -265,7 +397,7 @@ public class Corpus implements Serializable {
     
     private int findNWordsBeforeAfter(boolean before, String doc, int idx, int window) {
         String regex;
-       
+        
         
         if(before)
             regex = ".*?(";
@@ -284,7 +416,7 @@ public class Corpus implements Serializable {
         else //after
             doc2 = doc.substring(idx,doc.length());
         
-         int offSet = 0;
+        int offSet = 0;
         // Check for really long whitespace sections
         if(doc2.matches(".*" + nonWordMax + ".*")) {
             String[] ss = doc2.split(nonWordMax);
@@ -302,7 +434,7 @@ public class Corpus implements Serializable {
                 offSet = idx + doc2.length();
             }
         }
-        Matcher m = java.util.regex.Pattern.compile(regex).matcher(doc2);
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex).matcher(doc2);
         if(!m.matches()) {
             if(before)
                 return offSet;

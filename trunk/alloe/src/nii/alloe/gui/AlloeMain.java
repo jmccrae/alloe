@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
+import java.text.*;
 import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.niceties.*;
@@ -183,6 +184,7 @@ public class AlloeMain extends javax.swing.JFrame {
             }
         });
 
+        corpusDisplay.setAutoCreateRowSorter(true);
         corpusDisplay.setModel(getCorpusDisplayTableModel());
         corpusDisplayScroll.setViewportView(corpusDisplay);
 
@@ -343,6 +345,7 @@ public class AlloeMain extends javax.swing.JFrame {
 
         totalPatternsLabel.setText("Total Patterns:");
 
+        patternTable.setAutoCreateRowSorter(true);
         patternTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -352,11 +355,18 @@ public class AlloeMain extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Double.class
+                java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(patternTable);
@@ -473,12 +483,13 @@ public class AlloeMain extends javax.swing.JFrame {
         
         DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
         Object[][] o = new Object[ps.size()][2];
+        DecimalFormat df = new DecimalFormat("0.00000000");
         Iterator<Map.Entry<Pattern,Double>> iter = ps.entrySet().iterator();
         int i = 0;
         while(iter.hasNext()) {
             Map.Entry<Pattern,Double> e = iter.next();
             o[i][0] = e.getKey().toString();
-            o[i++][1] = e.getValue();
+            o[i++][1] = df.format(e.getValue().doubleValue());
         }
         String [] s = { "Pattern", "Score" };
         dtm.setDataVector(o,s);
@@ -501,7 +512,8 @@ public class AlloeMain extends javax.swing.JFrame {
                 DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
                 Object[] row = new Object[2];
                 row[0] = p.toString();
-                row[1] = new Double(score);
+                NumberFormat df = new DecimalFormat("0.00000000");
+                row[1] = df.format(score);
                 dtm.addRow(row);
                 totalPatternsLabel.setText("Total Patterns: " + patternBuilderProcess.get(getRelationship()).patternScores.size());
             }
@@ -683,6 +695,15 @@ public class AlloeMain extends javax.swing.JFrame {
                 assert false;
                 return null;
             }
+        }
+        
+        public Class getColumnClass(int j) {
+            if(j == 0)
+                return String.class;
+            if(j == 1)
+                return Integer.class;
+            else
+                return null;
         }
     }
     

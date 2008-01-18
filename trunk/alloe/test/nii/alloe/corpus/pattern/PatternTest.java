@@ -10,6 +10,7 @@ package nii.alloe.corpus.pattern;
 import junit.framework.*;
 import java.util.*;
 import java.util.regex.*;
+import nii.alloe.corpus.analyzer.AlloeAnalyzer;
 
 /**
  *
@@ -243,5 +244,18 @@ public class PatternTest extends TestCase {
         }
         assertTrue(ok);
     }
-    
+
+    /**
+     * Test of isTrivial method, of class nii.alloe.corpus.pattern.Pattern.
+     */
+    public void testIsTrivial() {
+        System.out.println("isTrivial");
+        
+        Pattern instance = new Pattern("of 1 * * * * * 2");
+        
+        boolean expResult = true;
+        boolean result = instance.isTrivial();
+        assertEquals(expResult, result);
+    }
+ 
 }
