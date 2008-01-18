@@ -163,6 +163,8 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     private void addPattern(Pattern p) {
         if(patternScores.get(p) != null)
             return;
+        if(p.isTrivial())
+            return;
         patternScores.put(p,pm.scorePattern(p));
         patternQueue.add(p);
         //System.out.println(p.toString() + " {" + patternScores.get(p) + "}");
@@ -175,7 +177,9 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             while(learnData.hasNext()) {
                 String s1 = learnData.next();
                 s1 = Pattern.makeSafe(s1);
-                String[] splitsByTerm1 = s1.split(term1);
+                String[] splitsByTerm1 = s1.split("\\b" + Pattern.cleanTerm(term1) + "\\b");
+                if(splitsByTerm1.length < 2)
+                    continue;
                 String s2;
                 for(int i = 1; i < splitsByTerm1.length; i++) {
                     s2 = "";
@@ -192,7 +196,9 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
                             s2 = s2 + term1;
                         }
                     }
-                    String[] splitsByTerm2 = s2.split(term2);
+                    String[] splitsByTerm2 = s2.split("\\b" + Pattern.cleanTerm(term2) + "\\b");
+                    if(splitsByTerm2.length < 2)
+                    continue;
                     for(int k = 1; k < splitsByTerm2.length; k++) {
                         s2 = "";
                         for(int j = 0; j < k; j++) {

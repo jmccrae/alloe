@@ -1,6 +1,7 @@
 package nii.alloe.corpus.pattern;
 import java.util.*;
 import java.util.regex.*;
+import nii.alloe.corpus.analyzer.AlloeAnalyzer;
 
 /**
  * A regular expression-like pattern used for extracting relations from the corpus.
@@ -28,7 +29,16 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
     public static final String wordDBS = "[\\\\w\\\\*\uff11\uff12]";
     public static final String nonWord = "[^\\w\\*\uff11\uff12]";
     public static final String nonWordDBS = "[^\\\\w\\\\*\uff11\uff12]";
+    public static final String regexMetachars = "([\\.\\[\\]\\^\\$\\|\\?\\(\\)\\\\\\+\\{\\}\uff0a])";
     
+    public static Collection<String> stopWords;
+    
+    static {
+        stopWords = new TreeSet<String>();
+        for(int i = 0; i < AlloeAnalyzer.STOP_WORDS.length; i++) {
+            stopWords.add(AlloeAnalyzer.STOP_WORDS[i]);
+        }
+    }
     
     /** Creates a new instance of Pattern */
     public Pattern() {
@@ -74,13 +84,20 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         String[] s = split();
         int i;
         boolean seenT = false;
-        for(i = 0; ;i++) {
-            if(s[i].equals("1") || s[i].equals("2")) {
-                if(seenT)
-                    break;
-                else
-                    seenT = true;
+        try {
+            for(i = 0; ;i++) {
+                if(s[i].equals("1") || s[i].equals("2")) {
+                    if(seenT)
+                        break;
+                    else
+                        seenT = true;
+                }
             }
+        } catch(ArrayIndexOutOfBoundsException x) {
+            x.printStackTrace();
+            System.err.println("Invalid pattern: " + val);
+            System.exit(-1);
+            return 0;
         }
         return s.length - i - 1;
     }
@@ -125,7 +142,17 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
     
     /** True if there is no non basic parts to the pattern */
     public boolean isTrivial() {
-        return val.matches("[12\\* ]*");
+        if(val.matches("[12\\* ]*"))
+            return true;
+        String[] s = split();
+        for(int i = 0; i < s.length; i++) {
+            if(s[i].matches(word + "*") && !stopWords.contains(s[i]) && 
+                    !s[i].equals("1") && !s[i].equals("2") && !s[i].equals("*"))
+                return false;
+            if(s[i].matches(nonWord + "*") && !s[i].matches("\\s*"))
+                return false;
+        }
+        return true;
     }
     
     // Caching for matches
@@ -138,9 +165,10 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
     public boolean matches(String str, String term1, String term2) {
         String regex;
         if(matchesCacheOr == 0) {
-            regex = val.replaceAll("([\\.\\[\\]\\^\\$\\|\\?\\(\\)\\\\\\+\\{\\}\uff0a])", "\\$1");
+            regex = val.replaceAll(regexMetachars, "\\$1");
             regex = regex.replaceAll("\\*","(" + wordDBS + "+)");
             regex = regex.replaceAll("\\s","(" + nonWordDBS + "+)");
+            regex = ".*" + regex + ".*";
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.*)([12])(.*)([12])(.*)").matcher(regex);
             if(!m.matches()) assert false;
             matchesCache1 = deSafe(m.group(1));
@@ -166,11 +194,15 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
      * @return A two element array where the first element is the left hand side and the second
      * element is the right hand side */
     public String[] getTermMatch(String str) {
-        String regex = val.replaceAll("([\\.\\[\\]\\^\\$\\(\\)\\\\\\+\\{\\}])", "\\\\$1");
+        String regex = val.replaceAll(regexMetachars, "\\\\$1");
         regex = regex.replaceAll("\\*",wordDBS + "+");
         regex = regex.replaceAll("\\s",nonWordDBS + "+");
-        regex = regex.replaceAll("1","(" + wordDBS + "+)");
-        regex = regex.replaceAll("2","(" + wordDBS + "+)");
+        // TODO: Think about this, very hard!
+        //regex = regex.replaceAll("1","(" + wordDBS + "+)");
+        //regex = regex.replaceAll("2","(" + wordDBS + "+)");
+        regex = regex.replaceAll("1","(.*?)");
+        regex = regex.replaceAll("2","(.*?)");
+        regex = ".*" + regex + ".*";
         Matcher m = java.util.regex.Pattern.compile(deSafe(regex)).matcher(str);
         if(m.matches()) {
             String[] rval = new String[2];
@@ -239,5 +271,11 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         str = str.replaceAll("\uff12", "2");
         str = str.replaceAll("\uff0a", "*");
         return str;
+    }
+    
+    /** Convert to lower case and bs all metachars */
+    public static String cleanTerm(String term) {
+        term = term.replaceAll(regexMetachars,"\\\\$1");
+        return term.toLowerCase();
     }
 }

@@ -17,6 +17,10 @@ public class PseudoFMMetric implements PatternMetric {
     Corpus corpus;
     TermPairSet termPairs;
     
+    ///** The number of hits the pattern has to had to make it worth querying every
+    // * single term. May be replaced by automatic benchmarker */
+    //public static int PATTERN_HITS_TO_QUERY = 1000;
+    
     public PseudoFMMetric(Corpus corpus, TermPairSet termPairs) {
         this.corpus = corpus;
         this.termPairs = termPairs;
@@ -24,7 +28,8 @@ public class PseudoFMMetric implements PatternMetric {
     
     public double scorePattern(Pattern pattern) {
         System.out.println(pattern.toString());
-        SPSearch sps = new SPSearch(pattern);
+        Object query = corpus.prepareQueryPattern(pattern);
+        SPSearch sps = new SPSearch(pattern,query);
         termPairs.forEachPair(sps);
         
         int n = 0;
@@ -51,11 +56,24 @@ public class PseudoFMMetric implements PatternMetric {
     private class SPSearch implements EachTermPairAction {
         int spCount;
         Pattern pattern;
-        public SPSearch(Pattern pattern) { this.pattern = pattern; spCount = 0; }
+        Object query;
+       // boolean doQuery;
+        
+        public SPSearch(Pattern pattern, Object query) {
+            this.pattern = pattern;
+            this.query = query;
+            //doQuery = corpus.getPreparedQueryHits(query) > PATTERN_HITS_TO_QUERY;
+            spCount = 0;
+        }
         public void doAction(String term1, String term2) {
-            Iterator<String> contexts = corpus.getContextsForTerms(term1,term2);
+            Iterator<String> contexts;
+           // if(doQuery)
+                contexts = corpus.getContextsForTermPrepared(
+                        term1,term2,query);
+           // else
+           //     contexts = corpus.getPreparedQuery(query);
             while(contexts.hasNext()) {
-                if(pattern.matches(contexts.next(), term1, term2)) {
+                if(pattern.matches(contexts.next(), Pattern.cleanTerm(term1), Pattern.cleanTerm(term2))) {
                     spCount++;
                 }
             }
