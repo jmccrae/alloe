@@ -210,28 +210,15 @@ public class Corpus implements Serializable {
     
     /** @return true if term1 occurs in the corpus */
     public boolean isTermInCorpus(String term1) {
-        try {
-            QueryParser  qp = new QueryParser("term", new AlloeAnalyzer());
-            Query q = qp.parse("\"" + cleanQuery(term1) + "\"");
-            Hits hits = indexSearcher.search(q);
-            return hits.length() != 0;
-        } catch(Exception x) {
-            x.printStackTrace();
-            return false;
-        }
+        HitsIterator hi = queryTerm(term1);
+        return hi.hits.size() > 0;
+        
     }
     
     /** @return true if term1 and term2 occur in the same document in the corpus */
     public boolean areTermsInCorpus(String term1, String term2) {
-        try {
-            QueryParser qp = new QueryParser("term", new AlloeAnalyzer());
-            Query q = qp.parse("\"" + cleanQuery(term1) + "\" AND \"" +  cleanQuery(term2) + "\"");
-            Hits hits = indexSearcher.search(q);
-            return hits.length() != 0;
-        } catch(Exception x) {
-            x.printStackTrace();
-            return false;
-        }
+        HitsIterator hi = queryTerms(term1,term2);
+        return hi.hits.size() > 0;
     }
     
     /** Put to lower case and bs all reserved terms */
@@ -252,7 +239,16 @@ public class Corpus implements Serializable {
     
     /** @return number of documents in the corpus */
     public int size() {
-        return indexWriter.docCount();
+        if(indexWriter != null)
+            return indexWriter.docCount();
+        else {
+            try {
+                return indexSearcher.maxDoc();
+            } catch(IOException x) {
+                x.printStackTrace();
+                return -1;
+            }
+        }
     }
     
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

@@ -44,4 +44,18 @@ public class TermList extends Vector<String> {
         }
     }
     
+    public boolean contains(String s) {
+        return super.contains(Pattern.makeSafe(s));
+    }
+
+    public int indexOf(String s) {
+        return super.indexOf(Pattern.makeSafe(s));
+    }
+    
+    public int indexOf(String s, int i) {
+        return super.indexOf(Pattern.makeSafe(s),i);
+    }
+    
+
+    
 }

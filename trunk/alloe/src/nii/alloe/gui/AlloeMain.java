@@ -11,9 +11,12 @@ import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
+import nii.alloe.classify.*;
 import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.niceties.*;
+import weka.classifiers.*;
+import weka.core.*;
 
 /**
  *
@@ -29,9 +32,13 @@ public class AlloeMain extends javax.swing.JFrame {
     private JFileChooser fileChooser;
     private CorpusLoaderProgressListener clProgListener;
     private PatternGeneratorListener pbListener;
+    private FeatureVectorListener fvListener;
     private HashMap<String, String> termSetFileName;
+    private HashMap<String, String> fvTermSetFileName;
     private HashMap<String, PatternBuilder> patternBuilderProcess;
+    private HashMap<String, FeatureVectorFormer> featureVectorProcess;
     private HashMap<String, PatternSet> patternSets;
+    private DataSet dataSet;
     
     private AlloeMain thisForAnon;
     
@@ -43,7 +50,9 @@ public class AlloeMain extends javax.swing.JFrame {
         thisForAnon = this;
         corpusDisplayTableModel = new CorpusTableModel();
         termSetFileName = new HashMap<String,String>();
+        fvTermSetFileName = new HashMap<String,String>();
         patternBuilderProcess = new HashMap<String,PatternBuilder>();
+        featureVectorProcess = new HashMap<String,FeatureVectorFormer>();
         patternSets = new HashMap<String,PatternSet>();
     }
     
@@ -95,6 +104,29 @@ public class AlloeMain extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         patternTable = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        featureVectorRelationship = new javax.swing.JComboBox();
+        openDataSet = new javax.swing.JButton();
+        saveDataSet = new javax.swing.JButton();
+        featureVectorFormerMonitor = new nii.alloe.gui.ProcessMonitor();
+        featureVectorTermPairLabel = new javax.swing.JLabel();
+        featureOpenTermPairs = new javax.swing.JButton();
+        jPanel9 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        wekaOutput = new javax.swing.JTextArea();
+        classifier = new javax.swing.JComboBox();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        classifierParameters = new javax.swing.JTextField();
+        saveClassifierButton = new javax.swing.JButton();
+        openClassifierButton = new javax.swing.JButton();
+        startTrainingButton = new javax.swing.JButton();
+        jPanel10 = new javax.swing.JPanel();
+        processMonitor2 = new nii.alloe.gui.ProcessMonitor();
+        jLabel7 = new javax.swing.JLabel();
+        jButton6 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Alloe");
@@ -136,13 +168,13 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
+                    .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(termSetLabel)
                             .addComponent(textFileLabel)
                             .addComponent(indexLocationLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 168, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 161, Short.MAX_VALUE)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(setIndexButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(openCorpusTextFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -197,7 +229,7 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
+                    .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(openIndexedCorpus)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -215,7 +247,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(saveIndexedCorpus)
                     .addComponent(corpusTotalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
+                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -234,7 +266,7 @@ public class AlloeMain extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -287,15 +319,15 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternGeneratorRelationship, 0, 360, Short.MAX_VALUE))
+                        .addComponent(patternGeneratorRelationship, 0, 353, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addComponent(termPairSetLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 215, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 208, Short.MAX_VALUE)
                         .addComponent(openTermPairSet))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternBuilderMetric, 0, 397, Short.MAX_VALUE)))
+                        .addComponent(patternBuilderMetric, 0, 390, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -378,11 +410,11 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(patternViewerRelationshipLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternViewerRelationship, 0, 360, Short.MAX_VALUE))
+                        .addComponent(patternViewerRelationship, 0, 353, Short.MAX_VALUE))
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(openPatternSet)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -429,17 +461,219 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         jTabbedPane1.addTab("Patterns", jPanel2);
 
+        jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Feature Vector Former"));
+        jLabel1.setText("Relationship:");
+
+        featureVectorRelationship.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                featureVectorRelationshipActionPerformed(evt);
+            }
+        });
+
+        openDataSet.setText("Open Vectors");
+        openDataSet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openDataSetActionPerformed(evt);
+            }
+        });
+
+        saveDataSet.setText("Save Vectors");
+        saveDataSet.setEnabled(false);
+        saveDataSet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveDataSetActionPerformed(evt);
+            }
+        });
+
+        featureVectorFormerMonitor.setProcessCompletedText("Feature Vectors Loaded");
+        featureVectorFormerMonitor.setProcessNotStartedText("Feature Vectors not Loaded");
+
+        featureVectorTermPairLabel.setText("Term Pair Set:");
+
+        featureOpenTermPairs.setText("Open Term Pair Set");
+        featureOpenTermPairs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                featureOpenTermPairsActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(featureVectorFormerMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(jPanel8Layout.createSequentialGroup()
+                            .addComponent(featureVectorTermPairLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(featureOpenTermPairs))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel8Layout.createSequentialGroup()
+                            .addComponent(jLabel1)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(featureVectorRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(openDataSet)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(saveDataSet))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(featureVectorRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(openDataSet)
+                    .addComponent(saveDataSet))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(featureOpenTermPairs)
+                    .addComponent(featureVectorTermPairLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(featureVectorFormerMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        jPanel9.setBorder(javax.swing.BorderFactory.createTitledBorder("Train Classifier"));
+        wekaOutput.setColumns(20);
+        wekaOutput.setEditable(false);
+        wekaOutput.setRows(5);
+        wekaOutput.setToolTipText("WEKA Output");
+        jScrollPane2.setViewportView(wekaOutput);
+
+        classifier.setModel(new DefaultComboBoxModel(getClassifierNames()));
+        classifier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                classifierActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Classifier:");
+
+        jLabel6.setText("Parameters:");
+
+        saveClassifierButton.setText("Save Classifier");
+        saveClassifierButton.setEnabled(false);
+
+        openClassifierButton.setText("Open Classifier");
+
+        startTrainingButton.setText("Start Training");
+        startTrainingButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startTrainingButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(classifier, 0, 119, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(classifierParameters, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(startTrainingButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
+                        .addComponent(openClassifierButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(saveClassifierButton)))
+                .addContainerGap())
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(classifierParameters, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(classifier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(saveClassifierButton)
+                    .addComponent(openClassifierButton)
+                    .addComponent(startTrainingButton))
+                .addContainerGap())
+        );
+
+        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("Create Model"));
+
+        jLabel7.setText("Logic:");
+
+        jButton6.setText("Open Logic");
+
+        jButton7.setText("Compare to Term Pair Set");
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 316, Short.MAX_VALUE)
+                        .addComponent(jButton6))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                        .addContainerGap(275, Short.MAX_VALUE)
+                        .addComponent(jButton7))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(processMonitor2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton6)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                .addComponent(processMonitor2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton7)
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 521, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 558, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
-        jTabbedPane1.addTab("tab3", jPanel3);
+        jTabbedPane1.addTab("Classification", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -447,19 +681,185 @@ public class AlloeMain extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 519, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(50, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 585, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void startTrainingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startTrainingButtonActionPerformed
+        try {
+            Iterator<Map.Entry<String,Instances>> ei = dataSet.instances.entrySet().iterator();
+            while(ei.hasNext()) {
+                Map.Entry<String,Instances> ei2 = ei.next();
+                String relationship = ei2.getKey();
+                Instances instances = ei2.getValue();
+                instances.setClassIndex(instances.numAttributes()-1);
+                String[] opts = new String[1];
+                opts[0] = classifierParameters.getText();
+                String s = classifier.getSelectedItem().toString();
+                Classifier c = Classifier.forName(classifierNameToFullName.get(classifier.getSelectedItem().toString()),
+                        opts);
+                wekaOutput.append("Building classifier for relationship: " + relationship);
+                c.buildClassifier(instances);
+                wekaOutput.append(" ...OK!");
+            }
+        } catch(Exception x) {
+            x.printStackTrace();
+        }
+    }//GEN-LAST:event_startTrainingButtonActionPerformed
+
+    private void classifierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classifierActionPerformed
+        if(classifier.getSelectedItem().toString().equals("Other")) {
+            String displayName = JOptionPane.showInputDialog(this,"Enter Display Name");
+            if(displayName == null)
+                return;
+            // TODO destroy duplication
+            String className = "";
+            boolean classOK = false;
+            while(className != null && !classOK) {
+                className = JOptionPane.showInputDialog(this,"Enter Class Name");
+            
+                if(className == null)
+                    return;
+                try {
+                    classOK = weka.classifiers.Classifier.class.isAssignableFrom(Class.forName(className));
+                } catch(ClassNotFoundException x) {
+                    classOK = false;
+                }
+                
+                if(!classOK) {
+                    JOptionPane.showMessageDialog(this,"Please enter a class name. Example: \"weka.classifiers.bayes.NaiveBayes\"","Invalid classifier name or classifier not found", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            if(className != null) {
+                classifierNameToFullName.put(displayName,className);
+                DefaultComboBoxModel dcbm = (DefaultComboBoxModel)classifier.getModel();
+                dcbm.insertElementAt(displayName,dcbm.getIndexOf("Other"));
+                classifier.setSelectedItem(displayName);
+            }
+        }
+        classifierParameters.setText("");
+    }//GEN-LAST:event_classifierActionPerformed
+
+    private void saveDataSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveDataSetActionPerformed
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+                oos.writeObject(dataSet);
+                oos.close();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save data set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_saveDataSetActionPerformed
+
+    private void openDataSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openDataSetActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                Object o = ois.readObject();
+                if(!(o instanceof DataSet)) {
+                    JOptionPane.showMessageDialog(this, "Invalid Format", "Could not open data set", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                dataSet = (DataSet)o;
+                featureVectorRelationship.setModel(new DefaultComboBoxModel(dataSet.instances.keySet().toArray()));
+                saveDataSet.setEnabled(true);
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open data set", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open data set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_openDataSetActionPerformed
+
+    private class FeatureVectorListener implements AlloeProgressListener {
+        public void progressChange(double newProgress) {
+            
+        }
+    
+    
+        public void finished() {
+            saveDataSet.setEnabled(true);
+        }
+    }
+    
+    private void initFeatureVectorProcess(String rel) {
+        if(!featureVectorProcess.containsKey(rel)) {
+            try {
+                ObjectInputStream ios = new ObjectInputStream(new FileInputStream(fvTermSetFileName.get(rel)));
+                Object o = ios.readObject();
+                if(!(o instanceof TermPairSet)) {
+                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                FeatureVectorFormer fvf = new FeatureVectorFormer(rel,patternSets.get(rel),corpus);
+                fvf.dataSet = dataSet;
+                featureVectorProcess.put(rel,fvf);
+                if(fvListener == null)
+                    fvListener = new FeatureVectorListener();
+                fvf.addProgressListener(fvListener);
+                featureVectorFormerMonitor.setProcess(fvf);
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void featureOpenTermPairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureOpenTermPairsActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String rel = featureVectorRelationship.getSelectedItem().toString();
+            fvTermSetFileName.put(rel,
+                    fileChooser.getSelectedFile().getAbsolutePath());
+            featureVectorTermPairLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getPath());
+            if(corpus != null && patternSets.get(rel) != null) {
+                initFeatureVectorProcess(rel);
+            }
+        }
+    }//GEN-LAST:event_featureOpenTermPairsActionPerformed
+
+    private void featureVectorRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureVectorRelationshipActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_featureVectorRelationshipActionPerformed
+
+    private HashMap<String,String> classifierNameToFullName;
+    
+    public Vector<String> getClassifierNames() {
+        Vector<String> r = new Vector<String>(9);
+        classifierNameToFullName = new HashMap<String,String>(8);
+        classifierNameToFullName.put("Bayesian Network","weka.classifiers.bayes.BayesNet");
+        classifierNameToFullName.put("Decision Tree","weka.classifiers.trees.J48");
+        classifierNameToFullName.put("Rule Learner","weka.classifiers.rules.JRip");
+        classifierNameToFullName.put("Linear Regression","weka.classifiers.functions.LinearRegression");
+        classifierNameToFullName.put("Multilayer Perceptron","weka.classifiers.functions.MultilayerPerceptron");
+        classifierNameToFullName.put("Naive Bayes","weka.classifiers.bayes.NaiveBayes");
+        classifierNameToFullName.put("SVM","weka.classifiers.functions.SMO");
+        classifierNameToFullName.put("SVM Regression","weka.classifiers.functions.SMOreg");
+        
+        r.add("SVM Regression");
+        r.add("SVM");
+        r.add("Naive Bayes");
+        r.add("Bayesian Network");
+        r.add("Multilayer Perceptron");
+        r.add("Linear Regression");
+        r.add("Rule Learner");
+        r.add("Decision Tree");
+        r.add("Other");
+        
+        return r;
+    }
+    
+    
     private void patternViewerRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternViewerRelationshipActionPerformed
         onPatternSetLoad(patternViewerRelationship.getSelectedItem().toString(),false);
     }//GEN-LAST:event_patternViewerRelationshipActionPerformed
@@ -467,6 +867,10 @@ public class AlloeMain extends javax.swing.JFrame {
     private void onPatternSetLoad(String relationship) { onPatternSetLoad(relationship,true); }
     private void onPatternSetLoad(String relationship, boolean select) {
         DefaultComboBoxModel dcbm = (DefaultComboBoxModel)patternViewerRelationship.getModel();
+        if(dcbm.getIndexOf(relationship) == -1) {
+            dcbm.addElement(relationship);
+        }
+        dcbm = (DefaultComboBoxModel)featureVectorRelationship.getModel();
         if(dcbm.getIndexOf(relationship) == -1) {
             dcbm.addElement(relationship);
         }
@@ -602,6 +1006,7 @@ public class AlloeMain extends javax.swing.JFrame {
             String name = JOptionPane.showInputDialog(this, "New Relation", "");
             ((DefaultComboBoxModel)patternGeneratorRelationship.getModel()).insertElementAt(name,0);
             ((DefaultComboBoxModel)patternViewerRelationship.getModel()).insertElementAt(name,0);
+            ((DefaultComboBoxModel)featureVectorRelationship.getModel()).insertElementAt(name,0);
             if(patternGeneratorRelationship.getItemAt(1).equals("")) {
                 patternGeneratorRelationship.removeItemAt(1);
             }
@@ -712,6 +1117,7 @@ public class AlloeMain extends javax.swing.JFrame {
         corpusDisplayTableModel.fireTableDataChanged();
         corpusDisplay.revalidate();
         saveIndexedCorpus.setEnabled(true);
+        dataSet = new DataSet(corpus.terms);
     }
     
     private void openIndexedCorpusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openIndexedCorpusActionPerformed
@@ -779,25 +1185,43 @@ public class AlloeMain extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox classifier;
+    private javax.swing.JTextField classifierParameters;
     private javax.swing.ButtonGroup corpusAction;
     private javax.swing.JTable corpusDisplay;
     private javax.swing.JScrollPane corpusDisplayScroll;
     private javax.swing.JLabel corpusTotalLabel;
+    private javax.swing.JButton featureOpenTermPairs;
+    private nii.alloe.gui.ProcessMonitor featureVectorFormerMonitor;
+    private javax.swing.JComboBox featureVectorRelationship;
+    private javax.swing.JLabel featureVectorTermPairLabel;
     private javax.swing.JLabel indexLocationLabel;
     private nii.alloe.gui.ProcessMonitor indexerProgressMonitor;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JButton openClassifierButton;
     private javax.swing.JButton openCorpusTermSet;
     private javax.swing.JButton openCorpusTextFile;
+    private javax.swing.JButton openDataSet;
     private javax.swing.JButton openIndexedCorpus;
     private javax.swing.JButton openPatternSet;
     private javax.swing.JButton openTermPairSet;
@@ -807,13 +1231,18 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JTable patternTable;
     private javax.swing.JComboBox patternViewerRelationship;
     private javax.swing.JLabel patternViewerRelationshipLabel;
+    private nii.alloe.gui.ProcessMonitor processMonitor2;
+    private javax.swing.JButton saveClassifierButton;
+    private javax.swing.JButton saveDataSet;
     private javax.swing.JButton saveIndexedCorpus;
     private javax.swing.JButton savePatternSet;
     private javax.swing.JButton setIndexButton;
+    private javax.swing.JButton startTrainingButton;
     private javax.swing.JLabel termPairSetLabel;
     private javax.swing.JLabel termSetLabel;
     private javax.swing.JLabel textFileLabel;
     private javax.swing.JLabel totalPatternsLabel;
+    private javax.swing.JTextArea wekaOutput;
     // End of variables declaration//GEN-END:variables
     
     /**

@@ -10,6 +10,7 @@ package nii.alloe.classify;
 import junit.framework.*;
 import nii.alloe.theory.Logic;
 import nii.alloe.theory.Model;
+import nii.alloe.corpus.TermList;
 import weka.core.*;
 import weka.classifiers.*;
 import java.util.*;
@@ -23,9 +24,13 @@ import java.io.*;
  */
 public class DataSetTest extends TestCase {
     LinkedList<String> atts;
+    TermList termList;
     
     public DataSetTest(String testName) {
         super(testName);
+        termList = new TermList();
+        termList.add("term1");
+        termList.add("term2");
     }
 
     protected void setUp() throws Exception {
@@ -51,7 +56,7 @@ public class DataSetTest extends TestCase {
         
         String relation = "relation";
         Iterator<String> attNames = atts.iterator();
-        DataSet instance = new DataSet();
+        DataSet instance = new DataSet(termList);
         
         instance.prepRelation(relation, attNames);
     }
@@ -66,7 +71,7 @@ public class DataSetTest extends TestCase {
         String relation = "relation";
         String term1 = "term1";
         String term2 = "term2";
-        DataSet instance = new DataSet();
+        DataSet instance = new DataSet(termList);
         instance.prepRelation(relation, atts.iterator());
         
         instance.addInstance(i, relation, term1, term2);
@@ -81,7 +86,7 @@ public class DataSetTest extends TestCase {
         String relation = "relation";
         String term1 = "term1";
         String term2 = "term2";
-        DataSet instance = new DataSet();
+        DataSet instance = new DataSet(termList);
         instance.prepRelation(relation, atts.iterator());
         
         instance.addNonOccInstance(relation, term1, term2);
@@ -93,7 +98,7 @@ public class DataSetTest extends TestCase {
     public void testBuildClassifierSet() {
         System.out.println("buildClassifierSet");
         
-        DataSet instance = new DataSet();
+        DataSet instance = new DataSet(termList);
         
         Map<String, Classifier> expResult = null;
         Map<String, Classifier> result = instance.buildClassifierSet();
@@ -111,7 +116,7 @@ public class DataSetTest extends TestCase {
         
         Logic logic = null;
         Map<String, Classifier> classifs = null;
-        DataSet instance = new DataSet();
+        DataSet instance = new DataSet(termList);
         
         Model expResult = null;
         Model result = instance.buildProbModel(logic, classifs);
@@ -128,7 +133,7 @@ public class DataSetTest extends TestCase {
         System.out.println("buildTrueModel");
         
         Logic logic = null;
-        DataSet instance = new DataSet();
+        DataSet instance = new DataSet(termList);
         
         Model expResult = null;
         Model result = instance.buildTrueModel(logic);

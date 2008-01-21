@@ -164,6 +164,12 @@ public class PatternTest extends TestCase {
         boolean result = instance.matches(str, term1, term2);
         assertEquals(expResult, result);
         
+        instance = new Pattern("    ＊  1 methyl (2(ch3");
+        term1 = "America";
+        term2 = "America";
+        str = " belgium |  bulgaria |  canada |  czech republic |  denmark |  estonia |  france |  germany |  greece |  hungary |  iceland |  italy |  latvia |  lithuania |  luxembourg |  the netherlands |  norway |  poland |  portugal |  romania |  slovakia |  slovenia                                                                                                |  spain |  turkey |  united kingdom |  united states of america";
+        assertEquals(false,instance.matches(str,term1,term2));
+        
     }
     
     /**

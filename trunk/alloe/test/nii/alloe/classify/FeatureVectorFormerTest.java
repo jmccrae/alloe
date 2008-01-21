@@ -48,9 +48,9 @@ public class FeatureVectorFormerTest extends TestCase {
         List<Pattern> patterns = null;
         Corpus corpus = null;
         TermPairSet termPairs = null;
-        FeatureVectorFormer instance = new FeatureVectorFormer();
+        //FeatureVectorFormer instance = new FeatureVectorFormer();
         
-        instance.makeFeatureVectors(relation, dataSet, terms, patterns, corpus, termPairs);
+        //instance.makeFeatureVectors(relation, dataSet, terms, patterns, corpus, termPairs);
         
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
