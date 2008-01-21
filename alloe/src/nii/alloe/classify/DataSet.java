@@ -3,6 +3,7 @@ import nii.alloe.theory.Logic;
 import nii.alloe.theory.Model;
 import nii.alloe.theory.ProbabilityGraph;
 import nii.alloe.theory.SpecificGraph;
+import nii.alloe.corpus.*;
 import weka.core.*;
 import weka.classifiers.*;
 import java.util.*;
@@ -29,8 +30,16 @@ public class DataSet implements Serializable {
     public Map<String,Instances> instances;
     private Map<String,Vector<String>> terms;
     private Map<String,Vector<String>> nonOccTerms;
-    private Set<String> termSet;
+    private TermList termSet;
     static final String glue = " => ";
+    
+    /** Create a new instance */
+    public DataSet(TermList termList) {
+        instances = new HashMap<String,Instances>();
+        terms = new HashMap<String,Vector<String>>();
+        nonOccTerms = new HashMap<String,Vector<String>>();
+        termSet = termList;
+    }
     
     /**
      * Add a new relation with a given set of attributes
@@ -46,16 +55,21 @@ public class DataSet implements Serializable {
     }
     
     /**
+     * Check if prepRelation has been called
+     */
+    public boolean isRelationPrepared(String relation) {
+        return terms.get(relation) != null;
+    }
+    
+    /**
      * Add a new instance to the data set
      * @throws IllegalArgumentException if prepRelation has not been called for this relation
      */
     public void addInstance(Instance i, String relation, String term1, String term2) {
-        if(instances.get(relation) == null)
+        if(instances.get(relation) == null || !termSet.contains(term1) || !termSet.contains(term2))
             throw new IllegalArgumentException();
         instances.get(relation).add(i);
         terms.get(relation).add(term1 + glue + term2);
-        termSet.add(term1);
-        termSet.add(term2);
     }
     
     /**
