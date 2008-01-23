@@ -164,6 +164,8 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
      * @param term2 the right hand side of the relation */
     public boolean matches(String str, String term1, String term2) {
         String regex;
+        term1 = cleanTerm(term1);
+        term2 = cleanTerm(term2);
         if(matchesCacheOr == 0) {
             regex = val.replaceAll(regexMetachars, "\\\\$1");
             regex = regex.replaceAll("\\*","(" + wordDBS + "+)");

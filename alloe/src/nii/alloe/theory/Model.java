@@ -298,6 +298,9 @@ public class Model extends AbstractCollection<Integer> {
         graphs.get(relationByID(id)).remove(iByID(id),jByID(id));
     }
     
+    /**
+     * Sum of each graphs {@link Graph.linkCount}
+     **/
     public int size() {
         int rval = 0;
         Iterator<Graph> gi = graphs.values().iterator();
@@ -305,6 +308,28 @@ public class Model extends AbstractCollection<Integer> {
             rval += gi.next().linkCount();
         }
         return rval;
+    }
+    
+    /**
+     * Name -> Graph ID
+     */
+    public int getGraphIDByName(String name) {
+        return relationIdx.indexOf(name);
+    }
+    
+    /**
+     * Name -> Graph object
+     */
+    public Graph getGraphByName(String name) {
+        return graphs.get(name);
+    }
+    
+    /**
+     * The set of graph names
+     */
+    public Vector<String> getGraphNames() {
+        // Don't really want someone else changing relationIdx
+        return (Vector<String>)relationIdx.clone();
     }
     
     /**

@@ -19,6 +19,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
     private Collection<String> terms;
     private PatternSet patterns;
     private Corpus corpus;
+    private TermPairSet termPairs;
     /** The data set that the data should be entered into */
     public DataSet dataSet;
     
@@ -26,13 +27,15 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
      * @param relation The relation to create data for
      * @param terms A list of term participating in relations
      * @param patterns The pattern set to use to create vectors;
+     * @param termPairs The true/false value of a particular term pair set, maybe null, if so all termPairs default to negative class
      * @param corpus The corpus
      **/
-    public FeatureVectorFormer(String relation, PatternSet patterns, Corpus corpus) {
+    public FeatureVectorFormer(String relation, PatternSet patterns, Corpus corpus, TermPairSet termPairs) {
         this.relation = relation;
         this.terms = corpus.terms;
         this.patterns = patterns;
         this.corpus = corpus;
+        this.termPairs = termPairs;
     }
     
     private String term1, term2;
@@ -77,7 +80,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                     term2 = null;
                     continue;
                 }
-                double[] data = new double[patterns.size()];
+                double[] data = new double[patterns.size() + 1];
                 // TODO benchmark using corpus.getContextsForTermInPattern()
                 
                 
@@ -102,9 +105,12 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                 }
                 
                 fireNewProgressChange((leftTermCount * terms.size() + rightTermCount) / termCounts);
-                if(!isAllZero)
+                if(!isAllZero) {
+                    if(termPairs != null)
+                        data[patterns.size()] = termPairs.contains(term1,term2) ? 1 : 0;
                     dataSet.addInstance(new SparseInstance(1.0,data),
                             relation, term1, term2);
+                }
                 rightTermCount++;
                 term2 = null;
             }

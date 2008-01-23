@@ -15,6 +15,7 @@ import nii.alloe.classify.*;
 import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.niceties.*;
+import nii.alloe.theory.*;
 import weka.classifiers.*;
 import weka.core.*;
 
@@ -39,6 +40,10 @@ public class AlloeMain extends javax.swing.JFrame {
     private HashMap<String, FeatureVectorFormer> featureVectorProcess;
     private HashMap<String, PatternSet> patternSets;
     private DataSet dataSet;
+    private Map<String,Classifier> classifierSet;
+    private Logic logic;
+    private ProbModelBuilder probModelBuilder;
+    private Model model;
     
     private AlloeMain thisForAnon;
     
@@ -54,6 +59,7 @@ public class AlloeMain extends javax.swing.JFrame {
         patternBuilderProcess = new HashMap<String,PatternBuilder>();
         featureVectorProcess = new HashMap<String,FeatureVectorFormer>();
         patternSets = new HashMap<String,PatternSet>();
+        classifierSet = new HashMap<String,Classifier>();
     }
     
     /** This method is called from within the constructor to
@@ -106,12 +112,16 @@ public class AlloeMain extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        featureVectorRelationship = new javax.swing.JComboBox();
+        featureVectorPatternSet = new javax.swing.JComboBox();
         openDataSet = new javax.swing.JButton();
         saveDataSet = new javax.swing.JButton();
         featureVectorFormerMonitor = new nii.alloe.gui.ProcessMonitor();
+        featureVectorFormerMonitor.addProcessMonitorListener(new FVPMListener());
         featureVectorTermPairLabel = new javax.swing.JLabel();
         featureOpenTermPairs = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        featureVectorRelationship = new javax.swing.JTextField();
+        isTrainingCheck = new javax.swing.JCheckBox();
         jPanel9 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         wekaOutput = new javax.swing.JTextArea();
@@ -122,11 +132,24 @@ public class AlloeMain extends javax.swing.JFrame {
         saveClassifierButton = new javax.swing.JButton();
         openClassifierButton = new javax.swing.JButton();
         startTrainingButton = new javax.swing.JButton();
+        jPanel11 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
-        processMonitor2 = new nii.alloe.gui.ProcessMonitor();
-        jLabel7 = new javax.swing.JLabel();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
+        probModelBuilderMonitor = new nii.alloe.gui.ProcessMonitor();
+        logicLabel = new javax.swing.JLabel();
+        openLogic = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        logicConnectionTable = new javax.swing.JTable();
+        modelRelationship = new javax.swing.JComboBox();
+        saveModel = new javax.swing.JButton();
+        openModel = new javax.swing.JButton();
+        modelRelationShipLabel = new javax.swing.JLabel();
+        visualizeModel = new javax.swing.JButton();
+        modelLinksLabel = new javax.swing.JLabel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        logicDescription = new javax.swing.JTextArea();
+        saveLogicButton = new javax.swing.JButton();
+        processLogicButton = new javax.swing.JButton();
+        jPanel12 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Alloe");
@@ -462,11 +485,11 @@ public class AlloeMain extends javax.swing.JFrame {
         jTabbedPane1.addTab("Patterns", jPanel2);
 
         jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Feature Vector Former"));
-        jLabel1.setText("Relationship:");
+        jLabel1.setText("Pattern Set:");
 
-        featureVectorRelationship.addActionListener(new java.awt.event.ActionListener() {
+        featureVectorPatternSet.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                featureVectorRelationshipActionPerformed(evt);
+                featureVectorPatternSetActionPerformed(evt);
             }
         });
 
@@ -497,6 +520,18 @@ public class AlloeMain extends javax.swing.JFrame {
             }
         });
 
+        jLabel4.setText("Relationship:");
+
+        isTrainingCheck.setSelected(true);
+        isTrainingCheck.setText("Training");
+        isTrainingCheck.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        isTrainingCheck.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        isTrainingCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                isTrainingCheckActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
@@ -507,29 +542,39 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(featureVectorFormerMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(jPanel8Layout.createSequentialGroup()
-                            .addComponent(featureVectorTermPairLabel)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(featureOpenTermPairs))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel8Layout.createSequentialGroup()
-                            .addComponent(jLabel1)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(featureVectorRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(openDataSet)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(saveDataSet))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(23, 23, 23)
+                        .addComponent(featureVectorPatternSet, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(openDataSet)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(saveDataSet))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(featureVectorRelationship, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(isTrainingCheck))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(featureVectorTermPairLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 229, Short.MAX_VALUE)
+                        .addComponent(featureOpenTermPairs)))
+                .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(featureVectorRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(openDataSet)
-                    .addComponent(saveDataSet))
+                    .addComponent(saveDataSet)
+                    .addComponent(featureVectorPatternSet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(isTrainingCheck)
+                    .addComponent(featureVectorRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(featureOpenTermPairs)
@@ -558,8 +603,18 @@ public class AlloeMain extends javax.swing.JFrame {
 
         saveClassifierButton.setText("Save Classifier");
         saveClassifierButton.setEnabled(false);
+        saveClassifierButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveClassifierButtonActionPerformed(evt);
+            }
+        });
 
         openClassifierButton.setText("Open Classifier");
+        openClassifierButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openClassifierButtonActionPerformed(evt);
+            }
+        });
 
         startTrainingButton.setText("Start Training");
         startTrainingButton.addActionListener(new java.awt.event.ActionListener() {
@@ -575,18 +630,18 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE)
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(classifier, 0, 119, Short.MAX_VALUE)
+                        .addComponent(classifier, 0, 130, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(classifierParameters, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addComponent(startTrainingButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 87, Short.MAX_VALUE)
                         .addComponent(openClassifierButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(saveClassifierButton)))
@@ -601,7 +656,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(jLabel6)
                     .addComponent(classifier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveClassifierButton)
@@ -610,56 +665,15 @@ public class AlloeMain extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("Create Model"));
-
-        jLabel7.setText("Logic:");
-
-        jButton6.setText("Open Logic");
-
-        jButton7.setText("Compare to Term Pair Set");
-
-        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
-        jPanel10.setLayout(jPanel10Layout);
-        jPanel10Layout.setHorizontalGroup(
-            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel10Layout.createSequentialGroup()
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 316, Short.MAX_VALUE)
-                        .addComponent(jButton6))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                        .addContainerGap(275, Short.MAX_VALUE)
-                        .addComponent(jButton7))
-                    .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(processMonitor2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        jPanel10Layout.setVerticalGroup(
-            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel10Layout.createSequentialGroup()
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton6)
-                    .addComponent(jLabel7))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
-                .addComponent(processMonitor2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton7)
-                .addContainerGap())
-        );
-
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -669,11 +683,169 @@ public class AlloeMain extends javax.swing.JFrame {
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jTabbedPane1.addTab("Classification", jPanel3);
+
+        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("Create Model"));
+        probModelBuilderMonitor.addExtraListener(new ModelProcessListener());
+
+        logicLabel.setText("Logic");
+
+        openLogic.setText("Open Logic");
+        openLogic.setToolTipText("Open a logic from a file");
+        openLogic.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openLogicActionPerformed(evt);
+            }
+        });
+
+        logicConnectionTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Logic Relation", "Feature Vector", "Classifier"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, true, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(logicConnectionTable);
+
+        modelRelationship.setEnabled(false);
+
+        saveModel.setText("Save Model");
+        saveModel.setEnabled(false);
+
+        openModel.setText("Open Model");
+
+        modelRelationShipLabel.setText("Relationship:");
+        modelRelationShipLabel.setEnabled(false);
+
+        visualizeModel.setText("Visualize");
+        visualizeModel.setEnabled(false);
+
+        modelLinksLabel.setText("Model Links:");
+        modelLinksLabel.setEnabled(false);
+
+        logicDescription.setColumns(20);
+        logicDescription.setRows(5);
+        jScrollPane4.setViewportView(logicDescription);
+
+        saveLogicButton.setText("Save Logic");
+
+        processLogicButton.setText("Process Logic");
+        processLogicButton.setToolTipText("Load the logic as above");
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(logicLabel)
+                        .addGap(459, 459, 459))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                        .addComponent(processLogicButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(openLogic)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(saveLogicButton)
+                        .addContainerGap())
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                                .addComponent(modelLinksLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 311, Short.MAX_VALUE)
+                                .addComponent(visualizeModel))
+                            .addGroup(jPanel10Layout.createSequentialGroup()
+                                .addComponent(modelRelationShipLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(modelRelationship, 0, 387, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                                .addComponent(probModelBuilderMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(29, 29, 29)))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                        .addComponent(openModel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(saveModel)
+                        .addContainerGap())))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(logicLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(saveLogicButton)
+                    .addComponent(openLogic)
+                    .addComponent(processLogicButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(probModelBuilderMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(modelRelationShipLabel)
+                    .addComponent(modelRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(visualizeModel)
+                    .addComponent(modelLinksLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(saveModel)
+                    .addComponent(openModel))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jTabbedPane1.addTab("Model", jPanel11);
+
+        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
+        jPanel12.setLayout(jPanel12Layout);
+        jPanel12Layout.setHorizontalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 514, Short.MAX_VALUE)
+        );
+        jPanel12Layout.setVerticalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 558, Short.MAX_VALUE)
+        );
+        jTabbedPane1.addTab("Consistency", jPanel12);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -682,24 +854,156 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 519, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 585, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    private void initProbModelBuilder() {
+        HashMap<String,Classifier> classifs = new HashMap<String,Classifier>(logic.relationNames.keySet().size());
+        HashMap<String,String> dataSetToLogicName = new HashMap<String,String>(logic.relationNames.keySet().size());
+        for(int i = 0; i < logicConnectionTable.getModel().getRowCount(); i++) {
+            classifs.put(logicConnectionTable.getModel().getValueAt(i,1).toString(),
+                    classifierSet.get(logicConnectionTable.getModel().getValueAt(i,2).toString()));
+            dataSetToLogicName.put(logicConnectionTable.getModel().getValueAt(i,1).toString(),
+                    logicConnectionTable.getModel().getValueAt(i,0).toString());
+        }
+        probModelBuilder.setClassifiers(classifs);
+        probModelBuilder.setDataSetToLogicName(dataSetToLogicName);
+    }
+    
+    private void onModelLoad() {
+        modelRelationShipLabel.setEnabled(true);
+        modelRelationship.setModel(new DefaultComboBoxModel(model.getGraphNames()));
+        modelRelationship.setSelectedIndex(0);
+        modelRelationship.setEnabled(true);
+        String graphName = modelRelationship.getSelectedItem().toString();
+        Graph graph = model.getGraphByName(graphName);
+        modelLinksLabel.setText("Model Links: " + graph.linkCount());
+        modelLinksLabel.setEnabled(true);
+        visualizeModel.setEnabled(true); // TODO change to is JGraph in classpath
+        saveModel.setEnabled(true);
+    }
+    
+    private class ModelProcessListener implements AlloeProgressListener {
+        public void finished() {
+            model = probModelBuilder.model;
+            onModelLoad();
+        }
 
+        public void progressChange(double newProgress) {
+        }
+    }
+    
+    private class ModelPMListener implements ProcessMonitorListener {
+        public boolean onStart(ProcessMonitor pm) {
+            initProbModelBuilder();
+            return true;
+        }
+
+        public boolean onResume(ProcessMonitor pm) {
+            probModelBuilder = (ProbModelBuilder)pm.getProcess();
+            return true;
+        }
+    }
+    
+    private void isTrainingCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isTrainingCheckActionPerformed
+        
+    }//GEN-LAST:event_isTrainingCheckActionPerformed
+    
+    private void openLogicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openLogicActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                logic = new Logic(fileChooser.getSelectedFile().getAbsolutePath());
+            } catch(IllegalArgumentException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open logic file", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            TableColumn fvCol = logicConnectionTable.getColumnModel().getColumn(1);
+            JComboBox fvCombo = new JComboBox();
+            Iterator<String> fviter = dataSet.instances.keySet().iterator();
+            String defFV = "";
+            while(fviter.hasNext()) {
+                defFV = fviter.next();
+                fvCombo.addItem(defFV);
+            }
+            fvCol.setCellEditor(new DefaultCellEditor(fvCombo));
+            
+            TableColumn clCol = logicConnectionTable.getColumnModel().getColumn(2);
+            JComboBox clCombo = new JComboBox();
+            Iterator<String> cliter = classifierSet.keySet().iterator();
+            String defCl = "";
+            while(cliter.hasNext()) {
+                defCl = cliter.next();
+                clCombo.addItem(defCl);
+            }
+            clCol.setCellEditor(new DefaultCellEditor(clCombo));
+            
+            Iterator<String> relIter = logic.relationNames.keySet().iterator();
+            DefaultTableModel dtm = (DefaultTableModel)logicConnectionTable.getModel();
+            while(dtm.getRowCount() > 0)
+                dtm.removeRow(0);
+            while(relIter.hasNext()) {
+                Object[] os = new Object[3];
+                os[0] = relIter.next();
+                os[1] = dataSet.instances.containsKey(os[0]) ? os[0] : defFV;
+                os[2] = classifierSet.containsKey(os[0]) ? os[0] : defCl;
+                dtm.addRow(os);
+            }
+            probModelBuilder = new ProbModelBuilder(logic,dataSet,null,null);
+            probModelBuilder.addProgressListener(new ModelProcessListener());
+            probModelBuilderMonitor.setProcess(probModelBuilder);
+            initProbModelBuilder();
+            probModelBuilderMonitor.addProcessMonitorListener(new ModelPMListener());
+        }
+    }//GEN-LAST:event_openLogicActionPerformed
+    
+    private void saveClassifierButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveClassifierButtonActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+                oos.writeObject(classifierSet);
+                oos.close();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save classifier set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_saveClassifierButtonActionPerformed
+    
+    private void openClassifierButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openClassifierButtonActionPerformed
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                Object o = ois.readObject();
+                if(!(o instanceof Map)) {
+                    JOptionPane.showMessageDialog(this,"Invalid Format", "Could not open classifier set",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                classifierSet = (Map<String,Classifier>)o;
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open classifier set", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open classifier set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        
+    }//GEN-LAST:event_openClassifierButtonActionPerformed
+    
     private void startTrainingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startTrainingButtonActionPerformed
         try {
             Iterator<Map.Entry<String,Instances>> ei = dataSet.instances.entrySet().iterator();
             while(ei.hasNext()) {
                 Map.Entry<String,Instances> ei2 = ei.next();
                 String relationship = ei2.getKey();
+                if(!dataSet.isTraining(relationship))
+                    continue;
                 Instances instances = ei2.getValue();
                 instances.setClassIndex(instances.numAttributes()-1);
                 String[] opts = new String[1];
@@ -709,13 +1013,16 @@ public class AlloeMain extends javax.swing.JFrame {
                         opts);
                 wekaOutput.append("Building classifier for relationship: " + relationship);
                 c.buildClassifier(instances);
-                wekaOutput.append(" ...OK!");
+                wekaOutput.append(" ...OK!\n");
+                wekaOutput.append(c.toString());
+                classifierSet.put(relationship,c);
             }
+            saveClassifierButton.setEnabled(true);
         } catch(Exception x) {
             x.printStackTrace();
         }
     }//GEN-LAST:event_startTrainingButtonActionPerformed
-
+    
     private void classifierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classifierActionPerformed
         if(classifier.getSelectedItem().toString().equals("Other")) {
             String displayName = JOptionPane.showInputDialog(this,"Enter Display Name");
@@ -726,7 +1033,7 @@ public class AlloeMain extends javax.swing.JFrame {
             boolean classOK = false;
             while(className != null && !classOK) {
                 className = JOptionPane.showInputDialog(this,"Enter Class Name");
-            
+                
                 if(className == null)
                     return;
                 try {
@@ -748,7 +1055,7 @@ public class AlloeMain extends javax.swing.JFrame {
         }
         classifierParameters.setText("");
     }//GEN-LAST:event_classifierActionPerformed
-
+    
     private void saveDataSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveDataSetActionPerformed
         if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
@@ -760,7 +1067,7 @@ public class AlloeMain extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_saveDataSetActionPerformed
-
+    
     private void openDataSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openDataSetActionPerformed
         if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
@@ -771,7 +1078,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     return;
                 }
                 dataSet = (DataSet)o;
-                featureVectorRelationship.setModel(new DefaultComboBoxModel(dataSet.instances.keySet().toArray()));
+                featureVectorPatternSet.setModel(new DefaultComboBoxModel(dataSet.instances.keySet().toArray()));
                 saveDataSet.setEnabled(true);
             } catch(IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open data set", JOptionPane.ERROR_MESSAGE);
@@ -780,58 +1087,74 @@ public class AlloeMain extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_openDataSetActionPerformed
-
+    
     private class FeatureVectorListener implements AlloeProgressListener {
         public void progressChange(double newProgress) {
             
         }
-    
-    
+        
+        
         public void finished() {
             saveDataSet.setEnabled(true);
         }
     }
     
-    private void initFeatureVectorProcess(String rel) {
-        if(!featureVectorProcess.containsKey(rel)) {
-            try {
-                ObjectInputStream ios = new ObjectInputStream(new FileInputStream(fvTermSetFileName.get(rel)));
-                Object o = ios.readObject();
-                if(!(o instanceof TermPairSet)) {
-                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                FeatureVectorFormer fvf = new FeatureVectorFormer(rel,patternSets.get(rel),corpus);
-                fvf.dataSet = dataSet;
-                featureVectorProcess.put(rel,fvf);
-                if(fvListener == null)
-                    fvListener = new FeatureVectorListener();
-                fvf.addProgressListener(fvListener);
-                featureVectorFormerMonitor.setProcess(fvf);
-            } catch(IOException x) {
-                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
-                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
-            }
+    private class FVPMListener implements ProcessMonitorListener {
+        public boolean onStart(ProcessMonitor pm) {
+            return initFeatureVectorProcess(featureVectorPatternSet.getSelectedItem().toString(),
+                    featureVectorRelationship.getText());
         }
+        
+        public boolean onResume(ProcessMonitor pm) {
+            return true;
+        }
+        
+    }
+    
+    private boolean initFeatureVectorProcess(String pat, String rel) {
+        try {
+            ObjectInputStream ios = new ObjectInputStream(new FileInputStream(fvTermSetFileName.get(rel)));
+            Object o = ios.readObject();
+            if(!(o instanceof TermPairSet)) {
+                JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            FeatureVectorFormer fvf = new FeatureVectorFormer(rel,patternSets.get(pat),corpus,(TermPairSet)o);
+            fvf.dataSet = dataSet;
+            featureVectorProcess.put(rel,fvf);
+            if(fvListener == null)
+                fvListener = new FeatureVectorListener();
+            fvf.addProgressListener(fvListener);
+            featureVectorFormerMonitor.setProcess(fvf);
+            dataSet.setTraining(rel,isTrainingCheck.isSelected());
+            return true;
+        } catch(IOException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } catch(ClassNotFoundException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        
     }
     
     private void featureOpenTermPairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureOpenTermPairsActionPerformed
         if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            String rel = featureVectorRelationship.getSelectedItem().toString();
+            String pat = featureVectorPatternSet.getSelectedItem().toString();
+            String rel = featureVectorRelationship.getText();
             fvTermSetFileName.put(rel,
                     fileChooser.getSelectedFile().getAbsolutePath());
             featureVectorTermPairLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getPath());
-            if(corpus != null && patternSets.get(rel) != null) {
-                initFeatureVectorProcess(rel);
+            if(corpus != null && patternSets.get(pat) != null) {
+                initFeatureVectorProcess(pat,rel);
             }
         }
     }//GEN-LAST:event_featureOpenTermPairsActionPerformed
-
-    private void featureVectorRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureVectorRelationshipActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_featureVectorRelationshipActionPerformed
-
+    
+    private void featureVectorPatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureVectorPatternSetActionPerformed
+        featureVectorRelationship.setText(featureVectorPatternSet.getSelectedItem().toString());
+    }//GEN-LAST:event_featureVectorPatternSetActionPerformed
+    
     private HashMap<String,String> classifierNameToFullName;
     
     public Vector<String> getClassifierNames() {
@@ -870,7 +1193,7 @@ public class AlloeMain extends javax.swing.JFrame {
         if(dcbm.getIndexOf(relationship) == -1) {
             dcbm.addElement(relationship);
         }
-        dcbm = (DefaultComboBoxModel)featureVectorRelationship.getModel();
+        dcbm = (DefaultComboBoxModel)featureVectorPatternSet.getModel();
         if(dcbm.getIndexOf(relationship) == -1) {
             dcbm.addElement(relationship);
         }
@@ -907,7 +1230,7 @@ public class AlloeMain extends javax.swing.JFrame {
         public void progressChange(double newProgress) {}
         
         /** Called when the process finishes */
-        public void finished() { 
+        public void finished() {
             patternSets.put(getRelationship(), patternBuilderProcess.get(getRelationship()).patternScores);
             onPatternSetLoad(getRelationship()); }
         
@@ -1006,7 +1329,7 @@ public class AlloeMain extends javax.swing.JFrame {
             String name = JOptionPane.showInputDialog(this, "New Relation", "");
             ((DefaultComboBoxModel)patternGeneratorRelationship.getModel()).insertElementAt(name,0);
             ((DefaultComboBoxModel)patternViewerRelationship.getModel()).insertElementAt(name,0);
-            ((DefaultComboBoxModel)featureVectorRelationship.getModel()).insertElementAt(name,0);
+            ((DefaultComboBoxModel)featureVectorPatternSet.getModel()).insertElementAt(name,0);
             if(patternGeneratorRelationship.getItemAt(1).equals("")) {
                 patternGeneratorRelationship.removeItemAt(1);
             }
@@ -1193,20 +1516,22 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel corpusTotalLabel;
     private javax.swing.JButton featureOpenTermPairs;
     private nii.alloe.gui.ProcessMonitor featureVectorFormerMonitor;
-    private javax.swing.JComboBox featureVectorRelationship;
+    private javax.swing.JComboBox featureVectorPatternSet;
+    private javax.swing.JTextField featureVectorRelationship;
     private javax.swing.JLabel featureVectorTermPairLabel;
     private javax.swing.JLabel indexLocationLabel;
     private nii.alloe.gui.ProcessMonitor indexerProgressMonitor;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
+    private javax.swing.JCheckBox isTrainingCheck;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1217,12 +1542,22 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable logicConnectionTable;
+    private javax.swing.JTextArea logicDescription;
+    private javax.swing.JLabel logicLabel;
+    private javax.swing.JLabel modelLinksLabel;
+    private javax.swing.JLabel modelRelationShipLabel;
+    private javax.swing.JComboBox modelRelationship;
     private javax.swing.JButton openClassifierButton;
     private javax.swing.JButton openCorpusTermSet;
     private javax.swing.JButton openCorpusTextFile;
     private javax.swing.JButton openDataSet;
     private javax.swing.JButton openIndexedCorpus;
+    private javax.swing.JButton openLogic;
+    private javax.swing.JButton openModel;
     private javax.swing.JButton openPatternSet;
     private javax.swing.JButton openTermPairSet;
     private javax.swing.JComboBox patternBuilderMetric;
@@ -1231,10 +1566,13 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JTable patternTable;
     private javax.swing.JComboBox patternViewerRelationship;
     private javax.swing.JLabel patternViewerRelationshipLabel;
-    private nii.alloe.gui.ProcessMonitor processMonitor2;
+    private nii.alloe.gui.ProcessMonitor probModelBuilderMonitor;
+    private javax.swing.JButton processLogicButton;
     private javax.swing.JButton saveClassifierButton;
     private javax.swing.JButton saveDataSet;
     private javax.swing.JButton saveIndexedCorpus;
+    private javax.swing.JButton saveLogicButton;
+    private javax.swing.JButton saveModel;
     private javax.swing.JButton savePatternSet;
     private javax.swing.JButton setIndexButton;
     private javax.swing.JButton startTrainingButton;
@@ -1242,6 +1580,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel termSetLabel;
     private javax.swing.JLabel textFileLabel;
     private javax.swing.JLabel totalPatternsLabel;
+    private javax.swing.JButton visualizeModel;
     private javax.swing.JTextArea wekaOutput;
     // End of variables declaration//GEN-END:variables
     

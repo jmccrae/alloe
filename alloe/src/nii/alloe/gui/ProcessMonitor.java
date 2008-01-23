@@ -85,6 +85,8 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     }// </editor-fold>//GEN-END:initComponents
 
     private void resumeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resumeButtonActionPerformed
+        if(!onResume())
+            return;
         if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
             return;
         try {
@@ -108,6 +110,8 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
         
     private void startPauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPauseButtonActionPerformed
         if(state == STATE_NOTSTARTED || state == STATE_COMPLETED) {
+            if(!onStart())
+                return;
             process.addProgressListener(this);
             process.start();
             startPauseButton.setText("Pause");
@@ -256,5 +260,40 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
             startPauseButton.setEnabled(true);
             resumeButton.setEnabled(true);
         }
+    }
+    
+    private LinkedList<ProcessMonitorListener> pmListeners;
+
+    public JFileChooser getFileChooser() {
+        return fileChooser;
+    }
+    
+    public void addProcessMonitorListener(ProcessMonitorListener pml) {
+        if(pmListeners == null)
+            pmListeners = new LinkedList<ProcessMonitorListener>();
+        if(!pmListeners.contains(pml))
+            pmListeners.add(pml);
+    }
+    
+    private boolean onStart() {
+        if(pmListeners == null)
+            return true;
+        boolean rval = true;
+        Iterator<ProcessMonitorListener> pmIter = pmListeners.iterator();
+        while(pmIter.hasNext()) {
+            rval = pmIter.next().onStart(this) && rval;
+        }
+        return rval;
+    }
+    
+    private boolean onResume() {
+        if(pmListeners == null)
+            return true;
+        boolean rval = true;
+        Iterator<ProcessMonitorListener> pmIter = pmListeners.iterator();
+        while(pmIter.hasNext()) {
+            rval = pmIter.next().onResume(this) && rval;
+        }
+        return rval;
     }
 }
