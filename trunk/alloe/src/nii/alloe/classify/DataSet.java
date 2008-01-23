@@ -28,9 +28,10 @@ import java.io.*;
  */
 public class DataSet implements Serializable {
     public Map<String,Instances> instances;
-    private Map<String,Vector<String>> terms;
-    private Map<String,Vector<String>> nonOccTerms;
-    private TermList termSet;
+    private Set<String> trainingSets;
+    Map<String,Vector<String>> terms;
+    Map<String,Vector<String>> nonOccTerms;
+    TermList termSet;
     static final String glue = " => ";
     
     /** Create a new instance */
@@ -39,6 +40,7 @@ public class DataSet implements Serializable {
         terms = new HashMap<String,Vector<String>>();
         nonOccTerms = new HashMap<String,Vector<String>>();
         termSet = termList;
+        trainingSets = new HashSet<String>();
     }
     
     /**
@@ -49,6 +51,7 @@ public class DataSet implements Serializable {
         while(attNames.hasNext()) {
             fv.addElement(new Attribute(attNames.next()));
         }
+        fv.addElement(new Attribute("class"));
         instances.put(relation, new Instances(relation, fv, 0));
         terms.put(relation, new Vector<String>());
         nonOccTerms.put(relation, new Vector<String>());
@@ -122,44 +125,7 @@ public class DataSet implements Serializable {
         return rval;
     }
     
-    /**
-     * Build a probability model for this dataset
-     * @param classifs Classifiers for each relation see buildClassifierSet
-     */
-    public Model buildProbModel(Logic logic, Map<String,Classifier> classifs) {
-        Iterator<String> relationIter = instances.keySet().iterator();
-        Vector<String> termToNum = new Vector<String>(termSet);
-        Model rval = new Model(termSet.size());
-        rval.addBasicGraphs(logic);
-        while(relationIter.hasNext()) {
-            String relation = relationIter.next();
-            Instances is = instances.get(relation);
-            is.setClassIndex(is.numInstances() - 1);
-            ProbabilityGraph pg = rval.addProbabilityGraph(relation);
-            
-            SparseInstance zeroVec = new SparseInstance(1,new double[is.numAttributes()]);
-            Classifier classif = classifs.get(relation);
-            try {
-                double[] dist;
-                Vector<String> termList = terms.get(relation);
-                
-                dist = classif.distributionForInstance(zeroVec);
-                pg.setBaseVal(dist[0]);
-                
-                for(int i = 0; i < is.numInstances(); i++) {
-                    String s = termList.get(i);
-                    String []ss = s.split(glue);
-                    dist = classif.distributionForInstance(is.instance(i));
-                    pg.setPosVal(termToNum.indexOf(ss[0]), termToNum.indexOf(ss[1]), dist[0]);
-                }
-            } catch(Exception x) {
-                x.printStackTrace();
-                return null;
-            }
-        }
-        
-        return rval;
-    }
+
     
     /**
      * Build a specific model that represents the true data
@@ -196,5 +162,16 @@ public class DataSet implements Serializable {
         }
         
         return rval;
+    }
+    
+    public boolean isTraining(String relation) {
+        return trainingSets.contains(relation);
+    }
+    
+    public void setTraining(String relation, boolean val) {
+        if(val)
+            trainingSets.add(relation);
+        else
+            trainingSets.remove(relation);
     }
 }
