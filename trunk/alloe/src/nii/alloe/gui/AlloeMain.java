@@ -75,6 +75,8 @@ public class AlloeMain extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         solverRadioGroup = new javax.swing.ButtonGroup();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -166,6 +168,33 @@ public class AlloeMain extends javax.swing.JFrame {
         openProblemMatrix = new javax.swing.JButton();
         jPanel14 = new javax.swing.JPanel();
         solverMonitor = new nii.alloe.gui.ProcessMonitor();
+        solverAddedLabel = new javax.swing.JLabel();
+        solverRemovedLabel = new javax.swing.JLabel();
+        solverScoreLabel = new javax.swing.JLabel();
+        jPanel15 = new javax.swing.JPanel();
+        confusionMatrix = new javax.swing.JTable();
+        standardRelationship = new javax.swing.JComboBox();
+        standardOpenTermPairs = new javax.swing.JButton();
+        standardTermPairLabel = new javax.swing.JLabel();
+        saveStandardModel = new javax.swing.JButton();
+        openStandardModel = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        precisionLabel = new javax.swing.JLabel();
+        recallLabel = new javax.swing.JLabel();
+        fMeasureLabel = new javax.swing.JLabel();
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane5.setViewportView(jTable1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Alloe");
@@ -286,7 +315,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(saveIndexedCorpus)
                     .addComponent(corpusTotalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -305,7 +334,7 @@ public class AlloeMain extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -355,15 +384,15 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternGeneratorRelationship, 0, 353, Short.MAX_VALUE))
+                        .addComponent(patternGeneratorRelationship, 0, 372, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addComponent(termPairSetLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 208, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 227, Short.MAX_VALUE)
                         .addComponent(openTermPairSet))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternBuilderMetric, 0, 390, Short.MAX_VALUE))
+                        .addComponent(patternBuilderMetric, 0, 409, Short.MAX_VALUE))
                     .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -447,11 +476,11 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(patternViewerRelationshipLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternViewerRelationship, 0, 353, Short.MAX_VALUE))
+                        .addComponent(patternViewerRelationship, 0, 372, Short.MAX_VALUE))
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(openPatternSet)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -567,12 +596,12 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(featureVectorRelationship, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
+                        .addComponent(featureVectorRelationship, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(isTrainingCheck))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(featureVectorTermPairLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 229, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 239, Short.MAX_VALUE)
                         .addComponent(featureOpenTermPairs)))
                 .addContainerGap())
         );
@@ -644,18 +673,18 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(classifier, 0, 130, Short.MAX_VALUE)
+                        .addComponent(classifier, 0, 140, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(classifierParameters, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addComponent(startTrainingButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 87, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
                         .addComponent(openClassifierButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(saveClassifierButton)))
@@ -798,10 +827,10 @@ public class AlloeMain extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 494, Short.MAX_VALUE)
                         .addContainerGap())
                     .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 494, Short.MAX_VALUE)
                         .addContainerGap())
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addComponent(logicLabel)
@@ -817,12 +846,12 @@ public class AlloeMain extends javax.swing.JFrame {
                         .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
                                 .addComponent(modelLinksLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 311, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 325, Short.MAX_VALUE)
                                 .addComponent(visualizeModel))
                             .addGroup(jPanel10Layout.createSequentialGroup()
                                 .addComponent(modelRelationShipLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(modelRelationship, 0, 387, Short.MAX_VALUE))
+                                .addComponent(modelRelationship, 0, 401, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
                                 .addComponent(probModelBuilderMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(29, 29, 29)))
@@ -867,7 +896,7 @@ public class AlloeMain extends javax.swing.JFrame {
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -897,10 +926,23 @@ public class AlloeMain extends javax.swing.JFrame {
         pmElemsLabel.setText("Elements:               ");
         pmElemsLabel.setEnabled(false);
 
+        problemMatrixMonitor.setProcessCompletedText("Matrix complete");
+        problemMatrixMonitor.setProcessNotStartedText("Matrix not formed");
+
         saveProblemMatrix.setText("Save Matrix");
         saveProblemMatrix.setEnabled(false);
+        saveProblemMatrix.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveProblemMatrixActionPerformed(evt);
+            }
+        });
 
         openProblemMatrix.setText("Open Matrix");
+        openProblemMatrix.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openProblemMatrixActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -933,7 +975,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(pmElemsLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(problemMatrixMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveProblemMatrix)
                     .addComponent(openProblemMatrix))
@@ -941,6 +983,17 @@ public class AlloeMain extends javax.swing.JFrame {
         );
 
         jPanel14.setBorder(javax.swing.BorderFactory.createTitledBorder("Solver"));
+        solverMonitor.setProcessCompletedText("Solved");
+        solverMonitor.setProcessNotStartedText("Solver not started");
+
+        solverAddedLabel.setText("Added:              ");
+        solverAddedLabel.setEnabled(false);
+
+        solverRemovedLabel.setText("Removed:             ");
+        solverRemovedLabel.setEnabled(false);
+
+        solverScoreLabel.setText("Score:             ");
+        solverScoreLabel.setEnabled(false);
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
         jPanel14.setLayout(jPanel14Layout);
@@ -948,14 +1001,135 @@ public class AlloeMain extends javax.swing.JFrame {
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel14Layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(solverAddedLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(solverRemovedLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(solverScoreLabel)
+                .addContainerGap(157, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(solverMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel14Layout.createSequentialGroup()
-                .addComponent(solverMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(166, Short.MAX_VALUE))
+                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(solverAddedLabel)
+                    .addComponent(solverRemovedLabel)
+                    .addComponent(solverScoreLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(solverMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        jPanel15.setBorder(javax.swing.BorderFactory.createTitledBorder("Standard Model"));
+        confusionMatrix.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+
+        standardOpenTermPairs.setText("Open Term Pairs");
+        standardOpenTermPairs.setEnabled(false);
+
+        standardTermPairLabel.setText("Term Pair File:");
+        standardTermPairLabel.setEnabled(false);
+
+        saveStandardModel.setText("Save Model");
+        saveStandardModel.setEnabled(false);
+        saveStandardModel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveStandardModelActionPerformed(evt);
+            }
+        });
+
+        openStandardModel.setText("Open Model");
+
+        jLabel8.setText("Confusion Matrix");
+
+        precisionLabel.setText("Precision:");
+        precisionLabel.setEnabled(false);
+
+        recallLabel.setText("Recall:");
+        recallLabel.setEnabled(false);
+
+        fMeasureLabel.setText("F-Measure:");
+        fMeasureLabel.setEnabled(false);
+
+        javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
+        jPanel15.setLayout(jPanel15Layout);
+        jPanel15Layout.setHorizontalGroup(
+            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel15Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel15Layout.createSequentialGroup()
+                        .addComponent(standardRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(standardTermPairLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 101, Short.MAX_VALUE)
+                        .addComponent(standardOpenTermPairs))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel15Layout.createSequentialGroup()
+                        .addGap(191, 191, 191)
+                        .addComponent(openStandardModel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(saveStandardModel))
+                    .addGroup(jPanel15Layout.createSequentialGroup()
+                        .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(confusionMatrix, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8))
+                        .addGap(32, 32, 32)
+                        .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(recallLabel)
+                            .addComponent(precisionLabel)
+                            .addComponent(fMeasureLabel))))
+                .addContainerGap())
+        );
+        jPanel15Layout.setVerticalGroup(
+            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel15Layout.createSequentialGroup()
+                .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(standardOpenTermPairs)
+                    .addComponent(standardRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(standardTermPairLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(saveStandardModel)
+                    .addComponent(openStandardModel))
+                .addGap(9, 9, 9)
+                .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel15Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(confusionMatrix, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel15Layout.createSequentialGroup()
+                        .addComponent(precisionLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(recallLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(fMeasureLabel)
+                .addContainerGap(92, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
@@ -965,7 +1139,8 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel12Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel14, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel15, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel14, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
                     .addComponent(jPanel13, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel12Layout.createSequentialGroup()
                         .addComponent(useStandardSolver)
@@ -984,7 +1159,9 @@ public class AlloeMain extends javax.swing.JFrame {
                 .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(143, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jTabbedPane1.addTab("Consistency", jPanel12);
 
@@ -1006,6 +1183,64 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void saveStandardModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveStandardModelActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_saveStandardModelActionPerformed
+
+    private void openProblemMatrixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openProblemMatrixActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                Object o = ois.readObject();
+                if(!(o instanceof SparseMatrix)) {
+                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open matrix", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                matrix = (SparseMatrix)o;
+                onLoadMatrix();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open matrix", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open matrix", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_openProblemMatrixActionPerformed
+
+    private void saveProblemMatrixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProblemMatrixActionPerformed
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+                oos.writeObject(matrix);
+                oos.close();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save matrix", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_saveProblemMatrixActionPerformed
+    
+    private void onSolve() {
+        if(useStandardSolver.isSelected() && model != null) {
+            TreeSet<Integer> added = (TreeSet<Integer>)consistSolver.soln.clone();
+            added.retainAll(model);
+            solverAddedLabel.setText("Added: " + added.size() + "          ");
+            solverAddedLabel.setEnabled(true);
+            solverRemovedLabel.setText("Removed: " + (consistSolver.soln.size() - added.size()) + "          ");
+            solverRemovedLabel.setEnabled(true);
+            solverScoreLabel.setText("Score: " + consistSolver.cost);
+            solverScoreLabel.setEnabled(true);
+        }
+    }
+    
+    private class SolverListener implements AlloeProgressListener {
+        public void finished() {
+            onSolve();
+        }
+
+        public void progressChange(double newProgress) {
+        }
+
+    }
     
     private void onLoadMatrix() {
         pmRowsLabel.setText("Rows: " + matrix.getRowCount() + "          ");
@@ -1017,7 +1252,8 @@ public class AlloeMain extends javax.swing.JFrame {
         saveProblemMatrix.setEnabled(true);
         if(useStandardSolver.isSelected()) {
             consistSolver = new ConsistSolver(matrix);
-            // TODO: register process
+            consistSolver.addProgressListener(new SolverListener());
+            solverMonitor.setProcess(consistSolver);
         }
     }
     
@@ -1776,9 +2012,11 @@ public class AlloeMain extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox classifier;
     private javax.swing.JTextField classifierParameters;
+    private javax.swing.JTable confusionMatrix;
     private javax.swing.JTable corpusDisplay;
     private javax.swing.JScrollPane corpusDisplayScroll;
     private javax.swing.JLabel corpusTotalLabel;
+    private javax.swing.JLabel fMeasureLabel;
     private javax.swing.JButton featureOpenTermPairs;
     private nii.alloe.gui.ProcessMonitor featureVectorFormerMonitor;
     private javax.swing.JComboBox featureVectorPatternSet;
@@ -1793,12 +2031,14 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1811,7 +2051,9 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTable logicConnectionTable;
     private javax.swing.JTextArea logicDescription;
     private javax.swing.JLabel logicLabel;
@@ -1827,6 +2069,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JButton openModel;
     private javax.swing.JButton openPatternSet;
     private javax.swing.JButton openProblemMatrix;
+    private javax.swing.JButton openStandardModel;
     private javax.swing.JButton openTermPairSet;
     private javax.swing.JComboBox patternBuilderMetric;
     private nii.alloe.gui.ProcessMonitor patternGeneratorProgressMonitor;
@@ -1837,9 +2080,11 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel pmColsLabel;
     private javax.swing.JLabel pmElemsLabel;
     private javax.swing.JLabel pmRowsLabel;
+    private javax.swing.JLabel precisionLabel;
     private nii.alloe.gui.ProcessMonitor probModelBuilderMonitor;
     private nii.alloe.gui.ProcessMonitor problemMatrixMonitor;
     private javax.swing.JButton processLogicButton;
+    private javax.swing.JLabel recallLabel;
     private javax.swing.JButton saveClassifierButton;
     private javax.swing.JButton saveDataSet;
     private javax.swing.JButton saveIndexedCorpus;
@@ -1847,9 +2092,16 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JButton saveModel;
     private javax.swing.JButton savePatternSet;
     private javax.swing.JButton saveProblemMatrix;
+    private javax.swing.JButton saveStandardModel;
     private javax.swing.JButton setIndexButton;
+    private javax.swing.JLabel solverAddedLabel;
     private nii.alloe.gui.ProcessMonitor solverMonitor;
     private javax.swing.ButtonGroup solverRadioGroup;
+    private javax.swing.JLabel solverRemovedLabel;
+    private javax.swing.JLabel solverScoreLabel;
+    private javax.swing.JButton standardOpenTermPairs;
+    private javax.swing.JComboBox standardRelationship;
+    private javax.swing.JLabel standardTermPairLabel;
     private javax.swing.JButton startTrainingButton;
     private javax.swing.JLabel termPairSetLabel;
     private javax.swing.JLabel termSetLabel;

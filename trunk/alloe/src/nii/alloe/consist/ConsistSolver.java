@@ -16,11 +16,11 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
     /**
      * The solution will be in this variable after calling solve()
      */
-    TreeSet<Integer> soln;
+    public TreeSet<Integer> soln;
     /**
      * The cost of the minimal solution will be in this variable after calling solve()
      */
-    double cost;
+    public double cost;
     
     private static Simplex simplex;
     
@@ -39,6 +39,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
      * as a process */
     public ConsistSolver(SparseMatrix matrix) {
         this.matrix = matrix;
+        soln = new TreeSet<Integer>();
     }
     
     private TreeSet<Integer> partSoln;
@@ -76,6 +77,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
         progress = 0;
         if(branches == null)
             branches = new LinkedList<Branch>();
+        fireNewProgressChange(0);
         solve2(matrix);
         
         iterationDepth = 0;
@@ -86,7 +88,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
     
     private void solve2(SparseMatrix m) {
         simplex.simplexSolve(m.createCopy());
-        if(simplex.cost + partCost > cost) {
+        if(simplex.success && simplex.cost + partCost > cost) {
             progress += Math.pow(2,-iterationDepth);
             fireNewProgressChange(progress);
             return;
@@ -97,7 +99,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
         if(branches.size() <= iterationDepth) {
             while(iter.hasNext()) {
                 Map.Entry<Integer,Double> entry = iter.next();
-                if(!entry.getValue().equals(1.0)) {
+                if(!entry.getValue().equals(1.0) && entry.getKey() >= 0) {
                     branch = new Branch();
                     branch.branchType = ADD;
                     branch.row = entry.getKey();
@@ -111,12 +113,21 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
         if(state != STATE_OK)
             return;
         
+        if(branch == null && !simplex.success) {
+            Output.out.println("Simplex failed with no hints, branching at random");
+            branch = new Branch();
+            branch.branchType = ADD;
+            branch.row = simplex.soln.keySet().iterator().next();
+            branches.add(branch);
+        }
+        
         if(branch != null) {
             iterationDepth++;
             if(branch.branchType == ADD) {
                 partCost += m.elemVal(branch.row,0);
                 m.selectRow(branch.row);
                 partSoln.add(branch.row);
+                Output.out.println("Branching: ADD " + branch.row);
                 solve2(m);
                 partSoln.remove(branch.row);
                 m.restitch();
@@ -127,6 +138,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
             int colCount = m.cols.size();
             m.unstitchRow(branch.row);
             if(m.cols.size() == colCount) { // Is there an impossible column?
+                Output.out.println("Branching: REMOVE " + branch.row);
                 solve2(m);
             }
             m.restitch();

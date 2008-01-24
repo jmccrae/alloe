@@ -120,8 +120,10 @@ public class Logic {
         sets.put(m.group(1), set);
     }
     
-    private interface CheckerCondition {
+    protected interface CheckerCondition {
         public boolean check(int argument, Rule rule, Graph g, int i, int j);
+        /** if true consistCheck will only attempt assignments to connected links */
+        public boolean mustConnect(int argument, Rule rule);
     }
     
     
@@ -140,6 +142,7 @@ public class Logic {
                         return (argument < rule.premiseCount && g.isConnected(i,j)) ||
                                 (argument >= rule.premiseCount && !g.isConnected(i,j));
                     }
+                    public boolean mustConnect(int argument, Rule rule) { return argument < rule.premiseCount; }
                 })
                 && finished;
             }
@@ -162,6 +165,7 @@ public class Logic {
                         return (argument < rule.premiseCount && g.isConnected(i,j)) ||
                                 argument >= rule.premiseCount;
                     }
+                    public boolean mustConnect(int argument, Rule rule) { return argument < rule.premiseCount; }
                 })
                 && finished;
             }
@@ -183,68 +187,98 @@ public class Logic {
         Graph g = m.graphs.get(rule.relations.get(argument));
         boolean rval = true;
         
-        if(rule.terms.get(argument)[0] == rule.terms.get(argument)[1] &&
-                !rule.terms.get(argument)[0].hasAssignment()) {
-            Iterator<Integer> i1 = m.elems.iterator();
-            while(i1.hasNext()) {
-                int i = i1.next();
-                if(checker.check(argument,rule,g,i,i)) {
-                    rule.terms.get(argument)[0].setAssignment(i);
-                    
-                    rval = consistCheck(m, rule,
-                            argument + 1,inconsist,checker) && rval;
-                    
-                    rule.terms.get(argument)[0].unsetAssignment();
+        if(checker.mustConnect(argument, rule)) {
+            boolean ihasAssign = rule.terms.get(argument)[0].hasAssignment();
+            boolean jhasAssign = rule.terms.get(argument)[1].hasAssignment();
+            if(!ihasAssign || !jhasAssign) {
+                Iterator<Integer> i1 = g.iterator(m.n);
+                int assign = -1;
+                while(i1.hasNext()) {
+                    try {
+                        assign = i1.next();
+                    } catch(ConcurrentModificationException x) {
+                        i1 = g.iterator(m.n);
+                        while(assign != i1.next());
+                        assign = i1.next();
+                    }
+                    if(checker.check(argument,rule,g,assign / m.n, assign % m.n)) {
+                        if(rule.tryAssign(argument, assign / m.n, assign % m.n)) {
+                            rval = consistCheck(m,rule,argument +1, inconsist, checker) && rval;
+                            if(!ihasAssign)
+                                rule.terms.get(argument)[0].unsetAssignment();
+                            if(!jhasAssign)
+                                rule.terms.get(argument)[1].unsetAssignment();
+                        }
+                    }
                 }
+            } else {
+                rval = consistCheck(m, rule, argument + 1,inconsist,checker);
             }
-        } else if(!rule.terms.get(argument)[0].hasAssignment() &&
-                !rule.terms.get(argument)[1].hasAssignment()) {
-            Iterator<Integer> i1 = m.elems.iterator();
-            while(i1.hasNext()) {
-                int i = i1.next();
+        } else {
+            if(rule.terms.get(argument)[0] == rule.terms.get(argument)[1] &&
+                    !rule.terms.get(argument)[0].hasAssignment()) {
+                Iterator<Integer> i1 = m.elems.iterator();
+                while(i1.hasNext()) {
+                    int i = i1.next();
+                    if(checker.check(argument,rule,g,i,i)) {
+                        rule.terms.get(argument)[0].setAssignment(i);
+                        
+                        rval = consistCheck(m, rule,
+                                argument + 1,inconsist,checker) && rval;
+                        
+                        rule.terms.get(argument)[0].unsetAssignment();
+                    }
+                }
+            } else if(!rule.terms.get(argument)[0].hasAssignment() &&
+                    !rule.terms.get(argument)[1].hasAssignment()) {
+                Iterator<Integer> i1 = m.elems.iterator();
+                while(i1.hasNext()) {
+                    int i = i1.next();
+                    Iterator<Integer> j2 = m.elems.iterator();
+                    while(j2.hasNext()) {
+                        int j = j2.next();
+                        if(checker.check(argument,rule,g,i,j)) {
+                            rule.terms.get(argument)[0].setAssignment(i);
+                            rule.terms.get(argument)[1].setAssignment(j);
+                            
+                            rval = consistCheck(m, rule,
+                                    argument + 1,inconsist,checker) && rval;
+                            rule.terms.get(argument)[0].unsetAssignment();
+                            rule.terms.get(argument)[1].unsetAssignment();
+                        }
+                    }
+                }
+            } else if(!rule.terms.get(argument)[1].hasAssignment()) {
+                int i = rule.terms.get(argument)[0].getAssignment();
                 Iterator<Integer> j2 = m.elems.iterator();
                 while(j2.hasNext()) {
                     int j = j2.next();
                     if(checker.check(argument,rule,g,i,j)) {
-                        rule.terms.get(argument)[0].setAssignment(i);
                         rule.terms.get(argument)[1].setAssignment(j);
                         
-                        rval = consistCheck(m, rule,
-                                argument + 1,inconsist,checker) && rval;
-                        rule.terms.get(argument)[0].unsetAssignment();
+                        rval = consistCheck(m, rule, argument + 1,inconsist,checker) && rval;
                         rule.terms.get(argument)[1].unsetAssignment();
                     }
                 }
-            }
-        } else if(!rule.terms.get(argument)[1].hasAssignment()) {
-            int i = rule.terms.get(argument)[0].getAssignment();
-            Iterator<Integer> j2 = m.elems.iterator();
-            while(j2.hasNext()) {
-                int j = j2.next();
-                if(checker.check(argument,rule,g,i,j)) {
-                    rule.terms.get(argument)[1].setAssignment(j);
-                    
-                    rval = consistCheck(m, rule, argument + 1,inconsist,checker) && rval;
-                    rule.terms.get(argument)[1].unsetAssignment();
+            } else if(!rule.terms.get(argument)[0].hasAssignment()) {
+                int j = rule.terms.get(argument)[1].getAssignment();
+                Iterator<Integer> i1 = m.elems.iterator();
+                while(i1.hasNext()) {
+                    int i = i1.next();
+                    if(checker.check(argument,rule,g,i,j)) {
+                        rule.terms.get(argument)[0].setAssignment(i);
+                        
+                        rval = consistCheck(m, rule, argument + 1,inconsist,checker) && rval;
+                        
+                        rule.terms.get(argument)[0].unsetAssignment();
+                    }
                 }
+            } else {
+                rval = consistCheck(m, rule, argument + 1,inconsist,checker);
             }
-        } else if(!rule.terms.get(argument)[0].hasAssignment()) {
-            int j = rule.terms.get(argument)[1].getAssignment();
-            Iterator<Integer> i1 = m.elems.iterator();
-            while(i1.hasNext()) {
-                int i = i1.next();
-                if(checker.check(argument,rule,g,i,j)) {
-                    rule.terms.get(argument)[0].setAssignment(i);
-                    
-                    rval = consistCheck(m, rule, argument + 1,inconsist,checker) && rval;
-                    
-                    rule.terms.get(argument)[0].unsetAssignment();
-                }
-            }
-        } else {
-            rval = consistCheck(m, rule, argument + 1,inconsist,checker);
         }
         return rval;
+        
     }
     
     /** This function can also be used to save the logic */
@@ -278,7 +312,7 @@ public class Logic {
     
     public Model getCompulsoryModel(Model m) {
         Model model = m.createImmutableCopy();
-        Iterator<Rule> ruleIter = rules.iterator();
+        /*Iterator<Rule> ruleIter = rules.iterator();
         while(ruleIter.hasNext()) {
             Rule rule = ruleIter.next();
             if(rule.premiseCount != rule.length() -1)
@@ -292,14 +326,15 @@ public class Logic {
                     m.add(m.id(rule.relations.get(rule.premiseCount),
                             rule.terms.get(rule.premiseCount)[0].getAssignment(),
                             rule.terms.get(rule.premiseCount)[1].getAssignment()));
-                    return true;
+                    return false;
                 }
             }, new CheckerCondition() {
                 public boolean check(int argument, Rule r, Graph g, int i, int j) {
-                    return (argument < r.premiseCount && !g.mutable(i,j)) || argument >= r.premiseCount;
+                    return (argument < r.premiseCount && !g.mutable(i,j) && g.isConnected(i,j)) || argument >= r.premiseCount;
                 }
+                public boolean mustConnect(int argument, Rule r) { return argument < r.premiseCount; }
             });
-        }
+        }*/
         premiseSearch(model,new InconsistentAction() {
             public boolean doAction(Logic logic, Model m, Rule rule) {
                 if(rule.premiseCount != rule.length() -1)
@@ -308,7 +343,7 @@ public class Logic {
                         rule.terms.get(rule.premiseCount)[1] instanceof Rule.FunctionArgument) {
                     return true;
                 }
-                return m.add(m.id(rule.relations.get(rule.premiseCount),
+                return !m.add(m.id(rule.relations.get(rule.premiseCount),
                         rule.terms.get(rule.premiseCount)[0].getAssignment(),
                         rule.terms.get(rule.premiseCount)[1].getAssignment()));
             }
@@ -338,6 +373,20 @@ public class Logic {
         }
     }
     
+    private class NegativeModelAction2 implements InconsistentAction {
+        List<Integer> rv;
+        public NegativeModelAction2(List<Integer> rv) {
+            this.rv = rv;
+        }
+        public boolean doAction(Logic logic, Model m, Rule rule) {
+            return consistCheck(m,rule,0,new NegativeModelAction(rv), new CheckerCondition() {
+                public boolean check(int a,Rule b,Graph c,int d,int e) { return true; }
+                public boolean mustConnect(int a,Rule b) { return false; }
+            });
+        }
+    }
+    
+    
     public List<Integer> getNegativeModel(Model m) {
         Model model = m.createImmutableCopy();
         List<Integer> rv = new LinkedList<Integer>();
@@ -345,10 +394,17 @@ public class Logic {
         while(ruleIter.hasNext()) {
             Rule rule = ruleIter.next();
             if(rule.premiseCount == 1) {
-                consistCheck(model,rule,0, new NegativeModelAction(rv), new CheckerCondition() {
+                //consistCheck(model,rule,0, new NegativeModelAction(rv), new CheckerCondition() {
+                //    public boolean check(int argument, Rule r, Graph g, int i, int j) {
+                //        return argument < r.premiseCount || !g.mutable(i,j);
+                //    }
+                //});
+                
+                consistCheck(model,rule,1, new NegativeModelAction2(rv), new CheckerCondition() {
                     public boolean check(int argument, Rule r, Graph g, int i, int j) {
-                        return argument < r.premiseCount || !g.mutable(i,j);
+                        return !g.mutable(i,j) && g.isConnected(i,j);
                     }
+                    public boolean mustConnect(int arg, Rule r) { return true; }
                 });
             }
         }

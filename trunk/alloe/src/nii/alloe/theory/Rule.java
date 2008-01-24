@@ -4,7 +4,7 @@ import java.util.*;
 
 /**
  * A rule in the logic.
- * 
+ *
  * This class encapsulates a rule in the logic system, these are stated of
  * the form: P1 n ... n PN -> C1 v ... v CM . For this rule to be satisfied
  * it requires that either one of the premises is not true, or one of the
@@ -370,6 +370,39 @@ public class Rule implements Comparable<Rule> {
         rval[0] = args[0].createCopy();
         rval[1] = args[1].createCopy();
         return rval;
+    }
+    
+    /**
+     * Assigns a value to a term (if possible).
+     * @return true if the assignment was possible, false otherwise
+     */
+    public boolean tryAssign(int arg, int i, int j) {
+        if(terms.get(arg)[0].hasAssignment()) {
+            if(i != terms.get(arg)[0].getAssignment()) {
+                return false;
+            } else {
+                if(terms.get(arg)[1].hasAssignment()) {
+                    if(j != terms.get(arg)[1].getAssignment())
+                        return false;
+                    return true;
+                }
+                terms.get(arg)[1].setAssignment(j);
+                return true;
+            }
+        } else {
+            if(terms.get(arg)[1].hasAssignment()) {
+                if(j != terms.get(arg)[1].getAssignment()) {
+                    return false;
+                } else {
+                    terms.get(arg)[0].setAssignment(i);
+                    return true;
+                }
+            } else {
+                terms.get(arg)[0].setAssignment(i);
+                terms.get(arg)[1].setAssignment(j);
+                return true;
+            }
+        }
     }
     
     /**
@@ -817,7 +850,7 @@ public class Rule implements Comparable<Rule> {
      * Check the rule is not in some inconsistent state
      */
     public boolean isOK() {
-        if(arguments.size() != terms.size() || premiseCount < 0 || premiseCount > length()) 
+        if(arguments.size() != terms.size() || premiseCount < 0 || premiseCount > length())
             return false;
         
         Iterator<Argument[]> aiter = terms.iterator();

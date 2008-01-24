@@ -20,7 +20,10 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
      * A map used to order the graphs, this is used for creating IDs
      */
     private final Vector<String> relationIdx;
-    private int n;
+    /**
+     * The number of elements used in this model
+     */
+    public int n;
     
     /**
      * Create an empty model on the elements {1,...,n}
@@ -117,15 +120,13 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
             
             if(pg instanceof ProbabilityGraph) {
                 SpecificGraph g = rval.addSpecificGraph(str);
-                Iterator<Integer> i1 = rval.elems.iterator();
+                Iterator<Integer> i1 = pg.iterator(this.n);
                 while(i1.hasNext()) {
-                    int i = i1.next();
-                    Iterator<Integer> i2 = rval.elems.iterator();
-                    while(i2.hasNext()) {
-                        int j = i2.next();
-                        if(pg.isConnected(i,j)) {
-                            g.add(i,j);
-                        }
+                    int i2 = i1.next();
+                    int i = i2 / n;
+                    int j = i2 % n;
+                    if(pg.isConnected(i,j)) {
+                        g.add(i,j);
                     }
                 }
                 rval.graphs.put(str,g);
@@ -148,15 +149,13 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
             
             if(!(pg instanceof EquivalenceGraph) && !(pg instanceof MembershipGraph)) {
                 SpecificGraph g = rval.addSpecificGraph(str);
-                Iterator<Integer> i1 = rval.elems.iterator();
+                Iterator<Integer> i1 = g.iterator(this.n);
                 while(i1.hasNext()) {
-                    int i = i1.next();
-                    Iterator<Integer> i2 = rval.elems.iterator();
-                    while(i2.hasNext()) {
-                        int j = i2.next();
-                        if(pg.isConnected(i,j) && !pg.mutable(i,j)) {
-                            g.add(i,j);
-                        }
+                    int i2 = i1.next();
+                    int i = i2 / n;
+                    int j = i2 % n;
+                    if(pg.isConnected(i,j) && !pg.mutable(i,j)) {
+                        g.add(i,j);
                     }
                 }
                 rval.graphs.put(str,g);
@@ -231,7 +230,7 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
     }
     
     /**
-     * Does this graph contain any elements in the list. 
+     * Does this graph contain any elements in the list.
      */
     public boolean containsAny(Collection<Integer> ids) {
         Iterator<Integer> i = ids.iterator();
@@ -242,7 +241,7 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
         }
         return false;
     }
-        
+    
     /**
      * The id is a unique id of a relation in this model
      */
@@ -429,7 +428,7 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
                 specIterator = null;
         }
         
-        public boolean hasNext() { 
+        public boolean hasNext() {
             if(specIterator == null)
                 return false;
             if(specIterator.hasNext())
@@ -465,5 +464,10 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
             else
                 specIterator.remove();
         }
+    }
+    
+    private void readObject(java.io.ObjectInputStream ios) throws java.io.IOException, ClassNotFoundException {
+        ios.defaultReadObject();
+        ProbabilityGraph.n = n;
     }
 }

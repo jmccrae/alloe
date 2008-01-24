@@ -5,7 +5,7 @@ import java.io.*;
 /**
  * A sparse matrix. Implemented as a tree map of single linked lists
  */
-public class SparseMatrix {
+public class SparseMatrix implements Serializable {
     TreeMap<Integer, SparseNode> cols;
     TreeMap<Integer, SparseNode> rows;
     
@@ -541,11 +541,45 @@ public class SparseMatrix {
             }
         }
     }
+
+    public TreeMap<Integer, SparseNode> getCols() {
+        return cols;
+    }
     
+    /** Return the sets where each set has the same value on the row, at the column selected, ignores zeroes */
+    public Vector<Set<Integer>> rowEqualitySets(Integer col) {
+        Vector<Set<Integer>> rval = new Vector<Set<Integer>>();
+        Vector<Double> vals = new Vector<Double>();
+        for(SparseNode n = cols.get(col); n != null; n = n.down) {
+            boolean cnt = false;
+            for(int i = 0; i < vals.size(); i++) {
+                if(n.val == vals.get(i).doubleValue()) {
+                    rval.get(i).add(n.i);
+                    cnt = true;
+                    break;
+                }
+            }
+            if(cnt)
+                continue;
+            vals.add(n.val);
+            Set<Integer> s = new TreeSet<Integer>();
+            s.add(n.i);
+            rval.add(s);
+        }
+        return rval;
+    }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Simplex functions
     
+    int negativesInRow(Integer row) {
+        int rval = 0;
+        for(SparseNode n = rows.get(row); n != null; n = n.right) {
+            if(n.val < 0)
+                rval++;
+        }
+        return rval;
+    }
     TreeSet<Integer> findMinRowIdx(Integer row) {
         double min = Double.MAX_VALUE;
         TreeSet<Integer> rval = new TreeSet<Integer>();
@@ -637,7 +671,7 @@ public class SparseMatrix {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Solver functions;
     
-    private class Operation {
+    private class Operation implements Serializable {
         SparseNode n;
         boolean row;
         Operation(SparseNode n, boolean row) { this.n = n; this.row = row; }
@@ -693,7 +727,7 @@ public class SparseMatrix {
         }
     }
     
-    public class SparseNode {
+    public class SparseNode implements Serializable {
         public SparseNode down,right;
         public final Integer i,j;
         public double val;
