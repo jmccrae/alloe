@@ -31,8 +31,14 @@ public class ModelTest extends TestCase {
      */
     public void testAddBasicGraphs() {
         System.out.println("addBasicGraphs");
-        
-        Logic l = new Logic("logics/rooted-hyp.logic");
+        Logic l;
+        try {
+            l = new Logic(new File("logics/rooted-hyp.logic"));
+            } catch(IOException x) {
+            x.printStackTrace();
+            System.exit(-1);
+            return;
+        }
         Model instance = new Model(10);
         
         instance.addBasicGraphs(l);
@@ -100,7 +106,13 @@ public class ModelTest extends TestCase {
         int id = 56;
         Model instance = new Model(10);
         instance.addSpecificGraph("r1");
-        instance.addBasicGraphs(new Logic("logics/single-hyp.logic"));
+        try {
+        instance.addBasicGraphs(new Logic(new File("logics/single-hyp.logic")));
+        } catch(IOException x) {
+            x.printStackTrace();
+            System.exit(-1);
+            return;
+        }
         
         String expResult = "r1";
         String result = instance.relationByID(id);
@@ -184,7 +196,13 @@ public class ModelTest extends TestCase {
         Integer id = 56;
         Model instance = new Model(10);
         instance.addSpecificGraph("r1");
-        instance.addBasicGraphs(new Logic("logics/hypernym.logic"));
+        try {
+        instance.addBasicGraphs(new Logic(new File("logics/hypernym.logic")));
+        } catch(IOException x) {
+            x.printStackTrace();
+            System.exit(-1);
+            return;
+        }
         
         boolean expResult = true;
         boolean result = instance.mutable(id);

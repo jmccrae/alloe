@@ -1,5 +1,6 @@
 package nii.alloe.theory;
 import java.util.*;
+import java.io.Serializable;
 
 class MembershipIterator implements Iterator<Integer> {
     public int n;
@@ -20,7 +21,7 @@ class MembershipIterator implements Iterator<Integer> {
  * @author John McCrae, National Institute of Informatics
  */
 
-public class MembershipGraph implements Graph {
+public class MembershipGraph implements Graph, Serializable {
     TreeSet<Integer> set;
 
     MembershipGraph(TreeSet<Integer> set) { 

@@ -12,14 +12,14 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="progressBar" min="-2" pref="238" max="-2" attributes="0"/>
+              <Component id="progressBar" pref="283" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="startPauseButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="resumeButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -28,9 +28,9 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="progressBar" alignment="3" pref="25" max="32767" attributes="1"/>
-                  <Component id="startPauseButton" alignment="3" min="-2" max="-2" attributes="1"/>
                   <Component id="resumeButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="startPauseButton" alignment="3" min="-2" max="-2" attributes="1"/>
+                  <Component id="progressBar" alignment="3" pref="25" max="32767" attributes="1"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>

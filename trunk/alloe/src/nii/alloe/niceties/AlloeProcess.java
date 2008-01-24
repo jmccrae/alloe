@@ -28,17 +28,21 @@ public interface AlloeProcess {
     
     /*
      private void fireNewProgressChange(double newProgress) {
+      if(aplListeners != null) {
         Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
         while(apliter.hasNext()) {
             apliter.next().progressChange(newProgress);
         }
+     }
     }
     
     private void fireFinished() {
+     if(aplListeners != null) {
         Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
         while(apliter.hasNext()) {
             apliter.next().finished();
         }
+     }
     }
     */
     

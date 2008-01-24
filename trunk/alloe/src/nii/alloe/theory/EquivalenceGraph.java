@@ -1,6 +1,6 @@
 package nii.alloe.theory;
 import java.util.*;
-import javax.naming.OperationNotSupportedException;
+import java.io.*;
 
 class EQIterator implements Iterator<Integer> {
     int i = 0;
@@ -21,7 +21,7 @@ class EQIterator implements Iterator<Integer> {
  * @author John McCrae, National Institute of Informatics
  */
 
-public class EquivalenceGraph implements Graph { 
+public class EquivalenceGraph implements Graph, Serializable { 
     EquivalenceGraph() {  }
 
     public boolean isConnected(int i, int j) {

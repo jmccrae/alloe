@@ -63,27 +63,27 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(startPauseButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resumeButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                    .addComponent(resumeButton)
                     .addComponent(startPauseButton)
-                    .addComponent(resumeButton))
+                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void resumeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resumeButtonActionPerformed
         if(!onResume())
             return;
@@ -92,7 +92,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
             Object o = ois.readObject();
-            if(!(o instanceof AlloeProcess)) 
+            if(!(o instanceof AlloeProcess))
                 JOptionPane.showMessageDialog(this, "Invalid format", "Could not resume", JOptionPane.ERROR_MESSAGE);
             setProcess((AlloeProcess)o);
             getProcess().addProgressListener(this);
@@ -107,7 +107,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not resume", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_resumeButtonActionPerformed
-        
+    
     private void startPauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPauseButtonActionPerformed
         if(state == STATE_NOTSTARTED || state == STATE_COMPLETED) {
             if(!onStart())
@@ -127,7 +127,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(process);
                 oos.close();
-              
+                
             } catch(IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save process", JOptionPane.ERROR_MESSAGE);
             } catch(CannotPauseException x) {
@@ -192,7 +192,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     }
     
     private String progressText;
-    public String getProgressText() { 
+    public String getProgressText() {
         if(state == STATE_NOTSTARTED) {
             return getProcessNotStartedText();
         } else if(state == STATE_RUNNING) {
@@ -227,11 +227,17 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     public void finished() {
         progressBar.setValue(100);
         progressBar.setString(getProcessCompletedText());
-        setState(STATE_COMPLETED);        
+        setState(STATE_COMPLETED);
     }
     public void progressChange(double newProgress) {
-        progressBar.setString(progressText = process.getStateMessage() + (int)(newProgress * 100) + "%");
-        progressBar.setValue((int)(newProgress * 100));
+        if(newProgress >= 0.0 && newProgress <= 1.0) {
+            progressBar.setIndeterminate(false);
+            progressBar.setString(progressText = process.getStateMessage() + (int)(newProgress * 100) + "%");
+            progressBar.setValue((int)(newProgress * 100));
+        } else {
+            progressBar.setIndeterminate(true);
+            progressBar.setString(progressText = process.getStateMessage());
+        }
     }
     
     private LinkedList<AlloeProgressListener> listeners;
@@ -263,7 +269,7 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     }
     
     private LinkedList<ProcessMonitorListener> pmListeners;
-
+    
     public JFileChooser getFileChooser() {
         return fileChooser;
     }

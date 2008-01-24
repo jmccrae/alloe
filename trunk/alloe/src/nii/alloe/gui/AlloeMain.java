@@ -12,6 +12,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import nii.alloe.classify.*;
+import nii.alloe.consist.*;
 import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.niceties.*;
@@ -44,15 +45,19 @@ public class AlloeMain extends javax.swing.JFrame {
     private Logic logic;
     private ProbModelBuilder probModelBuilder;
     private Model model;
+    private ConsistProblem consistProblem;
+    private SparseMatrix matrix;
+    private ConsistSolver consistSolver;
+    private GrowingSolver growingSolver;
     
-    private AlloeMain thisForAnon;
+    //private AlloeMain thisForAnon;
     
     /** Creates new form AlloeMain */
     public AlloeMain() {
         initComponents();
         corpusTextFile = corpusTermSetFile = corpusIndexFile = "";
         fileChooser = new JFileChooser();
-        thisForAnon = this;
+        //thisForAnon = this;
         corpusDisplayTableModel = new CorpusTableModel();
         termSetFileName = new HashMap<String,String>();
         fvTermSetFileName = new HashMap<String,String>();
@@ -69,7 +74,7 @@ public class AlloeMain extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        corpusAction = new javax.swing.ButtonGroup();
+        solverRadioGroup = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -150,6 +155,17 @@ public class AlloeMain extends javax.swing.JFrame {
         saveLogicButton = new javax.swing.JButton();
         processLogicButton = new javax.swing.JButton();
         jPanel12 = new javax.swing.JPanel();
+        useStandardSolver = new javax.swing.JRadioButton();
+        useGrowingSolver = new javax.swing.JRadioButton();
+        jPanel13 = new javax.swing.JPanel();
+        pmRowsLabel = new javax.swing.JLabel();
+        pmColsLabel = new javax.swing.JLabel();
+        pmElemsLabel = new javax.swing.JLabel();
+        problemMatrixMonitor = new nii.alloe.gui.ProcessMonitor();
+        saveProblemMatrix = new javax.swing.JButton();
+        openProblemMatrix = new javax.swing.JButton();
+        jPanel14 = new javax.swing.JPanel();
+        solverMonitor = new nii.alloe.gui.ProcessMonitor();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Alloe");
@@ -337,9 +353,6 @@ public class AlloeMain extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(patternGeneratorRelationship, 0, 353, Short.MAX_VALUE))
@@ -350,7 +363,8 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(patternBuilderMetric, 0, 390, Short.MAX_VALUE)))
+                        .addComponent(patternBuilderMetric, 0, 390, Short.MAX_VALUE))
+                    .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -369,7 +383,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(patternBuilderMetric, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Pattern Sets"));
@@ -469,8 +483,8 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -726,11 +740,26 @@ public class AlloeMain extends javax.swing.JFrame {
         jScrollPane3.setViewportView(logicConnectionTable);
 
         modelRelationship.setEnabled(false);
+        modelRelationship.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modelRelationshipActionPerformed(evt);
+            }
+        });
 
         saveModel.setText("Save Model");
         saveModel.setEnabled(false);
+        saveModel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveModelActionPerformed(evt);
+            }
+        });
 
         openModel.setText("Open Model");
+        openModel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openModelActionPerformed(evt);
+            }
+        });
 
         modelRelationShipLabel.setText("Relationship:");
         modelRelationShipLabel.setEnabled(false);
@@ -746,9 +775,20 @@ public class AlloeMain extends javax.swing.JFrame {
         jScrollPane4.setViewportView(logicDescription);
 
         saveLogicButton.setText("Save Logic");
+        saveLogicButton.setEnabled(false);
+        saveLogicButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveLogicButtonActionPerformed(evt);
+            }
+        });
 
         processLogicButton.setText("Process Logic");
         processLogicButton.setToolTipText("Load the logic as above");
+        processLogicButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                processLogicButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -835,15 +875,116 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         jTabbedPane1.addTab("Model", jPanel11);
 
+        solverRadioGroup.add(useStandardSolver);
+        useStandardSolver.setSelected(true);
+        useStandardSolver.setText("Standard Solver");
+        useStandardSolver.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useStandardSolver.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        solverRadioGroup.add(useGrowingSolver);
+        useGrowingSolver.setText("Growing Solver");
+        useGrowingSolver.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useGrowingSolver.setEnabled(false);
+        useGrowingSolver.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder("Problem Matrix"));
+        pmRowsLabel.setText("Rows:               ");
+        pmRowsLabel.setEnabled(false);
+
+        pmColsLabel.setText("Columns:               ");
+        pmColsLabel.setEnabled(false);
+
+        pmElemsLabel.setText("Elements:               ");
+        pmElemsLabel.setEnabled(false);
+
+        saveProblemMatrix.setText("Save Matrix");
+        saveProblemMatrix.setEnabled(false);
+
+        openProblemMatrix.setText("Open Matrix");
+
+        javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
+        jPanel13.setLayout(jPanel13Layout);
+        jPanel13Layout.setHorizontalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+                .addContainerGap(247, Short.MAX_VALUE)
+                .addComponent(openProblemMatrix)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(saveProblemMatrix)
+                .addContainerGap())
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(problemMatrixMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel13Layout.createSequentialGroup()
+                        .addComponent(pmRowsLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pmColsLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pmElemsLabel)))
+                .addContainerGap(30, Short.MAX_VALUE))
+        );
+        jPanel13Layout.setVerticalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pmRowsLabel)
+                    .addComponent(pmColsLabel)
+                    .addComponent(pmElemsLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(problemMatrixMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(saveProblemMatrix)
+                    .addComponent(openProblemMatrix))
+                .addContainerGap())
+        );
+
+        jPanel14.setBorder(javax.swing.BorderFactory.createTitledBorder("Solver"));
+
+        javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
+        jPanel14.setLayout(jPanel14Layout);
+        jPanel14Layout.setHorizontalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(solverMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(48, Short.MAX_VALUE))
+        );
+        jPanel14Layout.setVerticalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addComponent(solverMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(166, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
         jPanel12Layout.setHorizontalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 514, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel14, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel13, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel12Layout.createSequentialGroup()
+                        .addComponent(useStandardSolver)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(useGrowingSolver)))
+                .addContainerGap())
         );
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 558, Short.MAX_VALUE)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(useStandardSolver)
+                    .addComponent(useGrowingSolver))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(143, Short.MAX_VALUE))
         );
         jTabbedPane1.addTab("Consistency", jPanel12);
 
@@ -865,6 +1006,106 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    private void onLoadMatrix() {
+        pmRowsLabel.setText("Rows: " + matrix.getRowCount() + "          ");
+        pmRowsLabel.setEnabled(true);
+        pmColsLabel.setText("Columns: " + matrix.getColumnCount() + "          ");
+        pmColsLabel.setEnabled(true);
+        pmElemsLabel.setText("Elements: " + matrix.getElemCount());
+        pmElemsLabel.setEnabled(true);
+        saveProblemMatrix.setEnabled(true);
+        if(useStandardSolver.isSelected()) {
+            consistSolver = new ConsistSolver(matrix);
+            // TODO: register process
+        }
+    }
+    
+    private class PMMonitorListener implements ProcessMonitorListener {
+        public boolean onResume(ProcessMonitor pm) {
+            return true;
+        }
+        
+        public boolean onStart(ProcessMonitor pm) {
+            return true;
+        }
+        
+    }
+    
+    private class PMListener implements AlloeProgressListener {
+        public void finished() {
+            matrix = consistProblem.mat;
+            onLoadMatrix();
+        }
+        
+        public void progressChange(double newProgress) {
+        }
+    }
+    
+    
+    private void prepareProblemMatrix() {
+        consistProblem = new ConsistProblem(logic,model);
+        consistProblem.addProgressListener(new PMListener());
+        problemMatrixMonitor.setProcess(consistProblem);
+    }
+    
+    private void saveModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveModelActionPerformed
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
+                oos.writeObject(model);
+                oos.close();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save model", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_saveModelActionPerformed
+    
+    private void openModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openModelActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                Object o = ois.readObject();
+                if(!(o instanceof Model)) {
+                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open model", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                model = (Model)o;
+                onModelLoad();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open model", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open model", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_openModelActionPerformed
+    
+    private void saveLogicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveLogicButtonActionPerformed
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()));
+                bw.write(logic.toString());
+                bw.close();
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save logic file", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_saveLogicButtonActionPerformed
+    
+    private void processLogicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processLogicButtonActionPerformed
+        try {
+            logic = new Logic(logicDescription.getText());
+            onLoadLogic();
+        } catch(IllegalArgumentException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open logic", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_processLogicButtonActionPerformed
+    
+    private void modelRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modelRelationshipActionPerformed
+        String graphName = modelRelationship.getSelectedItem().toString();
+        Graph graph = model.getGraphByName(graphName);
+        modelLinksLabel.setText("Model Links: " + graph.linkCount());
+    }//GEN-LAST:event_modelRelationshipActionPerformed
     
     private void initProbModelBuilder() {
         HashMap<String,Classifier> classifs = new HashMap<String,Classifier>(logic.relationNames.keySet().size());
@@ -890,6 +1131,8 @@ public class AlloeMain extends javax.swing.JFrame {
         modelLinksLabel.setEnabled(true);
         visualizeModel.setEnabled(true); // TODO change to is JGraph in classpath
         saveModel.setEnabled(true);
+        if(logic != null)
+            prepareProblemMatrix();
     }
     
     private class ModelProcessListener implements AlloeProgressListener {
@@ -897,7 +1140,7 @@ public class AlloeMain extends javax.swing.JFrame {
             model = probModelBuilder.model;
             onModelLoad();
         }
-
+        
         public void progressChange(double newProgress) {
         }
     }
@@ -907,7 +1150,7 @@ public class AlloeMain extends javax.swing.JFrame {
             initProbModelBuilder();
             return true;
         }
-
+        
         public boolean onResume(ProcessMonitor pm) {
             probModelBuilder = (ProbModelBuilder)pm.getProcess();
             return true;
@@ -918,55 +1161,78 @@ public class AlloeMain extends javax.swing.JFrame {
         
     }//GEN-LAST:event_isTrainingCheckActionPerformed
     
+    private void prepareLogicConnections() {
+        TableColumn fvCol = logicConnectionTable.getColumnModel().getColumn(1);
+        JComboBox fvCombo = new JComboBox();
+        Iterator<String> fviter = dataSet.instances.keySet().iterator();
+        String defFV = "";
+        while(fviter.hasNext()) {
+            defFV = fviter.next();
+            fvCombo.addItem(defFV);
+        }
+        fvCol.setCellEditor(new DefaultCellEditor(fvCombo));
+        
+        TableColumn clCol = logicConnectionTable.getColumnModel().getColumn(2);
+        JComboBox clCombo = new JComboBox();
+        Iterator<String> cliter = classifierSet.keySet().iterator();
+        String defCl = "";
+        while(cliter.hasNext()) {
+            defCl = cliter.next();
+            clCombo.addItem(defCl);
+        }
+        clCol.setCellEditor(new DefaultCellEditor(clCombo));
+        
+        Iterator<String> relIter = logic.relationNames.keySet().iterator();
+        DefaultTableModel dtm = (DefaultTableModel)logicConnectionTable.getModel();
+        while(dtm.getRowCount() > 0)
+            dtm.removeRow(0);
+        while(relIter.hasNext()) {
+            Object[] os = new Object[3];
+            os[0] = relIter.next();
+            os[1] = dataSet.instances.containsKey(os[0]) ? os[0] : defFV;
+            os[2] = classifierSet.containsKey(os[0]) ? os[0] : defCl;
+            dtm.addRow(os);
+        }
+    }
+    
+    private void prepareProbModelBuilder() {        
+        probModelBuilder = new ProbModelBuilder(logic,dataSet,null,null);
+        probModelBuilder.addProgressListener(new ModelProcessListener());
+        probModelBuilderMonitor.setProcess(probModelBuilder);
+        initProbModelBuilder();
+        probModelBuilderMonitor.addProcessMonitorListener(new ModelPMListener());
+    }
+    
+    private void onLoadLogic() {
+        if(dataSet != null && classifierSet != null) {
+            prepareLogicConnections();
+        }
+        if(dataSet != null) {
+            prepareProbModelBuilder();
+        }
+        saveLogicButton.setEnabled(true);
+        logicDescription.setText(logic.toString());
+        if(model != null)
+            prepareProblemMatrix();
+    }
+    
     private void openLogicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openLogicActionPerformed
         if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
-                logic = new Logic(fileChooser.getSelectedFile().getAbsolutePath());
+                logic = new Logic(fileChooser.getSelectedFile());
+                onLoadLogic();
             } catch(IllegalArgumentException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open logic file", JOptionPane.ERROR_MESSAGE);
                 return;
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open logic file", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-            TableColumn fvCol = logicConnectionTable.getColumnModel().getColumn(1);
-            JComboBox fvCombo = new JComboBox();
-            Iterator<String> fviter = dataSet.instances.keySet().iterator();
-            String defFV = "";
-            while(fviter.hasNext()) {
-                defFV = fviter.next();
-                fvCombo.addItem(defFV);
-            }
-            fvCol.setCellEditor(new DefaultCellEditor(fvCombo));
-            
-            TableColumn clCol = logicConnectionTable.getColumnModel().getColumn(2);
-            JComboBox clCombo = new JComboBox();
-            Iterator<String> cliter = classifierSet.keySet().iterator();
-            String defCl = "";
-            while(cliter.hasNext()) {
-                defCl = cliter.next();
-                clCombo.addItem(defCl);
-            }
-            clCol.setCellEditor(new DefaultCellEditor(clCombo));
-            
-            Iterator<String> relIter = logic.relationNames.keySet().iterator();
-            DefaultTableModel dtm = (DefaultTableModel)logicConnectionTable.getModel();
-            while(dtm.getRowCount() > 0)
-                dtm.removeRow(0);
-            while(relIter.hasNext()) {
-                Object[] os = new Object[3];
-                os[0] = relIter.next();
-                os[1] = dataSet.instances.containsKey(os[0]) ? os[0] : defFV;
-                os[2] = classifierSet.containsKey(os[0]) ? os[0] : defCl;
-                dtm.addRow(os);
-            }
-            probModelBuilder = new ProbModelBuilder(logic,dataSet,null,null);
-            probModelBuilder.addProgressListener(new ModelProcessListener());
-            probModelBuilderMonitor.setProcess(probModelBuilder);
-            initProbModelBuilder();
-            probModelBuilderMonitor.addProcessMonitorListener(new ModelPMListener());
         }
     }//GEN-LAST:event_openLogicActionPerformed
     
     private void saveClassifierButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveClassifierButtonActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(classifierSet);
@@ -978,7 +1244,7 @@ public class AlloeMain extends javax.swing.JFrame {
     }//GEN-LAST:event_saveClassifierButtonActionPerformed
     
     private void openClassifierButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openClassifierButtonActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
@@ -1510,7 +1776,6 @@ public class AlloeMain extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox classifier;
     private javax.swing.JTextField classifierParameters;
-    private javax.swing.ButtonGroup corpusAction;
     private javax.swing.JTable corpusDisplay;
     private javax.swing.JScrollPane corpusDisplayScroll;
     private javax.swing.JLabel corpusTotalLabel;
@@ -1532,6 +1797,8 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1559,6 +1826,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JButton openLogic;
     private javax.swing.JButton openModel;
     private javax.swing.JButton openPatternSet;
+    private javax.swing.JButton openProblemMatrix;
     private javax.swing.JButton openTermPairSet;
     private javax.swing.JComboBox patternBuilderMetric;
     private nii.alloe.gui.ProcessMonitor patternGeneratorProgressMonitor;
@@ -1566,7 +1834,11 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JTable patternTable;
     private javax.swing.JComboBox patternViewerRelationship;
     private javax.swing.JLabel patternViewerRelationshipLabel;
+    private javax.swing.JLabel pmColsLabel;
+    private javax.swing.JLabel pmElemsLabel;
+    private javax.swing.JLabel pmRowsLabel;
     private nii.alloe.gui.ProcessMonitor probModelBuilderMonitor;
+    private nii.alloe.gui.ProcessMonitor problemMatrixMonitor;
     private javax.swing.JButton processLogicButton;
     private javax.swing.JButton saveClassifierButton;
     private javax.swing.JButton saveDataSet;
@@ -1574,12 +1846,17 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JButton saveLogicButton;
     private javax.swing.JButton saveModel;
     private javax.swing.JButton savePatternSet;
+    private javax.swing.JButton saveProblemMatrix;
     private javax.swing.JButton setIndexButton;
+    private nii.alloe.gui.ProcessMonitor solverMonitor;
+    private javax.swing.ButtonGroup solverRadioGroup;
     private javax.swing.JButton startTrainingButton;
     private javax.swing.JLabel termPairSetLabel;
     private javax.swing.JLabel termSetLabel;
     private javax.swing.JLabel textFileLabel;
     private javax.swing.JLabel totalPatternsLabel;
+    private javax.swing.JRadioButton useGrowingSolver;
+    private javax.swing.JRadioButton useStandardSolver;
     private javax.swing.JButton visualizeModel;
     private javax.swing.JTextArea wekaOutput;
     // End of variables declaration//GEN-END:variables

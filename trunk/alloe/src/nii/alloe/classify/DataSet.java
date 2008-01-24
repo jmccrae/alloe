@@ -32,6 +32,7 @@ public class DataSet implements Serializable {
     Map<String,Vector<String>> terms;
     Map<String,Vector<String>> nonOccTerms;
     TermList termSet;
+    private FastVector classVec;
     static final String glue = " => ";
     
     /** Create a new instance */
@@ -51,10 +52,20 @@ public class DataSet implements Serializable {
         while(attNames.hasNext()) {
             fv.addElement(new Attribute(attNames.next()));
         }
-        fv.addElement(new Attribute("class"));
+        classVec = new FastVector();
+        classVec.addElement("0");
+        classVec.addElement("1");
+        fv.addElement(new Attribute("class",classVec));
         instances.put(relation, new Instances(relation, fv, 0));
         terms.put(relation, new Vector<String>());
         nonOccTerms.put(relation, new Vector<String>());
+    }
+    
+    public double getClassVal(boolean clasz) {
+        if(clasz)
+            return classVec.indexOf("1");
+        else
+            return classVec.indexOf("0");
     }
     
     /**

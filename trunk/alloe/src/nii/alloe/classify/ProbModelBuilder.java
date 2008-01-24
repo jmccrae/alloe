@@ -115,16 +115,20 @@ public class ProbModelBuilder implements AlloeProcess, Serializable, Runnable {
     
     private String relation;
     private int i;
+    double relationCount,instCount;
     
     /**
      * Build a probability model
      */
     public Model buildProbModel() {
         Iterator<String> relationIter = classifs.keySet().iterator();
+        final double relationTotal = classifs.keySet().size();
+        relationCount = 0;
         Vector<String> termToNum = new Vector<String>(dataSet.termSet);
         model = new Model(dataSet.termSet.size());
         model.addBasicGraphs(logic);
         while(relationIter.hasNext() && state == STATE_OK) {
+            relationCount++;
             if(relation != null) {
                 while(!relation.equals(relationIter.next()));
             } else {
@@ -132,6 +136,7 @@ public class ProbModelBuilder implements AlloeProcess, Serializable, Runnable {
                 i = 0;
             }
             Instances is = dataSet.instances.get(relation);
+            double instTotal = is.numInstances();
             is.setClassIndex(is.numInstances() - 1);
             ProbabilityGraph pg = model.addProbabilityGraph(dataSetToLogicName.get(relation));
             
@@ -150,15 +155,16 @@ public class ProbModelBuilder implements AlloeProcess, Serializable, Runnable {
                     String s = termList.get(i);
                     String []ss = s.split(dataSet.glue);
                     dist = classif.distributionForInstance(is.instance(i));
-                    pg.setPosVal(termToNum.indexOf(ss[0]), termToNum.indexOf(ss[1]), dist[0]);
+                    pg.setPosVal(termToNum.indexOf(ss[0]), termToNum.indexOf(ss[1]), dist[1]);
                 }
+                fireNewProgressChange((relationCount / relationTotal) * ((double)i / instTotal)); 
             } catch(Exception x) {
                 x.printStackTrace();
                 return null;
             }
             relation = null;
         }
-        
+        fireFinished();
         return model;
     }
     
