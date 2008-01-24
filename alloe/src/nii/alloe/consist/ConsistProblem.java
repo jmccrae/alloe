@@ -3,9 +3,11 @@ import nii.alloe.theory.AssignmentAction;
 import nii.alloe.theory.Graph;
 import nii.alloe.theory.InconsistentAction;
 import nii.alloe.theory.Logic;
+import nii.alloe.theory.LogicException;
 import nii.alloe.theory.Model;
 import nii.alloe.theory.ProbabilityGraph;
 import nii.alloe.theory.Rule;
+import nii.alloe.niceties.*;
 import java.util.*;
 
 /**
@@ -32,7 +34,7 @@ import java.util.*;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class ConsistProblem {
+public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnable {
     // Inputs
     private Logic logic;
     private Model probModel;
@@ -40,14 +42,14 @@ public class ConsistProblem {
     private Model completeModel;
     private LinkedList<Rule> baseRules;
     private PriorityQueue<Rule> ruleQueue;
-    private SparseMatrix mat;
+    /** Result of matrix generation */
+    public SparseMatrix mat;
     private Vector<Integer> linkOrders;
     private int lastReduction = -1;
     private TreeSet<Rule> usedRules;
     private TreeMap<Integer,TreeSet<Integer>> unifyingPremises;
     
-    
-    /** Creates a new instance of ConsistProblem 
+    /** Creates a new instance of ConsistProblem
      * @param logic The logic the model should be made constitent with
      * @param probModel A weighted model of the inconsistent data
      */
@@ -55,6 +57,10 @@ public class ConsistProblem {
         this.logic = logic;
         this.probModel = probModel;
     }
+    
+    private boolean modelCompleted = false;
+    private boolean modelReduced = false;
+    private boolean baseRulesFormed = false;
     
     /**
      * Create a problem matrix
@@ -64,26 +70,64 @@ public class ConsistProblem {
     public SparseMatrix buildProblemMatrix() {
         lastReduction = -1;
         
-        prepareCompleteGraphs();
+        if(!modelCompleted) {
+            state = STATE_COMPLETING;
+            fireNewProgressChange(-1);
+            
+            Model compulsory = logic.getCompulsoryModel(probModel);
+            List<Integer> impossible = logic.getNegativeModel(probModel);
+            if(compulsory.containsAny(impossible))
+                throw new LogicException("Compulsory and Impossibles coincide");
+            probModel.add(compulsory);
+            
+            prepareCompleteGraphs();
+            logic.consistCheck(completeModel,new Completer());
+            completeModel.removeAll(impossible);
+            compulsory = null;
+            impossible = null;
+            
+            modelCompleted = true;
+            if(state == STATE_COMPLETING)
+                state = STATE_REDUCING;
+            else
+                return null;
+        }
+        if(!modelReduced) {
+            fireNewProgressChange(-1);
+            
+            reduceCompleteGraph();
+            
+            modelReduced = true;
+            if(state == STATE_REDUCING)
+                state = STATE_BASE;
+            else
+                return null;
+        }
+        if(!baseRulesFormed) {
+            fireNewProgressChange(-1);
+            
+            baseRules = new LinkedList<Rule>();
+            logic.premiseSearch(completeModel,new BaseRuleBuilder());
+            
+            baseRulesFormed = true;
+            if(state == STATE_BASE)
+                state = STATE_OK;
+            else
+                return null;
+        }
         
-        logic.consistCheck(completeModel,new Completer());
-        
-        reduceCompleteGraph();
-        
-        baseRules = new LinkedList<Rule>();
-        logic.premiseSearch(completeModel,new BaseRuleBuilder());
-        
-        if(baseRules.size() == 0)
-            return mat = new SparseMatrix();
+        fireNewProgressChange(0);
+        if(baseRules.size() == 0) {
+            mat = new SparseMatrix();
+            fireFinished();
+            return mat;
+        }
         
         orderRules();
         
         initializeRuleQueue();
         
-        probModel.graphs.get("r1").dumpToDot("hyp.prob.dot");
-        completeModel.graphs.get("r1").dumpToDot("hyp.comp.dot");
-        
-        while(ruleQueue.peek() != null) {
+        while(ruleQueue.peek() != null && state == STATE_OK) {
             Rule rule = ruleQueue.poll();
             
             addRuleToMatrix(rule);
@@ -94,14 +138,21 @@ public class ConsistProblem {
             if(canReduce(rule)) {
                 reduceMatrix(rule.score.intValue());
             }
+            fireNewProgressChange((double)mat.rows.size() / (double)(ruleQueue.size() + mat.rows.size()));
         }
         reduceMatrix(linkOrders.size());
         
         addCosts();
-        mat.printMatrix(System.out);
+        
+        if(state == STATE_OK) {
+            modelCompleted = modelReduced = baseRulesFormed = false;
+            fireFinished();
+        }
         
         return mat;
     }
+    
+    // TODO: Add expand matrix function
     
     /**
      * Build an incomplete problem matrix for the growing solver. Specifically it will only
@@ -113,21 +164,28 @@ public class ConsistProblem {
     public SparseMatrix buildGrowingProblemMatrix(Model baseModel) {
         lastReduction = -1;
         
-        baseRules = new LinkedList<Rule>();
-        BaseRuleBuilder brb = new BaseRuleBuilder();
-        brb.limitToCompleteModel = false;
-        logic.premiseSearch(baseModel,brb);
-        
-        if(baseRules.size() == 0)
-            return mat = new SparseMatrix();
-        
+        if(!baseRulesFormed) {
+            state = STATE_BASE;
+            fireNewProgressChange(-1);
+            
+            baseRules = new LinkedList<Rule>();
+            BaseRuleBuilder brb = new BaseRuleBuilder();
+            brb.limitToCompleteModel = false;
+            logic.premiseSearch(baseModel,brb);
+            
+            if(baseRules.size() == 0)
+                return mat = new SparseMatrix();
+            baseRulesFormed = true;
+            if(state != STATE_BASE)
+                return null;
+        }
+        state = STATE_OK;
+        fireNewProgressChange(0);
         orderRules();
         
         initializeRuleQueue();
         
-        probModel.graphs.get("r1").dumpToDot("hyp.prob.dot");
-        
-        while(ruleQueue.peek() != null) {
+        while(ruleQueue.peek() != null && state == STATE_OK) {
             Rule rule = ruleQueue.poll();
             
             addRuleToMatrix(rule);
@@ -138,11 +196,17 @@ public class ConsistProblem {
             if(canReduce(rule)) {
                 reduceMatrix(rule.score.intValue());
             }
+            
+            fireNewProgressChange((double)mat.rows.size() / (double)(ruleQueue.size() + mat.rows.size()));
         }
         reduceMatrix(linkOrders.size());
         
         addCosts();
-        mat.printMatrix(System.out);
+        
+        if(state == STATE_OK) {
+            baseRulesFormed = false;
+            fireFinished();
+        }
         
         return mat;
     }
@@ -231,7 +295,7 @@ public class ConsistProblem {
         });
     }
     
-   private void ruleMaxScore(Rule r) {
+    private void ruleMaxScore(Rule r) {
         r.maxScore = Integer.MAX_VALUE;
         
         r.forAllAssignments(probModel,false,new AssignmentAction() {
@@ -517,8 +581,6 @@ public class ConsistProblem {
                 return true;
             }
             
-            
-            
             TreeSet<Integer> premises = new TreeSet<Integer>();
             for(int i = 0; i < rule.premiseCount; i++) {
                 TreeSet<Integer> premiseSet = unifyingPremises.get(probModel.id(rule.relations.get(i),
@@ -611,6 +673,101 @@ public class ConsistProblem {
             }
             return true;
         }
+    }
+    
+    private transient LinkedList<AlloeProgressListener> aplListeners;
+    private transient Thread theThread;
+    private transient int state;
+    private static final int STATE_OK = 0;
+    private static final int STATE_STOPPING = 1;
+    private static final int STATE_UNPAUSEABLE = 2;
+    private static final int STATE_COMPLETING = 3;
+    private static final int STATE_REDUCING = 4;
+    private static final int STATE_BASE = 5;
+    
+     /** Register a progress listener */
+    public void addProgressListener(AlloeProgressListener apl) {
+        if(aplListeners == null)
+            aplListeners = new LinkedList<AlloeProgressListener>();
+        if(!aplListeners.contains(apl))
+            aplListeners.add(apl);
+    }
+    
+    
+    
+    private void fireNewProgressChange(double newProgress) {
+        if(aplListeners != null) {
+            Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
+            while(apliter.hasNext()) {
+                apliter.next().progressChange(newProgress);
+            }
+        }
+    }
+    
+    private void fireFinished() {
+        if(aplListeners != null) {
+            Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
+            while(apliter.hasNext()) {
+                apliter.next().finished();
+            }
+        }
+    }
+    
+    
+    
+    /** Start process. It is expected that this function should start the progress
+     * in a new thread */
+    public void start() {
+        theThread = new Thread(this);
+        state = STATE_OK;
+        theThread.start();
+    }
+    
+    /** Pause the process. The assumption is that this will work by changing a variable
+     * in the running thread and then wait for this thread to finish by use of join().
+     * It is assumed that the this object is Serializable, otherwise it's your problem
+     * to assure the object is ok when resume() is called.
+     *
+     * @throws CannotPauseException If the process is not in a state where it can be resumed
+     */
+    public void pause() throws CannotPauseException {
+        try {
+            if(state == STATE_UNPAUSEABLE)
+                throw new CannotPauseException("Some reason");
+            state = STATE_STOPPING;
+            theThread.join();
+        } catch(InterruptedException x) {
+            throw new CannotPauseException("The thread was interrupted");
+        }
+    }
+    
+    /** Resume the process.
+     * @see #pause()
+     */
+    public void resume() {
+        theThread = new Thread(this);
+        state = STATE_OK;
+        theThread.start();
+    }
+    
+    /** Get a string representation of the current action being performed */
+    public String getStateMessage() {
+        if(state == STATE_OK)
+            return "Building problem matrix: ";
+        else if(state == STATE_STOPPING)
+            return "Pausing: ";
+        else if(state == STATE_COMPLETING)
+            return "Completing Model";
+        else if(state == STATE_REDUCING)
+            return "Reducing Complete Model";
+        else if(state == STATE_BASE)
+            return "Creating Base Rules";
+        else
+            return "???";
+    }
+
+    public void run() {
+        buildProblemMatrix();
     }
 }
 

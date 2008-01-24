@@ -1,7 +1,7 @@
 package nii.alloe.theory;
 import java.util.*;
 import java.io.*;
-
+import nii.alloe.niceties.Output;
 
 /**
  * Represents a matrix that contains probabilities of links
@@ -26,7 +26,7 @@ public class ProbabilityGraph implements Graph, Serializable {
     }
     
     public boolean isConnected(int i, int j) {
-        return pm_pos.get(i * n + j) > pm_neg.get(i * n + j);
+        return posVal(i,j) > negVal(i,j);
     }
     
     public boolean mutable(int i, int j) {
@@ -34,11 +34,13 @@ public class ProbabilityGraph implements Graph, Serializable {
     }
     
     public void add(int i, int j) {
-        System.err.println("Attempted add on probability graph, please use setPosNegVal or setPosVal");
+        Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
+        setPosVal(i,j,1);
     }
     
     public void remove(int i, int j) {
-        System.err.println("Attempted remove on probability graph, please use setPosNegVal or setPosVal");
+        Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
+        setPosVal(i,j,0);
     }
     
     public int linkCount() {
@@ -195,9 +197,11 @@ public class ProbabilityGraph implements Graph, Serializable {
                 if(pm_pos.get(idx) > pm_neg.get(idx))
                     break;
             }
+            if(!baseIter.hasNext())
+                idx = -1;
             return rv;
         }
-        public boolean hasNext() { return baseIter.hasNext(); }
+        public boolean hasNext() { return idx >= 0 && baseIter.hasNext(); }
         public void remove() { throw new UnsupportedOperationException("Cannot remove from PGIterator"); }
     }
 }

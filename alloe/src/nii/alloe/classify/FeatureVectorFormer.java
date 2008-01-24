@@ -107,8 +107,10 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                 fireNewProgressChange((leftTermCount * terms.size() + rightTermCount) / termCounts);
                 if(!isAllZero) {
                     if(termPairs != null)
-                        data[patterns.size()] = termPairs.contains(term1,term2) ? 1 : 0;
-                    dataSet.addInstance(new SparseInstance(1.0,data),
+                        data[patterns.size()] = dataSet.getClassVal(termPairs.contains(term1,term2));
+                    else
+                        data[patterns.size()] = dataSet.getClassVal(false);
+                    dataSet.addInstance(new SparseInstance(1.0,data), 
                             relation, term1, term2);
                 }
                 rightTermCount++;

@@ -9,7 +9,7 @@ import java.io.*;
  * @see Graph
  */
 
-public class SpecificGraph implements Graph {
+public class SpecificGraph implements Graph, Serializable {
     public String relation;
     private TreeSet<Integer> links;
     private static int n;

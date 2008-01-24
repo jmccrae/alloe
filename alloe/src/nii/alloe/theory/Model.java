@@ -1,12 +1,13 @@
 package nii.alloe.theory;
 import java.util.*;
+import java.io.Serializable;
 
 /**
  * A model is a set of assignments to every possible link of a true/false value. This is in effect means that we have
  * a set of graphs which define the true/false value for each element in the set of elements.
  *
  */
-public class Model extends AbstractCollection<Integer> {
+public class Model extends AbstractCollection<Integer> implements Serializable {
     /**
      * The graphs indexed by their id string
      */
@@ -136,6 +137,37 @@ public class Model extends AbstractCollection<Integer> {
     }
     
     /**
+     * Create a copy of this where links are only present if they are immutable
+     */
+    public Model createImmutableCopy() {
+        Iterator<String> pgiter = graphNameIterator();
+        Model rval = new Model(this);
+        while(pgiter.hasNext()) {
+            String str = pgiter.next();
+            Graph pg = graphs.get(str);
+            
+            if(!(pg instanceof EquivalenceGraph) && !(pg instanceof MembershipGraph)) {
+                SpecificGraph g = rval.addSpecificGraph(str);
+                Iterator<Integer> i1 = rval.elems.iterator();
+                while(i1.hasNext()) {
+                    int i = i1.next();
+                    Iterator<Integer> i2 = rval.elems.iterator();
+                    while(i2.hasNext()) {
+                        int j = i2.next();
+                        if(pg.isConnected(i,j) && !pg.mutable(i,j)) {
+                            g.add(i,j);
+                        }
+                    }
+                }
+                rval.graphs.put(str,g);
+            } else {
+                rval.graphs.put(str,pg);
+            }
+        }
+        return rval;
+    }
+    
+    /**
      * Adds the basic graphs that is an EquivalenceGraph indexed by "e" and a Membership graph for every set in l
      */
     public void addBasicGraphs(Logic l) {
@@ -173,6 +205,44 @@ public class Model extends AbstractCollection<Integer> {
         return rval;
     }
     
+    /**
+     * Add all elements of another graph into this one. Note these graphs must have the same indexing,
+     * ie, created by subModel, createSpecificCopy, createImmutableCopy etc.
+     */
+    public boolean add(Model m) {
+        Iterator<Integer> i = m.iterator();
+        boolean rval = false;
+        while(i.hasNext()) {
+            rval = add(i.next()) || rval;
+        }
+        return rval;
+    }
+    
+    /**
+     * Remove all elements of another graph into this one. Note these graphs must have the same indexing.
+     */
+    public boolean remove(Model m) {
+        Iterator<Integer> i = m.iterator();
+        boolean rval = false;
+        while(i.hasNext()) {
+            rval = remove(i.next()) || rval;
+        }
+        return rval;
+    }
+    
+    /**
+     * Does this graph contain any elements in the list. 
+     */
+    public boolean containsAny(Collection<Integer> ids) {
+        Iterator<Integer> i = ids.iterator();
+        while(i.hasNext()) {
+            if(isConnected(i.next())) {
+                return true;
+            }
+        }
+        return false;
+    }
+        
     /**
      * The id is a unique id of a relation in this model
      */
@@ -280,8 +350,10 @@ public class Model extends AbstractCollection<Integer> {
     /**
      * Same as Graph.add(iByID(id),jByID(id))
      */
-    public void add(int id) {
+    public boolean add(int id) {
+        boolean rval = !graphs.get(relationByID(id)).isConnected(iByID(id),jByID(id));
         graphs.get(relationByID(id)).add(iByID(id),jByID(id));
+        return rval;
     }
     /**
      * Same as Graph.remove(iByID(id),jByID(id))
@@ -357,16 +429,31 @@ public class Model extends AbstractCollection<Integer> {
                 specIterator = null;
         }
         
-        public boolean hasNext() { return graphIterator.hasNext() || (specIterator != null && specIterator.hasNext()); }
+        public boolean hasNext() { 
+            if(specIterator == null)
+                return false;
+            if(specIterator.hasNext())
+                return true;
+            if(!graphIterator.hasNext())
+                return false;
+            do {
+                Map.Entry<String,Graph> e = graphIterator.next();
+                specIterator = e.getValue().iterator(n);
+                offset = relationIdx.indexOf(e.getKey()) * n * n;
+            } while(graphIterator.hasNext() && !specIterator.hasNext());
+            return specIterator.hasNext();
+        }
         public Integer next() {
             if(specIterator == null) {
                 throw new NoSuchElementException();
             } else if(specIterator.hasNext()) {
                 return specIterator.next() + offset;
             } else if(graphIterator.hasNext()) {
-                Map.Entry<String,Graph> e = graphIterator.next();
-                specIterator = e.getValue().iterator(n);
-                offset = relationIdx.indexOf(e.getKey()) * n * n;
+                do {
+                    Map.Entry<String,Graph> e = graphIterator.next();
+                    specIterator = e.getValue().iterator(n);
+                    offset = relationIdx.indexOf(e.getKey()) * n * n;
+                } while(graphIterator.hasNext() && !specIterator.hasNext());
                 return next();
             } else {
                 throw new NoSuchElementException();

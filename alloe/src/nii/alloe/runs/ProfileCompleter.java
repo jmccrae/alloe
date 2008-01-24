@@ -17,9 +17,16 @@ import nii.alloe.simulate.Simulate;
  */
 public class ProfileCompleter {
     
-   public static void main(String[] args) {
-          System.out.println("Profiling completer");
-        Simulate simulate = new Simulate("logics/sh.logic",0.7,0.7,100);
+    public static void main(String[] args) {
+        System.out.println("Profiling completer");
+        Simulate simulate;
+        try {
+            simulate = new Simulate("logics/sh.logic",0.7,0.7,100);
+        } catch(java.io.IOException x) {
+            x.printStackTrace();
+            System.exit(-1);
+            return;
+        }
         long []times = new long[100];
         int i = 0;
         
@@ -28,10 +35,10 @@ public class ProfileCompleter {
             simulate.createModels();
             ConsistProblem prob = new ConsistProblem(simulate.l, simulate.probModel);
             times[i++] = prob.profileComplete();
-        } 
+        }
         
         for(i = 0; i < times.length; i++) {
             System.out.println(times[i]);
         }
-   }
+    }
 }

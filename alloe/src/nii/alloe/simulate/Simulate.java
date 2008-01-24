@@ -18,8 +18,8 @@ public class Simulate {
     public Model trueModel;
     public Model probModel;
     
-    public Simulate(String logicFile, double prec, double recall, int n) {
-        l = new Logic(logicFile);
+    public Simulate(String logicFile, double prec, double recall, int n) throws IOException {
+        l = new Logic(new File(logicFile));
         p = prec;
         r = recall;
         this.n = n;

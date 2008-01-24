@@ -441,7 +441,7 @@ public class SparseMatrix {
     }
     
     /**
-     * @return number of non-zero elements in matrix */
+     * Returns number of non-zero elements in matrix */
     public int getElemCount() {
         int rval = 0;
         Iterator<SparseNode> si = rows.values().iterator();
@@ -451,6 +451,16 @@ public class SparseMatrix {
             }
         }
         return rval;
+    }
+    
+    /** Returns number of columns in matrix */
+    public int getColumnCount() {
+        return cols.size();
+    }
+    
+    /** Returns number of rows in matrix */
+    public int getRowCount() {
+        return rows.size();
     }
     
     /** Convert to three sparse arrays of coordinates and values 

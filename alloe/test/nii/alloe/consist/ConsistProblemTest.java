@@ -35,8 +35,14 @@ public class ConsistProblemTest extends TestCase {
      */
     public void testBuildProblemMatrix() {
         System.out.println("buildProblemMatrix");
-        
-        Logic l = new Logic("logics/hypernym.logic");
+        Logic l;
+        try {
+            l = new Logic(new File("logics/hypernym.logic"));
+        } catch(IOException x) {
+            x.printStackTrace();
+            System.exit(-1);
+            return;
+        }
         Model m = new Model(5);
         ProbabilityGraph g = m.addProbabilityGraph("r1");
         g.setBaseVal(0.02);
@@ -84,8 +90,14 @@ public class ConsistProblemTest extends TestCase {
         soln.add(1);
         soln.add(14);
         assertEquals(soln,solver.soln);
-        
-        Logic l2 = new Logic("logics/single-hyp.logic");
+        Logic l2;
+        try {
+             l2 = new Logic(new File("logics/single-hyp.logic"));
+        } catch(IOException x) {
+            x.printStackTrace();
+            System.exit(-1);
+            return;
+        }
         m.addBasicGraphs(l2);
         ConsistProblem instance2 = new ConsistProblem(l2,m);
         result = instance2.buildProblemMatrix();
@@ -148,7 +160,14 @@ public class ConsistProblemTest extends TestCase {
     }
     
     public void profileCompleter() {
-        Logic l = new Logic("logics/hypernym.logic");
+        Logic l;
+        try {
+        Logic l = new Logic(new File("logics/hypernym.logic"));
+        } catch(IOException x) {
+            x.printStackTrace();
+            System.exit(-1);
+            return;
+        }
         Model m = new Model(100);
         SpecificGraph g = m.addSpecificGraph("r1");
         Model m2 = new Model(100);

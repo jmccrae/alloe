@@ -117,10 +117,12 @@ public class Rule implements Comparable<Rule> {
         String rval = "";
         for(int i = 0; i < length(); i++) {
             if(i == premiseCount) {
-                rval = rval + "-> ";
+                rval = rval + " -> ";
             }
             rval = rval + relations.get(i) + "(" + terms.get(i)[0].toString() + "," +
-                    terms.get(i)[1].toString() + "); ";
+                    terms.get(i)[1].toString() + ")";
+            if(i != premiseCount -1 && i != length() - 1)
+                rval = rval + "; ";
         }
         return rval;
     }
