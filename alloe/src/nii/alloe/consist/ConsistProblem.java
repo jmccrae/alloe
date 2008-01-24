@@ -529,6 +529,23 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             Integer row = i.next();
             mat.setElem(row,0,costForRow(row));
         }
+        applyPerturbations();
+    }
+    
+    /** Random Permuations prevents the simplex algorithm from cycling */
+    private void applyPerturbations() {
+        Vector<Set<Integer>> eqSets = mat.rowEqualitySets(0);
+        Random r = new Random();
+        for(int i = 0; i < eqSets.size(); i++) {
+            if(eqSets.get(i).size() == 1)
+                continue;
+            Iterator<Integer> setIter = eqSets.get(i).iterator();
+            while(setIter.hasNext()) {
+               Integer ii = setIter.next();
+               double v = mat.elemVal(ii,0);
+               mat.setElem(ii,0,v + r.nextDouble() * v / 1024.0);
+            }
+        }
     }
     
     private void reduceCompleteGraph() {
@@ -685,7 +702,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     private static final int STATE_REDUCING = 4;
     private static final int STATE_BASE = 5;
     
-     /** Register a progress listener */
+    /** Register a progress listener */
     public void addProgressListener(AlloeProgressListener apl) {
         if(aplListeners == null)
             aplListeners = new LinkedList<AlloeProgressListener>();
@@ -765,7 +782,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         else
             return "???";
     }
-
+    
     public void run() {
         buildProblemMatrix();
     }

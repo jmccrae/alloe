@@ -226,10 +226,13 @@ public class ProcessMonitor extends javax.swing.JPanel implements AlloeProgressL
     
     public void finished() {
         progressBar.setValue(100);
+        progressBar.setIndeterminate(false);
         progressBar.setString(getProcessCompletedText());
         setState(STATE_COMPLETED);
     }
     public void progressChange(double newProgress) {
+        if(state == STATE_COMPLETED)
+            return;
         if(newProgress >= 0.0 && newProgress <= 1.0) {
             progressBar.setIndeterminate(false);
             progressBar.setString(progressText = process.getStateMessage() + (int)(newProgress * 100) + "%");

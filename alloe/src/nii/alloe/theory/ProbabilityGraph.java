@@ -7,12 +7,14 @@ import nii.alloe.niceties.Output;
  * Represents a matrix that contains probabilities of links
  */
 public class ProbabilityGraph implements Graph, Serializable {
-    private static int n;
+    static int n;
     // TODO sort this out so we can have a sparse prob matrix
     private TreeMap<Integer,Double> pm_pos;
     private TreeMap<Integer,Double> pm_neg;
     private double baseValPos, baseValNeg;
-    
+    /** If attempts are made to set a prob value to 1 or zero, this value is used to avoid
+     * -Infinitys appearing.*/
+    public static final double MIN_PROB = -1e+99;
     
     /**
      * Create a n x n probability matrix
@@ -22,7 +24,7 @@ public class ProbabilityGraph implements Graph, Serializable {
         pm_pos = new TreeMap<Integer,Double>();
         pm_neg = new TreeMap<Integer,Double>();
         baseValPos = 0;
-        baseValPos = Double.NEGATIVE_INFINITY;
+        baseValNeg = MIN_PROB;
     }
     
     public boolean isConnected(int i, int j) {
@@ -87,7 +89,7 @@ public class ProbabilityGraph implements Graph, Serializable {
     public double negVal(int i, int j) {
         Double d = pm_neg.get(i*n+j);
         if(d == null)
-            return baseValPos;
+            return baseValNeg;
         else
             return (double)d;
     }
@@ -110,9 +112,15 @@ public class ProbabilityGraph implements Graph, Serializable {
      * @param prob The probability, must be between 0 and 1
      */
     public void setPosVal(int i, int j, double prob) {
-        if(prob >= 0 && prob <= 1) {
+        if(prob > 0 && prob < 1) {
             pm_pos.put(i*n+j,Math.log(prob));
             pm_neg.put(i*n+j,Math.log(1 - prob));
+        } else if(prob == 1) {
+            pm_pos.put(i*n+j,0.0);
+            pm_neg.put(i*n+j,MIN_PROB);
+        } else if(prob == 0) {
+            pm_pos.put(i*n+j,MIN_PROB);
+            pm_neg.put(i*n+j,0.0);
         } else {
             System.err.println("Invalid probability value!");
         }
@@ -136,7 +144,15 @@ public class ProbabilityGraph implements Graph, Serializable {
     }
     
     public void setBaseVal(double prob) {
-        setBaseVal(Math.log(prob), Math.log(1-prob));
+        if(prob > 0 && prob < 1) {
+            setBaseVal(Math.log(prob), Math.log(1-prob));
+        } else if(prob == 1) {
+            setBaseVal(0,MIN_PROB);
+        } else if(prob == 0) {
+            setBaseVal(MIN_PROB,0);
+        } else {
+            throw new IllegalArgumentException("Probability value should be between 0 and 1");
+        }
     }
     
     public void setBaseVal(double p, double ng) {

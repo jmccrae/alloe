@@ -1,5 +1,6 @@
 package nii.alloe.consist;
 import java.util.*;
+import nii.alloe.niceties.*;
 
 /**
  * Simplex Algorithm. Implemented as follows, initially set the tableau to be
@@ -18,21 +19,43 @@ import java.util.*;
 
 
 public class Simplex {
-    
+    /** The rows and their values, rows are omitted if the value is zero */
     public SortedMap<Integer,Double> soln;
+    /** The cost of the minimal solution */
     public double cost;
+    /** True only after the simplex algorithm terminated */
+    public boolean success;
+    /** Change this to change the number of iterations */
+    public static int ITERATION_MAX = 10000;
+    /** Change this to make the algorithm more cautious about cycling */
+    public static int CYCLE_DEPTH = 3;
+    
+    private transient Random random;
     
     /** Creates a new instance of Simplex */
     public Simplex() {
+        
     }
+    
+    private class Pivot { 
+        double row, col; 
+        public boolean equals(Object o) { 
+            if(!(o instanceof Pivot))
+                return false;
+            return ((Pivot)o).row == row && ((Pivot)o).col == col;
+        }
+    }
+    private LinkedList<Pivot> pivots;
     
     /**
      * Find the optimal linear solution of a matrix m using simplex solve */
     public void simplexSolve(SparseMatrix m) {
         Integer slackBegin = m.cols.lastKey() + 1;
         Integer solnRow = m.rows.lastKey() + 1;
+        success = true;
+        random = new Random();
+        pivots = new LinkedList<Pivot>();
         
-        // 
         Iterator<Integer> citer = m.cols.keySet().iterator();
         Integer i = citer.next();
         if(i != 0) {
@@ -48,21 +71,35 @@ public class Simplex {
             if(!i.equals(solnRow))
                 m.setElem(i,slackBegin+i);
         }
+        int iterations = 0;
         
-        while(m.findMinRowVal(solnRow) < 0) {
-            m.printFull(System.out);
-            System.out.println("");
+        while(m.findMinRowVal(solnRow) < 0 && iterations < ITERATION_MAX && success) {
             // Find Pivot Col
             TreeSet<Integer> pivotCols = m.findMinRowIdx(solnRow);
-            Integer pivotCol = pivotCols.first();
-            Iterator<Integer> piter = pivotCols.iterator();
-            double mcs = Double.MAX_VALUE;
-            while(piter.hasNext()) {
-                Integer pc = piter.next();
-                double cs = m.columnSum(pc);
-                if(cs < mcs) {
-                    mcs = cs;
-                    pivotCol = pc;
+            Integer pivotCol;
+            if(pivotCols.size() == 1) {
+                pivotCol = pivotCols.first();
+            } else {
+                // If there are multiple pivot cols, decide by column sum
+                Iterator<Integer> piter = pivotCols.iterator();
+                Vector<Integer> pivotCols2 = new Vector<Integer>();
+                double mcs = Double.MAX_VALUE;
+                while(piter.hasNext()) {
+                    Integer pc = piter.next();
+                    double cs = m.columnSum(pc);
+                    if(cs < mcs) {
+                        pivotCols2.clear();
+                        pivotCols2.add(pc);
+                        mcs = cs;
+                    } else if(cs == mcs) {
+                        pivotCols2.add(pc);
+                    }
+                }
+                // Then if there is still no winner, choose at random (this also prevents cycling)
+                if(pivotCols2.size() == 1) {
+                    pivotCol = pivotCols2.get(0);
+                } else {
+                    pivotCol = pivotCols2.get(random.nextInt(pivotCols2.size()));
                 }
             }
             
@@ -72,6 +109,7 @@ public class Simplex {
             if(pivotRow < 0 || pivotRow >= solnRow || pivotCol <= 0) {
                 throw new RuntimeException("Failed to choose a pivot in simplex algorithm, matrix may be unfit!");
             }
+            pushPivot(pivotRow, pivotCol);
             
             // Normalize pivot row
             Double d = new Double(m.elemVal(pivotRow, pivotCol));
@@ -91,6 +129,17 @@ public class Simplex {
                 
                 m.subtractRowFromRow(i,pivotRow,m.elemVal(i,pivotCol));
             }
+            iterations++;
+            
+            Output.out.println("Negatives: " + m.negativesInRow(solnRow));
+            // Check for cycling
+            for(int n = 1; n <= CYCLE_DEPTH; n++) {
+                if(isCycling(n)) {
+                    Output.err.println("Cycling detected!");
+                    success = false;
+                    break;
+                }
+            }
         }
         soln = m.getRowVals(solnRow).tailMap(slackBegin);
         TreeMap<Integer,Double> shiftedSoln = new TreeMap<Integer,Double>();
@@ -100,7 +149,24 @@ public class Simplex {
             shiftedSoln.put(entry.getKey() - slackBegin, entry.getValue());
         }
         soln = shiftedSoln;
-        cost = m.elemVal(solnRow,0);
+        if(iterations == ITERATION_MAX)
+            success = false;
+        else
+            cost = m.elemVal(solnRow,0);
+        pivots = null;
+        
     }
     
+    private void pushPivot(int row, int col) {
+        Pivot p = new Pivot();
+        p.row = row;
+        p.col = col;
+        pivots.add(p);
+    }
+    
+    private boolean isCycling(int n) {
+        if(pivots.size() < 2 * n)
+            return false;
+        return pivots.subList(pivots.size() - n, pivots.size()).equals(pivots.subList(pivots.size() - 2 *n, pivots.size() - n));
+    }
 }
