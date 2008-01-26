@@ -46,7 +46,17 @@ public class ProbabilityGraph implements Graph, Serializable {
     }
     
     public int linkCount() {
-        return pm_pos.size();
+        int rval = 0;
+        Iterator<Double> posIter = pm_pos.values().iterator();
+        Iterator<Double> negIter = pm_neg.values().iterator();
+        while(posIter.hasNext()) {
+            if(posIter.next() > negIter.next())
+                rval++;
+        }
+        if(baseValPos < baseValNeg) {
+            rval = rval + n * n  - pm_pos.size();
+        }
+        return rval;
     }
     
     public void dumpToDot(String dotFile) {

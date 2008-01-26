@@ -47,6 +47,31 @@ public class Rule implements Comparable<Rule> {
         return r;
     }
     
+    /** Create a rule with assignments */
+    static public Rule create(List<Integer> positives, List<Integer> negatives, Model model) {
+        return (new Rule())._create(positives, negatives, model);
+    }
+    private Rule _create(List<Integer> positives, List<Integer> negatives, Model model) {
+        relations = new Vector<String>(positives.size() + negatives.size());
+        terms = new Vector<Argument[]>();
+        premiseCount = positives.size();
+
+        int i = 0;
+        Iterator<Integer> iter = positives.iterator();
+        while(iter.hasNext()) {
+            Integer id = iter.next();
+            relations.add(model.relationByID(id));
+            Argument[] args = new Argument[2];
+            args[0] = new Argument(model.iByID(id));
+            args[0].setAssignment(model.iByID(id));
+            args[1] = new Argument(model.jByID(id));
+            args[1].setAssignment(model.jByID(id));
+            terms.add(args);
+        }
+        addArguments();
+        return this;
+    }
+    
     private void loadFromString(String rule) throws IllegalArgumentException {
         String []pc = rule.split("->",-1);
         if(pc.length != 2) {

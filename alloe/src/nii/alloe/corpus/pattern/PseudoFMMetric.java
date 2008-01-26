@@ -39,8 +39,9 @@ public class PseudoFMMetric implements PatternMetric {
             String[] ss = pattern.getTermMatch(contexts.next());
             if(ss != null && termPairs.contains(ss[0],ss[1])) { // Maybe search among pairs ??
                 n++;
-            }
-            N++;
+            } 
+            if(ss != null)
+                N++;
         }
         
         assert N != 0;

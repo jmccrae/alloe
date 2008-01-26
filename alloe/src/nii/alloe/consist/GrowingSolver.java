@@ -2,6 +2,8 @@ package nii.alloe.consist;
 import java.util.*;
 import nii.alloe.theory.Logic;
 import nii.alloe.theory.Model;
+import nii.alloe.niceties.*;
+import java.io.*;
 
 /**
  * Solves a problem using the growing matrix method. This is similar to {@link ConsistSolver}, however instead
@@ -12,18 +14,30 @@ import nii.alloe.theory.Model;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class GrowingSolver {
+public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressListener {
     /**
      * The solution is placed here after solve is called
      */
-    TreeSet<Integer> soln;
+    public TreeSet<Integer> soln;
     /**
      * The minimal cost is placed here after solve is called
      */
-    double cost;
+    public double cost;
+    
+    private Logic logic;
+    private Model probModel;
     
     /** Create a new instance */
-    public GrowingSolver() {}
+    public GrowingSolver(Logic logic, Model probModel) {
+        this.logic = logic;
+        this.probModel = probModel;
+    }
+    
+    private ConsistProblem cp;
+    private ConsistSolver cs;
+    private Model baseModel;
+    private int iteration;
+    private Collection<Integer> change;
     
     /**
      * Find closest model to data
@@ -31,18 +45,66 @@ public class GrowingSolver {
      * @param logic The logic the model should be made constitent with
      * @param probModel A weighted model of the inconsistent data
      */
-    public void solve(Logic logic, Model probModel) {
-        ConsistProblem cp = new ConsistProblem(logic, probModel);
-        ConsistSolver cs = new ConsistSolver();
-        Model baseModel = probModel.createSpecificCopy();
-        while(true) {
-            SparseMatrix m = cp.buildGrowingProblemMatrix(baseModel);
+    public void solve() {
+        if(cp == null) {
+            cp = new ConsistProblem(logic, probModel);
+            cs = new ConsistSolver();
+            baseModel = probModel.createSpecificCopy();
+            iteration = 1;
+            change = baseModel;
+        }
+        cp.addProgressListener(this);
+        cs.addProgressListener(this);
+        while(state == STATE_OK) {
+            state = STATE_MATRIX;
+            SparseMatrix m = cp.buildGrowingProblemMatrix(baseModel,change);
+            if(state != STATE_MATRIX)
+                break;
+            state = STATE_SOLVING;
             cs.solve(m);
+            if(state == STATE_SOLVING)
+                state = STATE_OK;
             
+            change = (TreeSet<Integer>)cs.soln.clone();
+            change.removeAll(baseModel);
             if(!baseModel.addAll(cs.soln)) 
                 break;
+            iteration++;
         }
         soln = cs.soln;
         cost = cs.cost;
+        if(state == STATE_OK)
+            fireFinished();
     }   
+
+      private static final int STATE_MATRIX = 3;
+      private static final int STATE_SOLVING = 4;
+    
+    
+    /** Get a string representation of the current action being performed */
+    public String getStateMessage() {
+        if(state == STATE_OK) {
+            return "Solving: ";
+        } else if(state == STATE_MATRIX) {
+            String s = cp.getStateMessage();
+            return s.substring(0,s.length()-2) + " (Iteration " + iteration + "): ";
+        } else if(state == STATE_SOLVING) {
+            String s = cs.getStateMessage();
+            return s.substring(0,s.length()-2) + " (Iteration " + iteration + "): ";
+        } else {
+            return "???";
+        }
+    }
+
+    public void run() {
+       solve(); 
+    }
+
+    public void finished() {
+        // Yeah I know, but thanks for the warning that you are going to return
+    }
+
+    public void progressChange(double newProgress) {
+        fireNewProgressChange(newProgress);
+    }
 }
