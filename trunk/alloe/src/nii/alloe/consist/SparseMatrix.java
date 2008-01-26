@@ -1,6 +1,7 @@
 package nii.alloe.consist;
 import java.util.*;
 import java.io.*;
+import nii.alloe.theory.*;
 
 /**
  * A sparse matrix. Implemented as a tree map of single linked lists
@@ -725,6 +726,19 @@ public class SparseMatrix implements Serializable {
             o.n.right = rows.get(o.n.i);
             rows.put(o.n.i,o.n);
         }
+    }
+    
+    public Rule columnToRule(Integer col, Model model) {
+        LinkedList<Integer> positives = new LinkedList<Integer>();
+        LinkedList<Integer> negatives = new LinkedList<Integer>();
+        for(SparseNode n = cols.get(col); n != null; n = n.down) {
+            if(model.isConnected(n.i))
+                positives.add(n.i);
+            else
+                negatives.add(n.i);
+        }
+        
+        return Rule.create(positives, negatives, model);
     }
     
     public class SparseNode implements Serializable {

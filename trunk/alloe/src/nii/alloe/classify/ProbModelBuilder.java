@@ -164,6 +164,7 @@ public class ProbModelBuilder implements AlloeProcess, Serializable, Runnable {
             }
             relation = null;
         }
+        model.addCompulsorys(logic);
         fireFinished();
         return model;
     }

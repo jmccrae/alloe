@@ -14,7 +14,8 @@ public class TermList extends Vector<String> {
     }
     
     public TermList(Collection<String> c){
-        super(c);
+        super();
+        addAll(c);
     }
     
     public TermList(int initialCapacity) {

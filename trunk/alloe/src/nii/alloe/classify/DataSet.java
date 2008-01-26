@@ -31,7 +31,7 @@ public class DataSet implements Serializable {
     private Set<String> trainingSets;
     Map<String,Vector<String>> terms;
     Map<String,Vector<String>> nonOccTerms;
-    TermList termSet;
+    public TermList termSet;
     private FastVector classVec;
     static final String glue = " => ";
     

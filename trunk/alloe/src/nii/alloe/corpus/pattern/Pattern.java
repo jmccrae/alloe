@@ -202,8 +202,8 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         // TODO: Think about this, very hard!
         //regex = regex.replaceAll("1","(" + wordDBS + "+)");
         //regex = regex.replaceAll("2","(" + wordDBS + "+)");
-        regex = regex.replaceAll("1","\b(.*?)\b");
-        regex = regex.replaceAll("2","\b(.*?)\b");
+        regex = regex.replaceAll("1","\\\\b(.+?)\\\\b");
+        regex = regex.replaceAll("2","\\\\b(.+?)\\\\b");
         regex = ".*" + regex + ".*";
         Matcher m = java.util.regex.Pattern.compile(deSafe(regex)).matcher(str);
         if(m.matches()) {

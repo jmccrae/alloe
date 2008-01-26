@@ -118,10 +118,10 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
                 if(s == null) break;
                 if(s.length() > 200) {
                     String t = readLine();
-                    s = s + " " + t;
-                    while(t.length() > 200) {
+                    s = s + " " + (t != null ? t : "");
+                    while(t != null && t.length() > 200) {
                         t = readLine();
-                        s = s + " " + t;
+                        s = s + " " + (t != null ? t : "");
                     }
                 }
                 s.replaceAll("\\s\\s+", " ");

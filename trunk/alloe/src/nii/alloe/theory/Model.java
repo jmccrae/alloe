@@ -1,6 +1,7 @@
 package nii.alloe.theory;
 import java.util.*;
 import java.io.Serializable;
+import nii.alloe.corpus.*;
 
 /**
  * A model is a set of assignments to every possible link of a true/false value. This is in effect means that we have
@@ -24,6 +25,9 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
      * The number of elements used in this model
      */
     public int n;
+    
+    private boolean hasCompulsory;
+    private int compulsoryCount;
     
     /**
      * Create an empty model on the elements {1,...,n}
@@ -134,7 +138,51 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
                 rval.graphs.put(str,pg);
             }
         }
+        rval.compulsoryCount = this.compulsoryCount;
         return rval;
+    }
+    
+    /**
+     * Create a copy where all probability graphs have been replaced by blank specific graphs
+     */
+    public Model createBlankSpecificCopy() {
+        Iterator<String> pgiter = graphNameIterator();
+        Model rval = new Model(this);
+        while(pgiter.hasNext()) {
+            String str = pgiter.next();
+            Graph pg = graphs.get(str);
+            
+            if(pg instanceof ProbabilityGraph) {
+                SpecificGraph g = rval.addSpecificGraph(str);
+            } else {
+                rval.graphs.put(str,pg);
+            }
+        }
+        rval.compulsoryCount = this.compulsoryCount;
+        return rval;
+    }
+    
+    private class SetGraphAction implements EachTermPairAction {
+        Graph g;
+        TermList tl;
+        SetGraphAction(Graph g, TermList tl) { this.g = g; this.tl = tl; }
+        public void doAction(String term1, String term2) {
+            g.add(tl.indexOf(term1),tl.indexOf(term2));
+            }
+    }
+    
+    /**
+     * Set a graph to be a term pair set
+     */
+    public void setGraphAs(String name, TermPairSet termPairs, TermList termList) {
+        Graph g = getGraphByName(name);
+        Iterator<Integer> iter = g.iterator(n);
+        while(iter.hasNext()) {
+            Integer i = iter.next();
+            g.remove(i / n, i % n);
+        }
+        
+        termPairs.forEachPair(new SetGraphAction(g,termList));
     }
     
     /**
@@ -163,6 +211,7 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
                 rval.graphs.put(str,pg);
             }
         }
+        rval.compulsoryCount = this.compulsoryCount;
         return rval;
     }
     
@@ -370,6 +419,30 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
     }
     
     /**
+     * Compare one graph to another
+     * @return A three element integer array, the first is the agreement, the second those found only in this, the third those found only in parameter
+     * @throws IllegalArgumentException if the models do not have the same graph set
+     */
+    public int[] computeComparison(Model m) {
+        if(!m.graphs.keySet().equals(graphs.keySet()))
+            throw new IllegalArgumentException("Incomparable graphs!");
+        Iterator<Integer> iter = iterator();
+        int[] rval = new int[3];
+        while(iter.hasNext()) {
+            Integer i = iter.next();
+            if(getGraphByID(i) instanceof EquivalenceGraph || getGraphByID(i) instanceof MembershipGraph)
+                continue;
+            if(m.isConnected(i)) 
+                rval[0]++;
+            else
+                rval[1]++;
+        }
+        rval[0] -= compulsoryCount;
+        rval[2] = m.size() - rval[0] - compulsoryCount;
+        return rval;
+    }
+    
+    /**
      * Sum of each graphs {@link Graph.linkCount}
      **/
     public int size() {
@@ -403,6 +476,18 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
         return (Vector<String>)relationIdx.clone();
     }
     
+    /**
+     * Add all the compulsory links
+     */
+    public void addCompulsorys(Logic logic) {
+        if(!hasCompulsory) {
+            Model m = logic.getCompulsoryModel(this);
+            compulsoryCount = m.size();
+            this.add(m);
+            hasCompulsory = true;
+        }
+    }
+      
     /**
      * An iterator for the name of every graph in this model, although similar can be achieved
      * graphs.keySet().iterator(), this iterator is ordered so that if a second model is created

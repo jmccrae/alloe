@@ -365,10 +365,12 @@
                                   <EmptySpace pref="227" max="32767" attributes="0"/>
                                   <Component id="openTermPairSet" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="1" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
                                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="patternBuilderMetric" pref="409" max="32767" attributes="0"/>
+                                  <Component id="patternBuilderMetric" pref="309" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="patternAdvanced" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Component id="patternGeneratorProgressMonitor" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -391,6 +393,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="patternAdvanced" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="patternBuilderMetric" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -457,6 +460,14 @@
                     <Property name="text" type="java.lang.String" value="Metric::"/>
                   </Properties>
                 </Component>
+                <Component class="javax.swing.JButton" name="patternAdvanced">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Advanced"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="patternAdvancedActionPerformed"/>
+                  </Events>
+                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="jPanel7">
@@ -506,7 +517,7 @@
                               <Component id="totalPatternsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" pref="245" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="244" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -1152,7 +1163,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="jPanel15" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jPanel14" alignment="0" pref="490" max="32767" attributes="0"/>
+                          <Component id="jPanel14" alignment="0" max="32767" attributes="0"/>
                           <Component id="jPanel13" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="useStandardSolver" min="-2" max="-2" attributes="0"/>
@@ -1200,6 +1211,9 @@
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useStandardSolverActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JRadioButton" name="useGrowingSolver">
               <Properties>
@@ -1212,11 +1226,13 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useGrowingSolverActionPerformed"/>
+              </Events>
             </Component>
             <Container class="javax.swing.JPanel" name="jPanel13">
               <Properties>
@@ -1231,7 +1247,7 @@
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <EmptySpace pref="247" max="32767" attributes="0"/>
+                          <EmptySpace pref="256" max="32767" attributes="0"/>
                           <Component id="openProblemMatrix" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="saveProblemMatrix" min="-2" max="-2" attributes="0"/>
@@ -1249,7 +1265,7 @@
                                   <Component id="pmElemsLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace pref="30" max="32767" attributes="0"/>
+                          <EmptySpace pref="39" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1263,7 +1279,7 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="problemMatrixMonitor" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="21" max="32767" attributes="0"/>
+                          <EmptySpace pref="31" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="saveProblemMatrix" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="openProblemMatrix" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1336,7 +1352,7 @@
                           <Component id="solverRemovedLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="solverScoreLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="157" max="32767" attributes="0"/>
+                          <EmptySpace pref="166" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="32767" attributes="0"/>
@@ -1401,29 +1417,38 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Component id="standardTermSetLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace pref="281" max="32767" attributes="0"/>
+                                  <Component id="standardOpenTermSet" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="1" attributes="0">
                                   <Component id="standardRelationship" min="-2" pref="118" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="standardTermPairLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="101" max="32767" attributes="0"/>
+                                  <EmptySpace pref="110" max="32767" attributes="0"/>
                                   <Component id="standardOpenTermPairs" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
-                                  <EmptySpace min="-2" pref="191" max="-2" attributes="0"/>
-                                  <Component id="openStandardModel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="saveStandardModel" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="confusionMatrix" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="confusionMatrixPre" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="precisionPreLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="recallPreLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="fMeasurePreLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
+                                  <EmptySpace pref="44" max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="recallLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="precisionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="fMeasureLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="fMeasurePostLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="recallPostLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="precisionPostLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="confusionMatrixPost" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Component id="openStandardModel" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                                          <Component id="saveStandardModel" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -1433,7 +1458,12 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="standardOpenTermSet" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="standardTermSetLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="standardOpenTermPairs" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="standardRelationship" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1444,30 +1474,44 @@
                               <Component id="saveStandardModel" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="openStandardModel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="confusionMatrix" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Component id="precisionLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="recallLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                              </Group>
+                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="fMeasureLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="92" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="confusionMatrixPre" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="confusionMatrixPost" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="precisionPreLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="precisionPostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="recallPreLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="recallPostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="fMeasurePreLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="fMeasurePostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JTable" name="confusionMatrix">
+                <Component class="javax.swing.JTable" name="confusionMatrixPre">
                   <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                        <EtchetBorder/>
+                      </Border>
+                    </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="2" rowCount="2">
                         <Column editable="false" title="Title 1" type="java.lang.Integer"/>
@@ -1488,6 +1532,9 @@
                     <Property name="text" type="java.lang.String" value="Open Term Pairs"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="standardOpenTermPairsActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="standardTermPairLabel">
                   <Properties>
@@ -1511,22 +1558,73 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel8">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Confusion Matrix"/>
+                    <Property name="text" type="java.lang.String" value="Confusion Matrix (Before Solver)"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="precisionLabel">
+                <Component class="javax.swing.JLabel" name="precisionPreLabel">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Precision:"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="recallLabel">
+                <Component class="javax.swing.JLabel" name="recallPreLabel">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Recall:"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="fMeasureLabel">
+                <Component class="javax.swing.JLabel" name="fMeasurePreLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="F-Measure:"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="standardTermSetLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Term Set:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JButton" name="standardOpenTermSet">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Open Term Set"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="standardOpenTermSetActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel9">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Confusion Matrix (After Solver)"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTable" name="confusionMatrixPost">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                        <EtchetBorder/>
+                      </Border>
+                    </Property>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                      <Table columnCount="2" rowCount="2">
+                        <Column editable="false" title="Title 1" type="java.lang.Integer"/>
+                        <Column editable="false" title="Title 2" type="java.lang.Integer"/>
+                      </Table>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="precisionPostLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Precision:"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="recallPostLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Recall:"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="fMeasurePostLabel">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="F-Measure:"/>
                     <Property name="enabled" type="boolean" value="false"/>

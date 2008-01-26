@@ -74,16 +74,12 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             state = STATE_COMPLETING;
             fireNewProgressChange(-1);
             
-            Model compulsory = logic.getCompulsoryModel(probModel);
+            probModel.addCompulsorys(logic);
             List<Integer> impossible = logic.getNegativeModel(probModel);
-            if(compulsory.containsAny(impossible))
-                throw new LogicException("Compulsory and Impossibles coincide");
-            probModel.add(compulsory);
             
             prepareCompleteGraphs();
             logic.consistCheck(completeModel,new Completer());
             completeModel.removeAll(impossible);
-            compulsory = null;
             impossible = null;
             
             modelCompleted = true;
@@ -161,20 +157,20 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
      * @return problem matrix
      * @see GrowingSolver
      */
-    public SparseMatrix buildGrowingProblemMatrix(Model baseModel) {
+    public SparseMatrix buildGrowingProblemMatrix(Model baseModel, Collection<Integer> newElems) {
         lastReduction = -1;
-        
+        if(mat == null)
+            mat = new SparseMatrix();
         if(!baseRulesFormed) {
             state = STATE_BASE;
             fireNewProgressChange(-1);
             
             baseRules = new LinkedList<Rule>();
-            BaseRuleBuilder brb = new BaseRuleBuilder();
-            brb.limitToCompleteModel = false;
+            GrowingBaseRuleBuilder brb = new GrowingBaseRuleBuilder(newElems);
             logic.premiseSearch(baseModel,brb);
             
             if(baseRules.size() == 0)
-                return mat = new SparseMatrix();
+                return mat;
             baseRulesFormed = true;
             if(state != STATE_BASE)
                 return null;
@@ -184,6 +180,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         orderRules();
         
         initializeRuleQueue();
+        expandRuleQueue();
         
         while(ruleQueue.peek() != null && state == STATE_OK) {
             Rule rule = ruleQueue.poll();
@@ -329,9 +326,33 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         
         ruleQueue.addAll(baseRules);
         
-        usedRules = new TreeSet<Rule>();
-        
-        mat = new SparseMatrix();
+        if(usedRules == null) {
+            usedRules = new TreeSet<Rule>();
+            mat = new SparseMatrix();
+        }
+    }
+    
+    private void expandRuleQueue() {
+        if(usedRules.size() == 0 && mat.cols.size() == 0)
+            return;
+        LinkedList<Rule> newRules = new LinkedList<Rule>();
+        Iterator<Rule> baseIter = baseRules.iterator();
+        while(baseIter.hasNext()) {
+            Rule r = baseIter.next();
+            Iterator<Rule> usedIter = usedRules.iterator();
+            
+            while(usedIter.hasNext()) {
+                Rule r2 = usedIter.next();
+                newRules.addAll(getNewRules(r,r2));
+            }
+            
+            Iterator<Integer> colIter = mat.cols.keySet().iterator();
+            while(colIter.hasNext()) {
+                Rule r2 = mat.columnToRule(colIter.next(), probModel);
+                newRules.addAll(getNewRules(r,r2));
+            }
+        }
+        ruleQueue.addAll(newRules);
     }
     
     private void addRuleToMatrix(Rule r) {
@@ -350,39 +371,44 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         }
     }
     
+    private LinkedList<Rule> getNewRules(Rule r, Rule r2) {
+        LinkedList<Rule> tempQueue = new LinkedList<Rule>();
+        if(r.compareTo(r2) != 0) {
+            if(r.canResolveWith(r2)) {
+                Rule newR = r.resolve(r2,probModel);
+                
+                //newR.limitToModel(completeModel);
+                
+                if(!isSubsumed(newR,r)) {
+                    scoreRule(newR);
+                    ruleMaxScore(newR);
+                    tempQueue.add(newR);
+                    System.out.println(r.toString() + " + " + r2.toString() + " = " + newR.toString());
+                }
+            }
+            if(r2.canResolveWith(r)) {
+                Rule newR = r2.resolve(r,probModel);
+                
+                //newR.limitToModel(completeModel);
+                
+                if(!isSubsumed(newR,r)) {
+                    scoreRule(newR);
+                    ruleMaxScore(newR);
+                    tempQueue.add(newR);
+                    System.out.println(r.toString() + " + " + r2.toString() + " = " + newR.toString());
+                }
+            }
+        }
+        return tempQueue;
+    }
+    
     private void queueNewRules(Rule r) {
         Iterator<Rule> riter = ruleQueue.iterator();
         LinkedList<Rule> tempQueue = new LinkedList<Rule>();
         while(riter.hasNext()) {
             Rule r2 = riter.next();
             
-            if(r.compareTo(r2) != 0) {
-                if(r.canResolveWith(r2)) {
-                    Rule newR = r.resolve(r2,probModel);
-                    
-                    //newR.limitToModel(completeModel);
-                    
-                    if(!isSubsumed(newR,r)) {
-                        scoreRule(newR);
-                        ruleMaxScore(newR);
-                        tempQueue.add(newR);
-                        System.out.println(r.toString() + " + " + r2.toString() + " = " + newR.toString());
-                    }
-                }
-                if(r2.canResolveWith(r)) {
-                    Rule newR = r2.resolve(r,probModel);
-                    
-                    //newR.limitToModel(completeModel);
-                    
-                    if(!isSubsumed(newR,r)) {
-                        scoreRule(newR);
-                        ruleMaxScore(newR);
-                        tempQueue.add(newR);
-                        System.out.println(r.toString() + " + " + r2.toString() + " = " + newR.toString());
-                    }
-                }
-            }
-            
+            tempQueue.addAll(getNewRules(r,r2));
         }
         ruleQueue.addAll(tempQueue);
     }
@@ -402,13 +428,15 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         //    return true;
         
         // 4. Unifying premises of some part of premise in conclusion
-        TreeSet<Integer> premises = new TreeSet<Integer>();
-        for(int i = 0; i < newR.premiseCount; i++) {
-            TreeSet<Integer> premiseSet = unifyingPremises.get(probModel.id(newR,i));
-            if(premiseSet != null) {
-                premises.addAll(premiseSet);
-                if(newR.conclusionContains(premiseSet, probModel)) {
-                    return true;
+        if(unifyingPremises != null) {
+            TreeSet<Integer> premises = new TreeSet<Integer>();
+            for(int i = 0; i < newR.premiseCount; i++) {
+                TreeSet<Integer> premiseSet = unifyingPremises.get(probModel.id(newR,i));
+                if(premiseSet != null) {
+                    premises.addAll(premiseSet);
+                    if(newR.conclusionContains(premiseSet, probModel)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -541,9 +569,9 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
                 continue;
             Iterator<Integer> setIter = eqSets.get(i).iterator();
             while(setIter.hasNext()) {
-               Integer ii = setIter.next();
-               double v = mat.elemVal(ii,0);
-               mat.setElem(ii,0,v + r.nextDouble() * v / 1024.0);
+                Integer ii = setIter.next();
+                double v = mat.elemVal(ii,0);
+                mat.setElem(ii,0,v + r.nextDouble() * v / 1024.0);
             }
         }
     }
@@ -648,6 +676,31 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             r.multiplexFunctions(m.elems);
             if(limitToCompleteModel)
                 r.limitToModel(completeModel);
+            r.simplify(probModel);
+            if(r.length() > 0) {
+                baseRules.add(r);
+            }
+            return true;
+        }
+    }
+    
+    private class GrowingBaseRuleBuilder implements InconsistentAction {
+        Collection<Integer> newElems;
+        GrowingBaseRuleBuilder(Collection<Integer> newElems) { this.newElems = newElems; }
+        public boolean doAction(Logic logic,
+                Model m,
+                Rule rule) {
+            boolean hasNew = false;
+            for(int i = 0; i < rule.premiseCount; i++) {
+                if(newElems.contains(m.id(rule,i))) {
+                    hasNew = true;
+                    break;
+                }
+            }
+            if(!hasNew)
+                return true;
+            Rule r = rule.createCopy();
+            r.multiplexFunctions(m.elems);
             r.simplify(probModel);
             if(r.length() > 0) {
                 baseRules.add(r);
@@ -774,13 +827,13 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         else if(state == STATE_STOPPING)
             return "Pausing: ";
         else if(state == STATE_COMPLETING)
-            return "Completing Model";
+            return "Completing Model: ";
         else if(state == STATE_REDUCING)
-            return "Reducing Complete Model";
+            return "Reducing Complete Model: ";
         else if(state == STATE_BASE)
-            return "Creating Base Rules";
+            return "Creating Base Rules: ";
         else
-            return "???";
+            return "???: ";
     }
     
     public void run() {
