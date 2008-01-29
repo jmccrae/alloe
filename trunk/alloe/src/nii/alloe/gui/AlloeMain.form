@@ -657,10 +657,12 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="isTrainingCheck" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="1">
+                              <Group type="102" alignment="0" attributes="0">
                                   <Component id="featureVectorTermPairLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="239" max="32767" attributes="0"/>
+                                  <EmptySpace pref="130" max="32767" attributes="0"/>
                                   <Component id="featureOpenTermPairs" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                                  <Component id="useLazyMatching" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -684,8 +686,9 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="featureOpenTermPairs" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="featureVectorTermPairLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="featureOpenTermPairs" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="useLazyMatching" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="featureVectorFormerMonitor" min="-2" max="-2" attributes="0"/>
@@ -759,6 +762,7 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Training"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Generate class data"/>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
                         <EmptyBorder bottom="0" left="0" right="0" top="0"/>
@@ -770,6 +774,23 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="isTrainingCheckActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="useLazyMatching">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Lazy Matching"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Use lazy matching (drop any wildcard)"/>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                        <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+                      </Border>
+                    </Property>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[0, 0, 0, 0]"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useLazyMatchingActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>

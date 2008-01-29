@@ -13,8 +13,6 @@ import weka.core.*;
  * @author John McCrae, National Institute of Informatics
  */
 public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable {
-    
-    
     private String relation;
     private Collection<String> terms;
     private PatternSet patterns;
@@ -22,6 +20,8 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
     private TermPairSet termPairs;
     /** The data set that the data should be entered into */
     public DataSet dataSet;
+    private HashMap<String, SparseInstance> instances;
+    private static final String glue = " => ";
     
     /** Create a new feature vector former
      * @param relation The relation to create data for
@@ -36,9 +36,12 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
         this.patterns = patterns;
         this.corpus = corpus;
         this.termPairs = termPairs;
+        instances = new HashMap<String,SparseInstance>();
+        i = 0;
     }
     
     private String term1, term2;
+    private int i;
     
     /**
      * Makes a set of feature vectors
@@ -50,11 +53,84 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
         if(!dataSet.isRelationPrepared(relation))
             dataSet.prepRelation(relation, getAttNames(patterns));
         
-        TreeMap<Pattern,Object> preparedQuerys = prepareQuerys();
+        fireNewProgressChange((double)i/(double)patterns.size());
+        Iterator<Pattern> patIter = patterns.keySet().iterator();
+        for(int j = 0; j < i; j++)
+            patIter.next();
+        double corpusSize = corpus.size();
+        while(patIter.hasNext() && state == STATE_OK) {
+            Pattern p = patIter.next();
+            Object query = corpus.prepareQueryPattern(p);
+            Iterator<String> termIter1 = terms.iterator();
+            while(termIter1.hasNext() && state == STATE_OK) {
+                if(term1 != null) {
+                    while(!termIter1.next().equals(term1));
+                } else
+                    term1 = termIter1.next();
+                if(!corpus.isTermInCorpus(term1)) {
+                    term1 = null;
+                    continue;
+                }
+                Iterator<String> termIter2 = terms.iterator();
+                double rightTermCount = 0;
+                
+                while(termIter2.hasNext() && state == STATE_OK) {
+                    if(term2 != null) {
+                        while(!termIter2.next().equals(term2));
+                    } else {
+                        term2 = termIter2.next();
+                    }
+                    if(!corpus.areTermsInCorpus(term1, term2)) {
+                        term2 = null;
+                        continue;
+                    }
+                    Iterator<String> contexts = corpus.getContextsForTermPrepared(term1, term2, query);
+                    double value = 0.0;
+                    while(contexts.hasNext()) {
+                        String ctxt = contexts.next();
+                        if(p.matches(ctxt,term1,term2,isLazyMatching())) {
+                            value++;
+                        }
+                    }
+                    if(value > 0) {
+                        SparseInstance inst = instances.get(term1 + glue + term2);
+                        if(inst == null) {
+                            instances.put(term1 + glue + term2, inst = new SparseInstance(patterns.size() + 1));
+                        }
+                        inst.setValue(i,value / corpusSize);
+                    }
+                    term2 = null;
+                }
+                term1 = null;
+            }
+            i++;
+            fireNewProgressChange((double)i / (double)patterns.size());
+        }
+        Iterator<Map.Entry<String,SparseInstance>> entryIter = instances.entrySet().iterator();
+        while(entryIter.hasNext()) {
+            Map.Entry<String,SparseInstance> entry = entryIter.next();
+            String terms = entry.getKey();
+            SparseInstance inst = entry.getValue();
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.*)" + glue + "(.*)").matcher(terms);
+            assert m.matches();
+            if(termPairs != null)
+                inst.setValue(patterns.size(),dataSet.getClassVal(termPairs.contains(term1,term2)));
+            else
+                inst.setValue(patterns.size(),dataSet.getClassVal(false));
+            dataSet.addInstance(inst,
+                    relation, term1, term2);
+            entryIter.remove();
+        }
         
+        fireFinished();
+        return dataSet;
+        
+        
+    /*    TreeMap<Pattern,Object> preparedQuerys = prepareQuerys();
+     
         double termCounts = (double)(terms.size() * terms.size());
         double leftTermCount = 0;
-        
+     
         Iterator<String> termIter1 = terms.iterator();
         while(termIter1.hasNext() && state == STATE_OK) {
             if(term1 != null) {
@@ -68,7 +144,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
             }
             Iterator<String> termIter2 = terms.iterator();
             double rightTermCount = 0;
-            
+     
             while(termIter2.hasNext() && state == STATE_OK) {
                 if(term2 != null) {
                     while(!termIter2.next().equals(term2));
@@ -82,8 +158,8 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                 }
                 double[] data = new double[patterns.size() + 1];
                 // TODO benchmark using corpus.getContextsForTermInPattern()
-                
-                
+     
+     
                 Iterator<Pattern> patIter = patterns.keySet().iterator();
                 while(patIter.hasNext()) {
                     int i = 0;
@@ -91,10 +167,10 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                     Iterator<String> contexts = corpus.getContextsForTermPrepared(term1, term2, preparedQuerys.get(p));
                     while(contexts.hasNext()) {
                         String ctxt = contexts.next();
-                        if(p.matches(ctxt,term1,term2))
+                        if(p.matches(ctxt,term1,term2,isLazyMatching()))
                             data[i]++;
                         i++;
-                        
+     
                     }
                 }
                 boolean isAllZero = true;
@@ -103,14 +179,14 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                     if(data[i] != 0.0)
                         isAllZero = false;
                 }
-                
+     
                 fireNewProgressChange((leftTermCount * terms.size() + rightTermCount) / termCounts);
                 if(!isAllZero) {
                     if(termPairs != null)
                         data[patterns.size()] = dataSet.getClassVal(termPairs.contains(term1,term2));
                     else
                         data[patterns.size()] = dataSet.getClassVal(false);
-                    dataSet.addInstance(new SparseInstance(1.0,data), 
+                    dataSet.addInstance(new SparseInstance(1.0,data),
                             relation, term1, term2);
                 }
                 rightTermCount++;
@@ -120,10 +196,10 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
             leftTermCount++;
         }
         fireFinished();
-        return dataSet;
+        return dataSet;*/
     }
     
-    private TreeMap<Pattern,Object> prepareQuerys() {
+   /* private TreeMap<Pattern,Object> prepareQuerys() {
         Iterator<Pattern> patIter = patterns.keySet().iterator();
         TreeMap<Pattern,Object> rval = new TreeMap<Pattern,Object>();
         while(patIter.hasNext()) {
@@ -131,7 +207,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
             rval.put(p,corpus.prepareQueryPattern(p));
         }
         return rval;
-    }
+    }*/
     
     public void run() {
         makeFeatureVectors();
@@ -231,5 +307,26 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
     
     /** Get a string representation of the current action being performed */
     public String getStateMessage() { return "Building Feature Vectors: "; }
+    
+    /**
+     * Holds value of property lazyMatching.
+     */
+    private boolean lazyMatching;
+    
+    /**
+     * Getter for property lazyMatching.
+     * @return Value of property lazyMatching.
+     */
+    public boolean isLazyMatching() {
+        return this.lazyMatching;
+    }
+    
+    /**
+     * Setter for property lazyMatching.
+     * @param lazyMatching New value of property lazyMatching.
+     */
+    public void setLazyMatching(boolean lazyMatching) {
+        this.lazyMatching = lazyMatching;
+    }
     
 }

@@ -14,7 +14,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     /** The set of terms */
     public TermList terms;
     /** Filename where the terms start */
-    public String fileName;
+    public File fileName;
     
     private int linesRead;
     private long bytesRead;
@@ -24,12 +24,12 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     private transient int state;
     private transient Thread theThread;
     private transient LinkedList<AlloeProgressListener> listeners;
-    private transient String indexFile;
+    private transient File indexFile;
     private static final int STATE_OK = 0;
     private static final int STATE_STOPPING = 1;
     
     /** Creates a new instance of CorpusLoader */
-    public CorpusLoader(TermList terms, String fileName, String indexFile) {
+    public CorpusLoader(TermList terms, File fileName, File indexFile) {
         this.terms = terms;
         this.fileName = fileName;
         this.indexFile = indexFile;
@@ -49,7 +49,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
         corpus = new Corpus(terms,indexFile);
         try {
             corpus.openIndex(true);
-            fileSize = (new File(fileName)).length();
+            fileSize = fileName.length();
             in = new BufferedReader(new FileReader(fileName),256);
             state = STATE_OK;
             theThread = new Thread(this);
@@ -79,7 +79,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     public void resume() {
         try {
             corpus.openIndex(false);
-            fileSize = (new File(fileName)).length();
+            fileSize = fileName.length();
             in = new BufferedReader(new FileReader(fileName),256);
             for(int i = 0; i < linesRead; i++) {
                 in.readLine();
