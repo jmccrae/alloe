@@ -21,11 +21,15 @@ public class Corpus implements Serializable {
     private transient IndexSearcher indexSearcher;
     public TermList terms;
     private transient Directory directory;
-    private String indexFile;
+    private File indexFile;
     private transient HashMap<String,TreeSet<Integer>> termHits;
     
     /** Creates a new instance of Corpus */
     public Corpus(TermList terms, String indexFile) {
+        this(terms, new File(indexFile));
+    }
+    
+    public Corpus(TermList terms, File indexFile) {
         this.terms = terms;
         this.indexFile = indexFile;
         termHits = new HashMap<String,TreeSet<Integer>>(terms.size());
@@ -46,6 +50,7 @@ public class Corpus implements Serializable {
         if(indexWriter == null)
             throw new IllegalStateException("Attempting to add document to closed index");
         Document d = new Document();
+        contents = contents.replaceAll("'","");
         d.add(new Field("contents", contents.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
         Iterator<String> termIter = terms.iterator();
         while(termIter.hasNext()) {
@@ -254,7 +259,7 @@ public class Corpus implements Serializable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         // We need to restore indexSearcher after loading
-        indexSearcher = new IndexSearcher(indexFile);
+        indexSearcher = new IndexSearcher(indexFile.getAbsolutePath());
         termHits = new HashMap<String,TreeSet<Integer>>();
     }
     

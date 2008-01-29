@@ -163,13 +163,22 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
      * @param term1 the left hand side of the relation
      * @param term2 the right hand side of the relation */
     public boolean matches(String str, String term1, String term2) {
+        return matches(str,term1,term2,false);
+    }
+    
+    /** @return true if this pattern matches str, with the capturers replaced by term1 and term2
+     * @param term1 the left hand side of the relation
+     * @param term2 the right hand side of the relation
+     * @param lazy Use lazy matching (drop any wildcard)
+     */
+    public boolean matches(String str, String term1, String term2, boolean lazy) {
         String regex;
         term1 = cleanTerm(term1);
         term2 = cleanTerm(term2);
-        if(matchesCacheOr == 0) {
+        if(matchesCacheOr == 0 || Math.abs(matchesCacheOr) == (lazy ? 1 : 2)) {
             regex = val.replaceAll(regexMetachars, "\\\\$1");
-            regex = regex.replaceAll("\\*","(" + wordDBS + "+)");
-            regex = regex.replaceAll("\\s","(" + nonWordDBS + "+)");
+            regex = regex.replaceAll("\\*","(" + wordDBS + (lazy ? "*)" : "+)"));
+            regex = regex.replaceAll("\\s","(" + nonWordDBS + (lazy ? "*)" : "+)"));
             regex = ".*" + regex + ".*";
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.*)([12])(.*)([12])(.*)").matcher(regex);
             if(!m.matches()) assert false;
@@ -177,13 +186,13 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
             matchesCache2 = deSafe(m.group(3));
             matchesCache3 = deSafe(m.group(5));
             if(m.group(2).equals("1") && m.group(4).equals("2")) {
-                matchesCacheOr = 1;
+                matchesCacheOr = lazy ? 2 : 1;
             } else if(m.group(2).equals("2") && m.group(4).equals("1")) {
-                matchesCacheOr = -1;
+                matchesCacheOr = lazy ? -2 : -1;
             } else assert false;
             regex = regex.replaceAll("1",term1);
             regex = deSafe(regex.replaceAll("2",term2));
-        } else if(matchesCacheOr == +1) {
+        } else if(matchesCacheOr > 0) {
             regex = matchesCache1 + term1 + matchesCache2 + term2 + matchesCache3;
         } else {
             regex = matchesCache1 + term2 + matchesCache2 + term1 + matchesCache3;

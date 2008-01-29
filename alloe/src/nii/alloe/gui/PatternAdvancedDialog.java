@@ -8,17 +8,21 @@ package nii.alloe.gui;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.classify.*;
 import javax.swing.*;
+import java.io.*;
 
 /**
  *
  * @author  john
  */
 public class PatternAdvancedDialog extends javax.swing.JDialog {
+    private PatternSet patternSet;
+    private JFileChooser fileChooser;
     
     /** Creates new form PatternAdvancedDialog */
     public PatternAdvancedDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        fileChooser = new JFileChooser();
     }
     
     /** This method is called from within the constructor to
@@ -37,6 +41,8 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         useBase = new javax.swing.JRadioButton();
         basePatternLabel = new javax.swing.JLabel();
         openBasePatterns = new javax.swing.JButton();
+        limitIteartionsCheck = new javax.swing.JCheckBox();
+        maxIterations = new javax.swing.JSpinner();
         jPanel2 = new javax.swing.JPanel();
         noFilter = new javax.swing.JRadioButton();
         scoreFilter = new javax.swing.JRadioButton();
@@ -51,6 +57,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         supervisedSize = new javax.swing.JSpinner();
         filterLabel = new javax.swing.JLabel();
         filter = new javax.swing.JComboBox();
+        closeButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Pattern Builder Advanced Settings");
@@ -59,6 +66,11 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         ignoreReflexives.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         ignoreReflexives.setEnabled(false);
         ignoreReflexives.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        ignoreReflexives.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ignoreReflexivesActionPerformed(evt);
+            }
+        });
 
         buttonGroup1.add(generateAll);
         generateAll.setSelected(true);
@@ -66,43 +78,87 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         generateAll.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         generateAll.setEnabled(false);
         generateAll.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        generateAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generateAllActionPerformed(evt);
+            }
+        });
 
         buttonGroup1.add(baseOnly);
         baseOnly.setText("Generate Base Patterns Only");
         baseOnly.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         baseOnly.setEnabled(false);
         baseOnly.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        baseOnly.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                baseOnlyActionPerformed(evt);
+            }
+        });
 
         buttonGroup1.add(useBase);
         useBase.setText("Use Base Pattern Set");
         useBase.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useBase.setEnabled(false);
         useBase.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useBase.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useBaseActionPerformed(evt);
+            }
+        });
 
         basePatternLabel.setText("Base Pattern Set:");
         basePatternLabel.setEnabled(false);
 
         openBasePatterns.setText("Open");
         openBasePatterns.setEnabled(false);
+        openBasePatterns.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openBasePatternsActionPerformed(evt);
+            }
+        });
+
+        limitIteartionsCheck.setText("Limit Iterations");
+        limitIteartionsCheck.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        limitIteartionsCheck.setEnabled(false);
+        limitIteartionsCheck.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        limitIteartionsCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                limitIteartionsCheckActionPerformed(evt);
+            }
+        });
+
+        maxIterations.setEnabled(false);
+        maxIterations.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                maxIterationsStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ignoreReflexives)
-                    .addComponent(generateAll)
-                    .addComponent(baseOnly)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(useBase)
+                            .addComponent(ignoreReflexives)
+                            .addComponent(generateAll)
+                            .addComponent(baseOnly)
+                            .addComponent(useBase)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(17, 17, 17)
-                                .addComponent(basePatternLabel)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
-                        .addComponent(openBasePatterns)))
+                                .addGap(29, 29, 29)
+                                .addComponent(basePatternLabel))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(limitIteartionsCheck)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(maxIterations)
+                            .addComponent(openBasePatterns, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -115,13 +171,15 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                 .addComponent(baseOnly)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(useBase)
-                .addContainerGap(45, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(86, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(openBasePatterns)
                     .addComponent(basePatternLabel))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(limitIteartionsCheck)
+                    .addComponent(maxIterations, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Filtering"));
@@ -131,30 +189,55 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         noFilter.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         noFilter.setEnabled(false);
         noFilter.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        noFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                noFilterActionPerformed(evt);
+            }
+        });
 
         buttonGroup2.add(scoreFilter);
         scoreFilter.setText("Filter by score");
         scoreFilter.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         scoreFilter.setEnabled(false);
         scoreFilter.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        scoreFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                scoreFilterActionPerformed(evt);
+            }
+        });
 
         scoreLabel.setText("Score greater than:");
         scoreLabel.setEnabled(false);
 
-        score.setModel(new SpinnerNumberModel(0.0,0.0,1.0,0.0005));
+        score.setModel(new SpinnerNumberModel((double)0.0,(double)0.0,(double)1.0,(double)0.0005));
         score.setEnabled(false);
-        score.setValue((double)0.0);
+        score.setEditor(new JSpinner.NumberEditor(score,"0.0000"));
+        score.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                scoreStateChanged(evt);
+            }
+        });
 
         buttonGroup2.add(sizeFilter);
         sizeFilter.setText("Top Patterns");
         sizeFilter.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         sizeFilter.setEnabled(false);
         sizeFilter.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        sizeFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sizeFilterActionPerformed(evt);
+            }
+        });
 
         sizeLabel.setText("Pattern Set Size:");
         sizeLabel.setEnabled(false);
 
         size.setEnabled(false);
+        size.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sizeStateChanged(evt);
+            }
+        });
 
         applySupervisedFiltering.setText("Apply");
         applySupervisedFiltering.setEnabled(false);
@@ -238,15 +321,23 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        closeButton.setText("Close");
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(closeButton, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -255,11 +346,109 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(closeButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_closeButtonActionPerformed
+
+    private void sizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sizeStateChanged
+        patternBuilder.setMaxPatterns(((Integer)size.getValue()).intValue());
+    }//GEN-LAST:event_sizeStateChanged
+
+    private void sizeFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sizeFilterActionPerformed
+        scoreLabel.setEnabled(false);
+        score.setEnabled(false);
+        sizeLabel.setEnabled(true);
+        size.setEnabled(true);
+        patternBuilder.setMaxPatterns(((Integer)size.getValue()).intValue());
+        patternBuilder.setScoreFilter(0);
+    }//GEN-LAST:event_sizeFilterActionPerformed
+
+    private void scoreStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_scoreStateChanged
+        patternBuilder.setScoreFilter(((Double)score.getValue()).doubleValue());
+    }//GEN-LAST:event_scoreStateChanged
+
+    private void scoreFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scoreFilterActionPerformed
+        scoreLabel.setEnabled(true);
+        score.setEnabled(true);
+        sizeLabel.setEnabled(false);
+        size.setEnabled(false);
+        patternBuilder.setMaxPatterns(0);
+        patternBuilder.setScoreFilter(((Double)score.getValue()).doubleValue());
+    }//GEN-LAST:event_scoreFilterActionPerformed
+
+    private void noFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noFilterActionPerformed
+        scoreLabel.setEnabled(false);
+        score.setEnabled(false);
+        sizeLabel.setEnabled(false);
+        size.setEnabled(false);
+        patternBuilder.setMaxPatterns(0);
+        patternBuilder.setScoreFilter(0);
+    }//GEN-LAST:event_noFilterActionPerformed
+
+    private void maxIterationsStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_maxIterationsStateChanged
+        patternBuilder.setMaxIterations(((Integer)maxIterations.getValue()).intValue());
+    }//GEN-LAST:event_maxIterationsStateChanged
+
+    private void limitIteartionsCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limitIteartionsCheckActionPerformed
+        maxIterations.setEnabled(limitIteartionsCheck.isSelected());
+        if(!limitIteartionsCheck.isSelected())
+            patternBuilder.unsetMaxIterations();
+        else
+            patternBuilder.setMaxIterations(((Integer)maxIterations.getValue()).intValue());
+    }//GEN-LAST:event_limitIteartionsCheckActionPerformed
+
+    private void openBasePatternsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openBasePatternsActionPerformed
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                Object o = ois.readObject();
+                if(!(o instanceof PatternSet)) {
+                    JOptionPane.showMessageDialog(this, "Invalid Format", "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                patternSet = (PatternSet)o;
+                patternBuilder.setBasePatterns(patternSet);
+                basePatternLabel.setText("Base Pattern Set: " + fileChooser.getSelectedFile().getName());
+            } catch(IOException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
+            } catch(ClassNotFoundException x) {
+                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_openBasePatternsActionPerformed
+    
+    private void useBaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useBaseActionPerformed
+        basePatternLabel.setEnabled(true);
+        openBasePatterns.setEnabled(true);
+        patternBuilder.setGenerateBaseOnly(false);
+        patternBuilder.setBasePatterns(patternSet);
+    }//GEN-LAST:event_useBaseActionPerformed
+    
+    private void baseOnlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baseOnlyActionPerformed
+        basePatternLabel.setEnabled(false);
+        openBasePatterns.setEnabled(false);
+        patternBuilder.setGenerateBaseOnly(true);
+        patternBuilder.setBasePatterns(null);
+    }//GEN-LAST:event_baseOnlyActionPerformed
+    
+    private void generateAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateAllActionPerformed
+        basePatternLabel.setEnabled(false);
+        openBasePatterns.setEnabled(false);
+        patternBuilder.setGenerateBaseOnly(false);
+        patternBuilder.setBasePatterns(null);
+    }//GEN-LAST:event_generateAllActionPerformed
+    
+    private void ignoreReflexivesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ignoreReflexivesActionPerformed
+        patternBuilder.setIgnoreReflexives(ignoreReflexives.isSelected());
+    }//GEN-LAST:event_ignoreReflexivesActionPerformed
     
     /**
      * @param args the command line arguments
@@ -278,12 +467,15 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     private javax.swing.JLabel basePatternLabel;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.JButton closeButton;
     private javax.swing.JComboBox filter;
     private javax.swing.JLabel filterLabel;
     private javax.swing.JRadioButton generateAll;
     private javax.swing.JCheckBox ignoreReflexives;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JCheckBox limitIteartionsCheck;
+    private javax.swing.JSpinner maxIterations;
     private javax.swing.JRadioButton noFilter;
     private javax.swing.JButton openBasePatterns;
     private javax.swing.JSpinner score;
@@ -297,12 +489,12 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     private javax.swing.JLabel supervizedSize;
     private javax.swing.JRadioButton useBase;
     // End of variables declaration//GEN-END:variables
-
+    
     /**
      * Holds value of property patternBuilder.
      */
     private PatternBuilder patternBuilder;
-
+    
     /**
      * Getter for property patternBuilder.
      * @return Value of property patternBuilder.
@@ -310,7 +502,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     public PatternBuilder getPatternBuilder() {
         return this.patternBuilder;
     }
-
+    
     /**
      * Setter for property patternBuilder.
      * @param patternBuilder New value of property patternBuilder.
@@ -318,25 +510,27 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     public void setPatternBuilder(PatternBuilder patternBuilder) {
         this.patternBuilder = patternBuilder;
         baseOnly.setEnabled(patternBuilder != null);
-        basePatternLabel.setEnabled(patternBuilder != null);
+        basePatternLabel.setEnabled(patternBuilder != null && useBase.isSelected());
         generateAll.setEnabled(patternBuilder != null);
         ignoreReflexives.setEnabled(patternBuilder != null);
         noFilter.setEnabled(patternBuilder != null);
-        openBasePatterns.setEnabled(patternBuilder != null);
-        score.setEnabled(patternBuilder != null);
+        openBasePatterns.setEnabled(patternBuilder != null && useBase.isSelected());
+        score.setEnabled(patternBuilder != null && scoreFilter.isSelected());
         scoreFilter.setEnabled(patternBuilder != null);
-        scoreLabel.setEnabled(patternBuilder != null);
-        size.setEnabled(patternBuilder != null);
+        scoreLabel.setEnabled(patternBuilder != null && scoreFilter.isSelected());
+        size.setEnabled(patternBuilder != null && sizeFilter.isSelected());
         sizeFilter.setEnabled(patternBuilder != null);
-        sizeLabel.setEnabled(patternBuilder != null);
+        sizeLabel.setEnabled(patternBuilder != null && sizeFilter.isSelected());
         useBase.setEnabled(patternBuilder != null);
+        limitIteartionsCheck.setEnabled(patternBuilder != null);
+        maxIterations.setEnabled(patternBuilder != null && limitIteartionsCheck.isSelected());
     }
-
+    
     /**
      * Holds value of property basePatternSet.
      */
     private PatternSet basePatternSet;
-
+    
     /**
      * Getter for property basePatternSet.
      * @return Value of property basePatternSet.
@@ -344,7 +538,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     public PatternSet getBasePatternSet() {
         return this.basePatternSet;
     }
-
+    
     /**
      * Setter for property basePatternSet.
      * @param basePatternSet New value of property basePatternSet.
@@ -352,12 +546,12 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     public void setBasePatternSet(PatternSet basePatternSet) {
         this.basePatternSet = basePatternSet;
     }
-
+    
     /**
      * Holds value of property dataSet.
      */
     private DataSet dataSet;
-
+    
     /**
      * Getter for property dataSet.
      * @return Value of property dataSet.
@@ -365,7 +559,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     public DataSet getDataSet() {
         return this.dataSet;
     }
-
+    
     /**
      * Setter for property dataSet.
      * @param dataSet New value of property dataSet.

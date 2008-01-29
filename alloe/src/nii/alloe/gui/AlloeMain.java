@@ -27,19 +27,21 @@ import weka.core.*;
 public class AlloeMain extends javax.swing.JFrame {
     private Corpus corpus;
     
-    private String corpusTextFile;
-    private String corpusTermSetFile;
-    private String corpusIndexFile;
+    private File corpusTextFile;
+    private File corpusTermSetFile;
+    private File corpusIndexFile;
     private CorpusLoader corpusLoader;
     private JFileChooser fileChooser;
     private CorpusLoaderProgressListener clProgListener;
     private PatternGeneratorListener pbListener;
     private FeatureVectorListener fvListener;
-    private HashMap<String, String> termSetFileName;
-    private HashMap<String, String> fvTermSetFileName;
+    private HashMap<String, File> termSetFileName;
+    private HashMap<String, File> fvTermSetFileName;
+    private boolean isTraining;
     private HashMap<String, PatternBuilder> patternBuilderProcess;
     private HashMap<String, FeatureVectorFormer> featureVectorProcess;
     private HashMap<String, PatternSet> patternSets;
+    private HashMap<String, Boolean> lazyMatching;
     private DataSet dataSet;
     private Map<String,Classifier> classifierSet;
     private Logic logic;
@@ -59,15 +61,16 @@ public class AlloeMain extends javax.swing.JFrame {
     /** Creates new form AlloeMain */
     public AlloeMain() {
         initComponents();
-        corpusTextFile = corpusTermSetFile = corpusIndexFile = "";
+        corpusTextFile = corpusTermSetFile = corpusIndexFile = null;
         fileChooser = new JFileChooser();
         //thisForAnon = this;
         corpusDisplayTableModel = new CorpusTableModel();
-        termSetFileName = new HashMap<String,String>();
-        fvTermSetFileName = new HashMap<String,String>();
+        termSetFileName = new HashMap<String,File>();
+        fvTermSetFileName = new HashMap<String,File>();
         patternBuilderProcess = new HashMap<String,PatternBuilder>();
         featureVectorProcess = new HashMap<String,FeatureVectorFormer>();
         patternSets = new HashMap<String,PatternSet>();
+        lazyMatching = new HashMap<String,Boolean>();
         classifierSet = new HashMap<String,Classifier>();
         standardModelTermPairs = new HashMap<String,String>();
     }
@@ -135,6 +138,7 @@ public class AlloeMain extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         featureVectorRelationship = new javax.swing.JTextField();
         isTrainingCheck = new javax.swing.JCheckBox();
+        useLazyMatching = new javax.swing.JCheckBox();
         jPanel9 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         wekaOutput = new javax.swing.JTextArea();
@@ -590,11 +594,22 @@ public class AlloeMain extends javax.swing.JFrame {
 
         isTrainingCheck.setSelected(true);
         isTrainingCheck.setText("Training");
+        isTrainingCheck.setToolTipText("Generate class data");
         isTrainingCheck.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         isTrainingCheck.setMargin(new java.awt.Insets(0, 0, 0, 0));
         isTrainingCheck.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 isTrainingCheckActionPerformed(evt);
+            }
+        });
+
+        useLazyMatching.setText("Lazy Matching");
+        useLazyMatching.setToolTipText("Use lazy matching (drop any wildcard)");
+        useLazyMatching.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useLazyMatching.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useLazyMatching.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useLazyMatchingActionPerformed(evt);
             }
         });
 
@@ -624,8 +639,10 @@ public class AlloeMain extends javax.swing.JFrame {
                         .addComponent(isTrainingCheck))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(featureVectorTermPairLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 239, Short.MAX_VALUE)
-                        .addComponent(featureOpenTermPairs)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 130, Short.MAX_VALUE)
+                        .addComponent(featureOpenTermPairs)
+                        .addGap(3, 3, 3)
+                        .addComponent(useLazyMatching)))
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -643,8 +660,9 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(featureVectorRelationship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(featureVectorTermPairLabel)
                     .addComponent(featureOpenTermPairs)
-                    .addComponent(featureVectorTermPairLabel))
+                    .addComponent(useLazyMatching))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(featureVectorFormerMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -1286,7 +1304,15 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    private void useLazyMatchingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useLazyMatchingActionPerformed
+        String pat = featureVectorPatternSet.getSelectedItem().toString();
+        if(featureVectorProcess.get(pat) != null) {
+            featureVectorProcess.get(pat).setLazyMatching(useLazyMatching.isSelected());
+        }
+        lazyMatching.put(pat,useLazyMatching.isSelected());
+    }//GEN-LAST:event_useLazyMatchingActionPerformed
+    
     private void patternAdvancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternAdvancedActionPerformed
         PatternAdvancedDialog pad = new PatternAdvancedDialog(this,true);
         pad.setPatternBuilder(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
@@ -1644,7 +1670,11 @@ public class AlloeMain extends javax.swing.JFrame {
     }
     
     private void isTrainingCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isTrainingCheckActionPerformed
-        
+        isTraining = isTrainingCheck.isSelected();
+        String pat = featureVectorPatternSet.getSelectedItem().toString();
+        if(corpus != null && patternSets.get(pat) != null) {
+            initFeatureVectorProcess(pat,null);
+        }
     }//GEN-LAST:event_isTrainingCheckActionPerformed
     
     private void prepareLogicConnections() {
@@ -1871,13 +1901,21 @@ public class AlloeMain extends javax.swing.JFrame {
     
     private boolean initFeatureVectorProcess(String pat, String rel) {
         try {
-            ObjectInputStream ios = new ObjectInputStream(new FileInputStream(fvTermSetFileName.get(rel)));
-            Object o = ios.readObject();
-            if(!(o instanceof TermPairSet)) {
-                JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
-                return false;
+            TermPairSet tps;
+            if(!isTraining) {
+                if(rel == null)
+                    return false;
+                ObjectInputStream ios = new ObjectInputStream(new FileInputStream(fvTermSetFileName.get(rel)));
+                Object o = ios.readObject();
+                if(!(o instanceof TermPairSet)) {
+                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+                tps = (TermPairSet)o;
+            } else {
+                tps = null;
             }
-            FeatureVectorFormer fvf = new FeatureVectorFormer(rel,patternSets.get(pat),corpus,(TermPairSet)o);
+            FeatureVectorFormer fvf = new FeatureVectorFormer(rel,patternSets.get(pat),corpus,tps);
             fvf.dataSet = dataSet;
             featureVectorProcess.put(rel,fvf);
             if(fvListener == null)
@@ -1901,8 +1939,8 @@ public class AlloeMain extends javax.swing.JFrame {
             String pat = featureVectorPatternSet.getSelectedItem().toString();
             String rel = featureVectorRelationship.getText();
             fvTermSetFileName.put(rel,
-                    fileChooser.getSelectedFile().getAbsolutePath());
-            featureVectorTermPairLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getPath());
+                    fileChooser.getSelectedFile());
+            featureVectorTermPairLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getName());
             if(corpus != null && patternSets.get(pat) != null) {
                 initFeatureVectorProcess(pat,rel);
             }
@@ -1916,8 +1954,8 @@ public class AlloeMain extends javax.swing.JFrame {
     private HashMap<String,String> classifierNameToFullName;
     
     public Vector<String> getClassifierNames() {
-        Vector<String> r = new Vector<String>(9);
-        classifierNameToFullName = new HashMap<String,String>(8);
+        Vector<String> r = new Vector<String>(8);
+        classifierNameToFullName = new HashMap<String,String>(7);
         classifierNameToFullName.put("Bayesian Network","weka.classifiers.bayes.BayesNet");
         classifierNameToFullName.put("Decision Tree","weka.classifiers.trees.J48");
         classifierNameToFullName.put("Rule Learner","weka.classifiers.rules.JRip");
@@ -1925,9 +1963,7 @@ public class AlloeMain extends javax.swing.JFrame {
         classifierNameToFullName.put("Multilayer Perceptron","weka.classifiers.functions.MultilayerPerceptron");
         classifierNameToFullName.put("Naive Bayes","weka.classifiers.bayes.NaiveBayes");
         classifierNameToFullName.put("SVM","weka.classifiers.functions.SMO");
-        classifierNameToFullName.put("SVM Regression","weka.classifiers.functions.SMOreg");
         
-        r.add("SVM Regression");
         r.add("SVM");
         r.add("Naive Bayes");
         r.add("Bayesian Network");
@@ -2003,6 +2039,25 @@ public class AlloeMain extends javax.swing.JFrame {
                 totalPatternsLabel.setText("Total Patterns: " + patternBuilderProcess.get(getRelationship()).patternScores.size());
             }
         }
+        
+        public void patternDropped(Pattern p) {
+            if(patternViewerRelationship.getSelectedItem().toString().equals(getRelationship())) {
+                DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
+                int i;
+                for(i = 0; i < dtm.getRowCount(); i++) {
+                    if(dtm.getValueAt(i,0).equals(p.toString()))
+                        break;
+                }
+                if(dtm.getRowCount() == i)
+                    throw new IllegalArgumentException("Asked to drop pattern not in table!");
+                dtm.removeRow(i);
+            }
+        }
+        
+        public void clearPatterns() {
+            String []s = { "Pattern", "Score" };
+            patternTable.setModel(new DefaultTableModel(s,0));
+        }
     }
     
     private void savePatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePatternSetActionPerformed
@@ -2074,8 +2129,8 @@ public class AlloeMain extends javax.swing.JFrame {
     private void openTermPairSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openTermPairSetActionPerformed
         if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             termSetFileName.put(patternGeneratorRelationship.getSelectedItem().toString(),
-                    fileChooser.getSelectedFile().getAbsolutePath());
-            termPairSetLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getPath());
+                    fileChooser.getSelectedFile());
+            termPairSetLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getName());
             if(corpus != null) {
                 initPatternBuilderProcess(patternGeneratorRelationship.getSelectedItem().toString());
             }
@@ -2085,6 +2140,10 @@ public class AlloeMain extends javax.swing.JFrame {
     private void patternGeneratorRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternGeneratorRelationshipActionPerformed
         if(patternGeneratorRelationship.getSelectedItem().equals("New...")) {
             String name = JOptionPane.showInputDialog(this, "New Relation", "");
+            if(name == null) {
+                patternGeneratorRelationship.setSelectedIndex(0);
+                return;
+            }
             ((DefaultComboBoxModel)patternGeneratorRelationship.getModel()).insertElementAt(name,0);
             ((DefaultComboBoxModel)patternViewerRelationship.getModel()).insertElementAt(name,0);
             ((DefaultComboBoxModel)featureVectorPatternSet.getModel()).insertElementAt(name,0);
@@ -2097,8 +2156,8 @@ public class AlloeMain extends javax.swing.JFrame {
         }
         
         termPairSetLabel.setEnabled(true);
-        String s = termSetFileName.get(patternGeneratorRelationship.getSelectedItem().toString());
-        termPairSetLabel.setText("Term Pair Set: " + (s == null ? "" : s));
+        File f = termSetFileName.get(patternGeneratorRelationship.getSelectedItem().toString());
+        termPairSetLabel.setText("Term Pair Set: " + (f == null ? "" : f.getName()));
         openTermPairSet.setEnabled(true);
         PatternBuilder pb = (PatternBuilder)patternGeneratorProgressMonitor.getProcess();
         if(pb == null || !pb.isRunning())
@@ -2129,8 +2188,8 @@ public class AlloeMain extends javax.swing.JFrame {
         }
         fileChooser.setFileSelectionMode(oldFMS);
         fileChooser.setAcceptAllFileFilterUsed(true);
-        corpusIndexFile = fileChooser.getSelectedFile().getAbsolutePath();
-        indexLocationLabel.setText("Index Location: " + fileChooser.getSelectedFile().getPath());
+        corpusIndexFile = fileChooser.getSelectedFile();
+        indexLocationLabel.setText("Index Location: " + fileChooser.getSelectedFile().getName());
         if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0&&
                 corpusIndexFile.length() > 0) {
             prepareCorpusLoader();
@@ -2235,10 +2294,10 @@ public class AlloeMain extends javax.swing.JFrame {
     private void openCorpusTermSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTermSetActionPerformed
         if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
             return;
-        corpusTermSetFile = fileChooser.getSelectedFile().getAbsolutePath();
-        termSetLabel.setText("Term Set: " + fileChooser.getSelectedFile().getPath());
-        if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0 &&
-                corpusIndexFile.length() > 0) {
+        corpusTermSetFile = fileChooser.getSelectedFile();
+        termSetLabel.setText("Term Set: " + fileChooser.getSelectedFile().getName());
+        if(corpusTextFile != null && corpusTermSetFile != null &&
+                corpusIndexFile != null) {
             prepareCorpusLoader();
         }
     }//GEN-LAST:event_openCorpusTermSetActionPerformed
@@ -2246,10 +2305,10 @@ public class AlloeMain extends javax.swing.JFrame {
     private void openCorpusTextFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTextFileActionPerformed
         if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
             return;
-        corpusTextFile = fileChooser.getSelectedFile().getAbsolutePath();
-        textFileLabel.setText("Text File: " + fileChooser.getSelectedFile().getPath());
-        if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0&&
-                corpusIndexFile.length() > 0) {
+        corpusTextFile = fileChooser.getSelectedFile();
+        textFileLabel.setText("Text File: " + fileChooser.getSelectedFile().getName());
+        if(corpusTextFile != null && corpusTermSetFile != null &&
+                corpusIndexFile != null) {
             prepareCorpusLoader();
         }
     }//GEN-LAST:event_openCorpusTextFileActionPerformed
@@ -2372,6 +2431,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel textFileLabel;
     private javax.swing.JLabel totalPatternsLabel;
     private javax.swing.JRadioButton useGrowingSolver;
+    private javax.swing.JCheckBox useLazyMatching;
     private javax.swing.JRadioButton useStandardSolver;
     private javax.swing.JButton visualizeModel;
     private javax.swing.JTextArea wekaOutput;
