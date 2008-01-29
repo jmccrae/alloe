@@ -2190,8 +2190,8 @@ public class AlloeMain extends javax.swing.JFrame {
         fileChooser.setAcceptAllFileFilterUsed(true);
         corpusIndexFile = fileChooser.getSelectedFile();
         indexLocationLabel.setText("Index Location: " + fileChooser.getSelectedFile().getName());
-        if(corpusTextFile.length() > 0 && corpusTermSetFile.length() > 0&&
-                corpusIndexFile.length() > 0) {
+        if(corpusTextFile != null && corpusTermSetFile != null &&
+                corpusIndexFile != null) {
             prepareCorpusLoader();
         }
     }//GEN-LAST:event_setIndexButtonActionPerformed

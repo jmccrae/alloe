@@ -402,29 +402,32 @@ public class Rule implements Comparable<Rule> {
      * @return true if the assignment was possible, false otherwise
      */
     public boolean tryAssign(int arg, int i, int j) {
-        if(terms.get(arg)[0].hasAssignment()) {
-            if(i != terms.get(arg)[0].getAssignment()) {
+        Argument arg1 = terms.get(arg)[0];
+        if(arg1.hasAssignment()) {
+            if(i != arg1.getAssignment()) {
                 return false;
             } else {
-                if(terms.get(arg)[1].hasAssignment()) {
-                    if(j != terms.get(arg)[1].getAssignment())
+                Argument arg2 = terms.get(arg)[1];
+                if(arg2.hasAssignment()) {
+                    if(j != arg2.getAssignment())
                         return false;
                     return true;
                 }
-                terms.get(arg)[1].setAssignment(j);
+                arg2.setAssignment(j);
                 return true;
             }
         } else {
-            if(terms.get(arg)[1].hasAssignment()) {
-                if(j != terms.get(arg)[1].getAssignment()) {
+            Argument arg2 = terms.get(arg)[2];
+            if(arg2.hasAssignment()) {
+                if(j != arg2.getAssignment()) {
                     return false;
                 } else {
-                    terms.get(arg)[0].setAssignment(i);
+                    arg1.setAssignment(i);
                     return true;
                 }
             } else {
-                terms.get(arg)[0].setAssignment(i);
-                terms.get(arg)[1].setAssignment(j);
+                arg1.setAssignment(i);
+                arg2.setAssignment(j);
                 return true;
             }
         }

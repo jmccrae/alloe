@@ -79,7 +79,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     }
     
     public void run() {
-        
+        //corpus.initTermsInCorpusCache();
         state = STATE_BASE;
         if(patternQueue == null || basePatternResume != null)
             buildBasePatterns();
@@ -119,6 +119,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         }
         if(state == STATE_OK)
             fireFinished();
+        //corpus.clearTermsInCorpusCache();
     }
     
     
