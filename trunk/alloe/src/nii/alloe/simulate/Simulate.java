@@ -17,12 +17,14 @@ public class Simulate {
     public Logic l;
     public Model trueModel;
     public Model probModel;
+    public double sparsePercent;
     
     public Simulate(String logicFile, double prec, double recall, int n) throws IOException {
         l = new Logic(new File(logicFile));
         p = prec;
         r = recall;
         this.n = n;
+        sparsePercent = 1;
     }
     
     
@@ -95,6 +97,8 @@ public class Simulate {
         Normal ntr_normal = new Normal(0,1,new MersenneTwister());
         int tp, fp, fn, tn;
         tp = fp = fn = tn = 0;
+        rval.setBaseVal(ntr_normal.cdf(mu_neg - 3));
+        Random rand = new Random();
         
         for(int i = 0; i < n * n; i++) {
             if(i % n == i / n)
@@ -107,11 +111,13 @@ public class Simulate {
                     fn++;
                 }
             } else {
-                rval.setPosVal(i/n,i%n,ntr_normal.cdf(neg_normal.nextDouble()));
-                if(rval.isConnected(i/n,i%n)) {
-                    fp++;
-                } else {
-                    tn++;
+                if(rand.nextDouble() < sparsePercent) {
+                    rval.setPosVal(i/n,i%n,ntr_normal.cdf(neg_normal.nextDouble()));
+                    if(rval.isConnected(i/n,i%n)) {
+                        fp++;
+                    } else {
+                        tn++;
+                    }
                 }
             }
         }

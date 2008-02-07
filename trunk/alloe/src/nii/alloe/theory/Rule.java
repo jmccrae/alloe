@@ -55,7 +55,7 @@ public class Rule implements Comparable<Rule> {
         relations = new Vector<String>(positives.size() + negatives.size());
         terms = new Vector<Argument[]>();
         premiseCount = positives.size();
-
+        
         int i = 0;
         Iterator<Integer> iter = positives.iterator();
         while(iter.hasNext()) {
@@ -146,6 +146,24 @@ public class Rule implements Comparable<Rule> {
             }
             rval = rval + relations.get(i) + "(" + terms.get(i)[0].toString() + "," +
                     terms.get(i)[1].toString() + ")";
+            if(i != premiseCount -1 && i != length() - 1)
+                rval = rval + "; ";
+        }
+        return rval;
+    }
+    
+    
+    /**
+     * Convert to string with marks for in/not in model (asterisk on those in model)
+     */
+    public String toString(Model m) {
+        String rval = "";
+        for(int i = 0; i < length(); i++) {
+            if(i == premiseCount) {
+                rval = rval + " -> ";
+            }
+            rval = rval + relations.get(i) + "(" + terms.get(i)[0].toString() + "," +
+                    terms.get(i)[1].toString() + ")" + (m.isConnected(m.id(this,i)) ? "*" : "");
             if(i != premiseCount -1 && i != length() - 1)
                 rval = rval + "; ";
         }
@@ -417,7 +435,7 @@ public class Rule implements Comparable<Rule> {
                 return true;
             }
         } else {
-            Argument arg2 = terms.get(arg)[2];
+            Argument arg2 = terms.get(arg)[1];
             if(arg2.hasAssignment()) {
                 if(j != arg2.getAssignment()) {
                     return false;
@@ -426,6 +444,12 @@ public class Rule implements Comparable<Rule> {
                     return true;
                 }
             } else {
+                if(arg1 == arg2 && i != j)
+                    return false;
+                else if(arg1 == arg2) {
+                    arg1.setAssignment(i);
+                    return true;
+                }
                 arg1.setAssignment(i);
                 arg2.setAssignment(j);
                 return true;
@@ -948,6 +972,7 @@ public class Rule implements Comparable<Rule> {
         public String toString() {
             return id + (assignment >= 0 ? ("=" + assignment) : "");
         }
+        
         
         public int getId() {
             return id;

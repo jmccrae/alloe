@@ -50,12 +50,17 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
      *
      * @param logic The logic the model should be made constitent with
      * @param probModel A weighted model of the inconsistent data
+     * @return The complexity of the matrix used
      */
-    public void solve(Logic logic, Model probModel) {
+    public int solve(Logic logic, Model probModel) {
         ConsistProblem cp = new ConsistProblem(logic, probModel);
         matrix = cp.buildProblemMatrix();
+        if(matrix == null)
+            return 0;
         solve(matrix);
+        return cp.getComplexity();
     }
+    
     
     private LinkedList<Branch> branches;
     private transient int iterationDepth;
@@ -154,6 +159,8 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
             }
         }
     }
+    
+    public SparseMatrix getMatrix() { return matrix; }
     
     private transient LinkedList<AlloeProgressListener> aplListeners;
     private transient Thread theThread;
