@@ -50,6 +50,13 @@ public class Simplex {
     /**
      * Find the optimal linear solution of a matrix m using simplex solve */
     public void simplexSolve(SparseMatrix m) {
+        if(m.cols.isEmpty()) {
+            soln = new TreeMap<Integer,Double>();
+            cost = 0;
+            success = true;
+            return;
+        }
+            
         Integer slackBegin = m.cols.lastKey() + 1;
         Integer solnRow = m.rows.lastKey() + 1;
         success = true;

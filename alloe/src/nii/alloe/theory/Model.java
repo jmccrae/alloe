@@ -292,6 +292,21 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
     }
     
     /**
+     * Set this to symmetric difference of this and c
+     **/
+    public void symmDiffAll(Collection<Integer> c) {
+        Iterator<Integer> iterator = c.iterator();
+        while(iterator.hasNext()) {
+            Integer i = iterator.next();
+            if(contains(i)) {
+                remove(i);
+            } else {
+                add(i);
+            }
+        }
+    }
+    
+    /**
      * The id is a unique id of a relation in this model
      */
     public int id(String relation, int i, int j)  {

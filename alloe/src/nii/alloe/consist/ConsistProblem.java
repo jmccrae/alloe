@@ -1,4 +1,5 @@
 package nii.alloe.consist;
+import javax.swing.text.rtf.RTFEditorKit;
 import nii.alloe.theory.AssignmentAction;
 import nii.alloe.theory.Graph;
 import nii.alloe.theory.InconsistentAction;
@@ -48,6 +49,9 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     private int lastReduction = -1;
     private TreeSet<Rule> usedRules;
     private TreeMap<Integer,TreeSet<Integer>> unifyingPremises;
+    
+    public static final boolean HYPER = true;
+    private LinkedList<Rule> premiseCompleteRules;
     
     /** Creates a new instance of ConsistProblem
      * @param logic The logic the model should be made constitent with
@@ -250,7 +254,11 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         
         Collections.sort(linkOrders, new Comparator<Integer>() {
             public int compare(Integer i1, Integer i2) {
-                if(relationCounts.get(i1) > relationCounts.get(i2)) {
+                if(probModel.isConnected(i1) && !probModel.isConnected(i2)) {
+                    return -1;
+                } else if(!probModel.isConnected(i1) && probModel.isConnected(i2)) {
+                    return +1;
+                } else if(relationCounts.get(i1) > relationCounts.get(i2)) {
                     return +1;
                 } else if(relationCounts.get(i1) < relationCounts.get(i2)) {
                     return -1;
@@ -306,6 +314,15 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     private void initializeRuleQueue() {
         ruleQueue = new PriorityQueue<Rule>(baseRules.size(), new Comparator<Rule>() {
             public int compare(Rule r1, Rule r2) {
+                if(HYPER) {
+                    boolean isBase1 = isPremiseCompleteRule(r1);
+                    boolean isBase2 = isPremiseCompleteRule(r2);
+                    if(isBase1 && !isBase2) {
+                        return -1;
+                    } else if(!isBase1 && isBase2) {
+                        return 1;
+                    }
+                }
                 int i = r1.score.compareTo(r2.score);
                 if(i == 0) {
                     if(r1.length() < r2.length()) {
@@ -330,6 +347,9 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             usedRules = new TreeSet<Rule>();
             mat = new SparseMatrix();
         }
+        
+        if(HYPER)
+            premiseCompleteRules = new LinkedList<Rule>();
     }
     
     private void expandRuleQueue() {
@@ -356,6 +376,9 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     }
     
     private void addRuleToMatrix(Rule r) {
+        if(HYPER && isPremiseCompleteRule(r)) {
+            premiseCompleteRules.add(r);
+        }
         if(r.isRuleSatisfied(probModel)) {
             usedRules.add(r);
             return;
@@ -383,7 +406,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
                     scoreRule(newR);
                     ruleMaxScore(newR);
                     tempQueue.add(newR);
-                    System.out.println(r.toString() + " + " + r2.toString() + " = " + newR.toString());
+                    System.out.println(r.toString(probModel) + " + " + r2.toString(probModel) + " = " + newR.toString(probModel));
                 }
             }
             if(r2.canResolveWith(r)) {
@@ -395,7 +418,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
                     scoreRule(newR);
                     ruleMaxScore(newR);
                     tempQueue.add(newR);
-                    System.out.println(r.toString() + " + " + r2.toString() + " = " + newR.toString());
+                    System.out.println(r.toString(probModel) + " + " + r2.toString(probModel) + " = " + newR.toString(probModel));
                 }
             }
         }
@@ -403,14 +426,52 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     }
     
     private void queueNewRules(Rule r) {
-        Iterator<Rule> riter = ruleQueue.iterator();
         LinkedList<Rule> tempQueue = new LinkedList<Rule>();
-        while(riter.hasNext()) {
-            Rule r2 = riter.next();
-            
-            tempQueue.addAll(getNewRules(r,r2));
+        if(HYPER) {
+            if(!isPremiseCompleteRule(r)) {
+                Iterator<Rule> riter = premiseCompleteRules.iterator();
+                while(riter.hasNext()) {
+                    Rule r2 = riter.next();
+                    
+                    tempQueue.addAll(getNewRules(r,r2));
+                }
+            }
+        } else {
+            Iterator<Rule> riter = ruleQueue.iterator();
+            while(riter.hasNext()) {
+                Rule r2 = riter.next();
+                
+                tempQueue.addAll(getNewRules(r,r2));
+            }
         }
+        
+        // Check if generated rules subsume anything in queue
+        Iterator<Rule> tempQueueIterator = tempQueue.iterator();
+        while(tempQueueIterator.hasNext()) {
+            Rule rNew = tempQueueIterator.next();
+            Iterator<Rule> ruleQueueIter = ruleQueue.iterator();
+            while(ruleQueueIter.hasNext()) {
+                Rule r2 = ruleQueueIter.next();
+                if(rNew.subsumes(r2, probModel))
+                    ruleQueueIter.remove();
+            }
+        }
+        
         ruleQueue.addAll(tempQueue);
+    }
+    
+    private void checkMatrixSubsumptions() {
+        Iterator<Rule> queueIter = ruleQueue.iterator();
+        while(queueIter.hasNext()) {
+            TreeSet<Integer> elems = columnForRule(queueIter.next());
+            Iterator<Integer> colIter = mat.cols.keySet().iterator();
+            while(colIter.hasNext()) {
+                if(mat.colSubset(colIter.next(), elems)) {
+                    queueIter.remove();
+                    break;
+                }
+            }
+        }
     }
     
     private boolean isSubsumed(Rule newR, Rule r) {
@@ -466,6 +527,8 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     }
     
     private boolean canReduce(Rule rule) {
+        if(HYPER && isPremiseCompleteRule(rule))
+            return false;
         return rule.score > lastReduction;
     }
     
@@ -502,6 +565,8 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
                 }
             }
         }
+        if(rval)
+            checkMatrixSubsumptions();
         return rval;
     }
     
@@ -605,6 +670,15 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
                 }
             }
         }
+    }
+    
+    private boolean isPremiseCompleteRule(Rule r) {
+        for(int i = 0; i < r.premiseCount; i++) {
+            if(!probModel.isConnected(probModel.id(r,i))) {
+                return false;
+            }
+        }
+        return true;
     }
     
     public long profileComplete() {
@@ -838,6 +912,13 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     
     public void run() {
         buildProblemMatrix();
+    }
+    
+    public int getComplexity() {
+        if(usedRules != null)
+            return usedRules.size();
+        else
+            return 0;
     }
 }
 

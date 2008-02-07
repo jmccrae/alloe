@@ -197,16 +197,27 @@ public class Logic {
                     try {
                         assign = i1.next();
                     } catch(ConcurrentModificationException x) {
-                        i1 = g.iterator(m.n);
-                        while(assign != i1.next());
-                        assign = i1.next();
+                        if(g.isConnected(assign / m.n, assign % m.n)) {
+                            i1 = g.iterator(m.n);
+                            while(assign != i1.next());
+                            if(i1.hasNext())
+                                assign = i1.next();
+                            else
+                                return rval;
+                        } else { // FAIL: just start all over again
+                            i1 = g.iterator(m.n);
+                            if(i1.hasNext())
+                                assign = i1.next();
+                            else
+                                return rval;
+                        }
                     }
                     if(checker.check(argument,rule,g,assign / m.n, assign % m.n)) {
                         if(rule.tryAssign(argument, assign / m.n, assign % m.n)) {
                             rval = consistCheck(m,rule,argument +1, inconsist, checker) && rval;
                             if(!ihasAssign)
                                 rule.terms.get(argument)[0].unsetAssignment();
-                            if(!jhasAssign)
+                            if(!jhasAssign && rule.terms.get(argument)[0] != rule.terms.get(argument)[1])
                                 rule.terms.get(argument)[1].unsetAssignment();
                         }
                     }

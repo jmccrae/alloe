@@ -29,11 +29,11 @@ public class DataSetToARFF {
      */
     public static void main(String[] args) {
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/syns.atps"));
+            /*ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/syns.atps"));
             Object o = ois.readObject();
             TermPairSet tps = (TermPairSet)o;
-            System.out.println(tps.size());
-           /* ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/syns.afv"));
+            System.out.println(tps.size());*/
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/hyps.afv"));
             Object o = ois.readObject();
             if(!(o instanceof DataSet)) {
                 System.err.println("Not a dataset");
@@ -41,14 +41,14 @@ public class DataSetToARFF {
             }
             ois.close();
             DataSet ds = (DataSet)o;
-            /*Instances is = ds.instances.get("syn");
+            Instances is = ds.instances.get("hyp");
             if(is == null) {
                 System.err.println("No syn in dataset");
                 System.exit(-1);
             }
-            BufferedWriter bw = new BufferedWriter(new FileWriter("/home/john/wpshie/syns.arff"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter("/home/john/wpshie/hyps.arff"));
             bw.write(is.toString());
-            bw.close();*/
+            bw.close();
             /*Instances is = new Instances(new FileReader("/home/john/wpshie/syns2.arff"));
             ds.instances.put("syn",is);
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/syns2.afv"));
