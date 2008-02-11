@@ -8,7 +8,7 @@ import nii.alloe.corpus.*;
  * a set of graphs which define the true/false value for each element in the set of elements.
  *
  */
-public class Model extends AbstractCollection<Integer> implements Serializable {
+public class Model extends AbstractSet<Integer> implements Serializable {
     /**
      * The graphs indexed by their id string
      */
@@ -137,6 +137,25 @@ public class Model extends AbstractCollection<Integer> implements Serializable {
             } else {
                 rval.graphs.put(str,pg);
             }
+        }
+        rval.compulsoryCount = this.compulsoryCount;
+        return rval;
+    }
+
+    public int getCompulsoryCount() {
+        return compulsoryCount;
+    }
+    
+    /**
+     * Create an exact clone of this model
+     */
+    public Model createCopy() {
+        Iterator<String> graphIter = graphNameIterator();
+        Model rval = new Model(this);
+        while(graphIter.hasNext()) {
+            String graphName = graphIter.next();
+            Graph g = graphs.get(graphName);
+            rval.graphs.put(graphName,g.createCopy());
         }
         rval.compulsoryCount = this.compulsoryCount;
         return rval;

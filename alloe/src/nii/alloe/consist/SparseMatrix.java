@@ -543,8 +543,12 @@ public class SparseMatrix implements Serializable {
         }
     }
 
-    public TreeMap<Integer, SparseNode> getCols() {
-        return cols;
+    public Set<Integer> getRows() {
+        return rows.keySet();
+    }
+    
+    public Set<Integer> getCols() {
+        return cols.keySet();
     }
     
     /** Return the sets where each set has the same value on the row, at the column selected, ignores zeroes */

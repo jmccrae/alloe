@@ -34,6 +34,7 @@ public class DataSetTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        atts = new LinkedList<String>();
         atts.add("att1");
         atts.add("att2");
         atts.add("att3");
@@ -108,23 +109,7 @@ public class DataSetTest extends TestCase {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of buildProbModel method, of class nii.aloe.classify.DataSet.
-     */
-    public void testBuildProbModel() {
-        System.out.println("buildProbModel");
-        
-        Logic logic = null;
-        Map<String, Classifier> classifs = null;
-        DataSet instance = new DataSet(termList);
-        
-        Model expResult = null;
-        Model result = instance.buildProbModel(logic, classifs);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+  
 
     /**
      * Test of buildTrueModel method, of class nii.aloe.classify.DataSet.

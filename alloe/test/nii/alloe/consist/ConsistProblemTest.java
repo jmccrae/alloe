@@ -13,6 +13,7 @@ import nii.alloe.theory.Model;
 import nii.alloe.theory.ProbabilityGraph;
 import nii.alloe.theory.SpecificGraph;
 import java.util.*;
+import java.io.*;
 
 /**
  *
@@ -162,7 +163,7 @@ public class ConsistProblemTest extends TestCase {
     public void profileCompleter() {
         Logic l;
         try {
-        Logic l = new Logic(new File("logics/hypernym.logic"));
+        l = new Logic(new File("logics/hypernym.logic"));
         } catch(IOException x) {
             x.printStackTrace();
             System.exit(-1);

@@ -20,6 +20,12 @@ public class SpecificGraph implements Graph, Serializable {
         links = new TreeSet<Integer>();
     }
     
+    private SpecificGraph(int n, String relation, TreeSet<Integer> links) {
+        this.n = n;
+        this.relation = relation;
+        this.links = links;
+    }
+    
     public void makeRandom(double prob) {
         Random r = new Random();
         
@@ -130,4 +136,6 @@ public class SpecificGraph implements Graph, Serializable {
         else
             return links.iterator();
     }
+    
+    public Graph createCopy() { return new SpecificGraph(n,relation,new TreeSet<Integer>(links)); }
 };

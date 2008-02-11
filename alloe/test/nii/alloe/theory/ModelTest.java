@@ -9,6 +9,7 @@ package nii.alloe.theory;
 
 import junit.framework.*;
 import java.util.*;
+import java.io.*;
 
 /**
  *

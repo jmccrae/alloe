@@ -98,6 +98,11 @@ public class AlloeMain extends javax.swing.JFrame {
         indexerProgressMonitor.addExtraListener(clProgListener);
         indexLocationLabel = new javax.swing.JLabel();
         setIndexButton = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        contextSizeSpinner = new javax.swing.JSpinner();
+        useSketchingCheck = new javax.swing.JCheckBox();
+        maxSketchLabel = new javax.swing.JLabel();
+        sketchSizeSpinner = new javax.swing.JSpinner();
         jPanel5 = new javax.swing.JPanel();
         openIndexedCorpus = new javax.swing.JButton();
         saveIndexedCorpus = new javax.swing.JButton();
@@ -246,6 +251,36 @@ public class AlloeMain extends javax.swing.JFrame {
             }
         });
 
+        jLabel7.setText("Context Size:");
+
+        contextSizeSpinner.setModel(new SpinnerNumberModel(0,0,Integer.MAX_VALUE,1));
+        contextSizeSpinner.setValue(3);
+        contextSizeSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                contextSizeSpinnerStateChanged(evt);
+            }
+        });
+
+        useSketchingCheck.setText("Use Sketching");
+        useSketchingCheck.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useSketchingCheck.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useSketchingCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useSketchingCheckActionPerformed(evt);
+            }
+        });
+
+        maxSketchLabel.setText("Max Sketch");
+        maxSketchLabel.setEnabled(false);
+
+        sketchSizeSpinner.setModel(new SpinnerNumberModel(0,0,Integer.MAX_VALUE,1));
+        sketchSizeSpinner.setEnabled(false);
+        sketchSizeSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sketchSizeSpinnerStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -253,7 +288,6 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(termSetLabel)
@@ -263,7 +297,18 @@ public class AlloeMain extends javax.swing.JFrame {
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(setIndexButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(openCorpusTextFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(openCorpusTermSet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(openCorpusTermSet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(contextSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                        .addComponent(useSketchingCheck)
+                        .addGap(32, 32, 32)
+                        .addComponent(maxSketchLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sketchSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -281,8 +326,14 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(indexLocationLabel)
                     .addComponent(setIndexButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(maxSketchLabel)
+                    .addComponent(sketchSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(useSketchingCheck)
+                    .addComponent(contextSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(indexerProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Corpus"));
@@ -332,7 +383,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(saveIndexedCorpus)
                     .addComponent(corpusTotalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
+                .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -343,8 +394,8 @@ public class AlloeMain extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -439,7 +490,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(patternBuilderMetric, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(patternGeneratorProgressMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Pattern Sets"));
@@ -528,7 +579,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(savePatternSet)
                     .addComponent(totalPatternsLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1025,7 +1076,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(pmElemsLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(problemMatrixMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                 .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveProblemMatrix)
                     .addComponent(openProblemMatrix))
@@ -1304,6 +1355,30 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void sketchSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sketchSizeSpinnerStateChanged
+        if(corpusLoader != null) {
+            corpusLoader.setMaxSketchSize((Integer)contextSizeSpinner.getValue());
+        }
+    }//GEN-LAST:event_sketchSizeSpinnerStateChanged
+
+    private void contextSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_contextSizeSpinnerStateChanged
+        if(corpusLoader != null) {
+            corpusLoader.setContextSize((Integer)contextSizeSpinner.getValue());
+        }
+    }//GEN-LAST:event_contextSizeSpinnerStateChanged
+
+    private void useSketchingCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useSketchingCheckActionPerformed
+        maxSketchLabel.setEnabled(useSketchingCheck.isSelected());
+        sketchSizeSpinner.setEnabled(useSketchingCheck.isSelected());
+        if(corpusLoader != null) {
+            if(useSketchingCheck.isSelected()) {
+                corpusLoader.setMaxSketchSize((Integer)sketchSizeSpinner.getValue());
+            } else {
+                corpusLoader.setMaxSketchSize(-1);
+            }
+        }
+    }//GEN-LAST:event_useSketchingCheckActionPerformed
     
     private void useLazyMatchingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useLazyMatchingActionPerformed
         String pat = featureVectorPatternSet.getSelectedItem().toString();
@@ -2329,6 +2404,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JTextField classifierParameters;
     private javax.swing.JTable confusionMatrixPost;
     private javax.swing.JTable confusionMatrixPre;
+    private javax.swing.JSpinner contextSizeSpinner;
     private javax.swing.JTable corpusDisplay;
     private javax.swing.JScrollPane corpusDisplayScroll;
     private javax.swing.JLabel corpusTotalLabel;
@@ -2348,6 +2424,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
@@ -2375,6 +2452,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JTable logicConnectionTable;
     private javax.swing.JTextArea logicDescription;
     private javax.swing.JLabel logicLabel;
+    private javax.swing.JLabel maxSketchLabel;
     private javax.swing.JLabel modelLinksLabel;
     private javax.swing.JLabel modelRelationShipLabel;
     private javax.swing.JComboBox modelRelationship;
@@ -2415,6 +2493,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JButton saveProblemMatrix;
     private javax.swing.JButton saveStandardModel;
     private javax.swing.JButton setIndexButton;
+    private javax.swing.JSpinner sketchSizeSpinner;
     private javax.swing.JLabel solverAddedLabel;
     private nii.alloe.gui.ProcessMonitor solverMonitor;
     private javax.swing.ButtonGroup solverRadioGroup;
@@ -2432,6 +2511,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel totalPatternsLabel;
     private javax.swing.JRadioButton useGrowingSolver;
     private javax.swing.JCheckBox useLazyMatching;
+    private javax.swing.JCheckBox useSketchingCheck;
     private javax.swing.JRadioButton useStandardSolver;
     private javax.swing.JButton visualizeModel;
     private javax.swing.JTextArea wekaOutput;
