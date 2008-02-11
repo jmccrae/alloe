@@ -74,7 +74,7 @@ public class CorpusTest extends TestCase {
     public void testGetContextsForPattern() {
         System.out.println("getContextsForPattern");
         
-        Pattern p = new Pattern("1 *, is hillbilly");
+        Pattern p = new Pattern("1 2, is hillbilly");
         
         Iterator<String> result = instance.getContextsForPattern(p);
         assertEquals(result.next(), "joe bob is a hillbilly");

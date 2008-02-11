@@ -35,6 +35,8 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
         this.indexFile = indexFile;
         linesRead = 0;
         listeners = new LinkedList<AlloeProgressListener>();
+        contextSize = 3;
+        maxSketchSize = -1;
     }
     
     /** Register a progress listener */
@@ -47,6 +49,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
      * in a new thread */
     public void start() {
         corpus = new Corpus(terms,indexFile);
+        corpus.setMaxSketchSize(getMaxSketchSize());
         try {
             corpus.openIndex(true);
             fileSize = fileName.length();
@@ -107,7 +110,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
                 }
                 String[] ss = s.split("[\\.;]");
                 for(int i = 0; i < ss.length; i++) {
-                    Vector<String> ss2 = corpus.getContexts(ss[i],3);
+                    Vector<String> ss2 = corpus.getContexts(ss[i],getContextSize(),(double)bytesRead/(double)fileSize);
                     Iterator<String> siter = ss2.iterator();
                     while(siter.hasNext()) {
                         String s2 = siter.next();
@@ -159,4 +162,48 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     }
     
     public String getStateMessage() { return "Indexing corpus: "; }
+
+    /**
+     * Holds value of property contextSize.
+     */
+    private int contextSize;
+
+    /**
+     * Getter for property contextSize.
+     * @return Value of property contextSize.
+     */
+    public int getContextSize() {
+        return this.contextSize;
+    }
+
+    /**
+     * Setter for property contextSize.
+     * @param contextSize New value of property contextSize.
+     */
+    public void setContextSize(int contextSize) {
+        this.contextSize = contextSize;
+    }
+
+    /**
+     * Holds value of property maxSketchSize.
+     */
+    private int maxSketchSize;
+
+    /**
+     * Getter for property maxSketchSize.
+     * @return Value of property maxSketchSize.
+     */
+    public int getMaxSketchSize() {
+        return this.maxSketchSize;
+    }
+
+    /**
+     * Setter for property maxSketchSize.
+     * @param maxSketchSize New value of property maxSketchSize.
+     */
+    public void setMaxSketchSize(int maxSketchSize) {
+        this.maxSketchSize = maxSketchSize;
+        if(corpus != null)
+            corpus.setMaxSketchSize(maxSketchSize);
+    }
 }

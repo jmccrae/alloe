@@ -127,6 +127,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
             }
         });
 
+        maxIterations.setModel(new SpinnerNumberModel(0,0,Integer.MAX_VALUE-1,1));
         maxIterations.setEnabled(false);
         maxIterations.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -232,6 +233,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         sizeLabel.setText("Pattern Set Size:");
         sizeLabel.setEnabled(false);
 
+        size.setModel(new SpinnerNumberModel(0,0,Integer.MAX_VALUE,1));
         size.setEnabled(false);
         size.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -248,6 +250,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         supervizedSize.setText("Pattern Set Size:");
         supervizedSize.setEnabled(false);
 
+        supervisedSize.setModel(new SpinnerNumberModel(0,0,Integer.MAX_VALUE,1));
         supervisedSize.setEnabled(false);
 
         filterLabel.setText("Filter:");
@@ -349,7 +352,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(closeButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents

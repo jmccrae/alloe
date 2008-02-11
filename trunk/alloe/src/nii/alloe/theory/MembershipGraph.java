@@ -51,4 +51,6 @@ public class MembershipGraph implements Graph, Serializable {
     }
     
     public Iterator<Integer> iterator(int n) { return new MembershipIterator(n,set.iterator()); }
+    
+    public Graph createCopy() { return new MembershipGraph(new TreeSet<Integer>(set)); }
 }

@@ -49,5 +49,10 @@ public interface Graph {
      * generally better to use Model.iterator();
      */
     public Iterator<Integer> iterator(int n);
+    
+    /**
+     * Create a clone of this graph
+     */
+    public Graph createCopy();
 
 };

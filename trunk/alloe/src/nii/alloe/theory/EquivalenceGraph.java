@@ -47,4 +47,6 @@ public class EquivalenceGraph implements Graph, Serializable {
     }
     
     public Iterator<Integer> iterator(int n) { return new EQIterator(n); }
+    
+    public Graph createCopy() { return this; }
 };

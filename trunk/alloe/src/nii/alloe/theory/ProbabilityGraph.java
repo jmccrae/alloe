@@ -27,6 +27,14 @@ public class ProbabilityGraph implements Graph, Serializable {
         baseValNeg = MIN_PROB;
     }
     
+    private ProbabilityGraph(int n, TreeMap<Integer,Double> pm_pos, TreeMap<Integer,Double> pm_neg, double baseValPos, double baseValNeg) {
+        this.n = n;
+        this.pm_pos = pm_pos;
+        this.pm_neg = pm_neg;
+        this.baseValPos = baseValPos;
+        this.baseValNeg = baseValNeg;
+    }
+    
     public boolean isConnected(int i, int j) {
         return posVal(i,j) > negVal(i,j);
     }
@@ -82,6 +90,10 @@ public class ProbabilityGraph implements Graph, Serializable {
         }
     }
     
+    public Graph createCopy() {
+        return new ProbabilityGraph(n,new TreeMap<Integer,Double>(pm_pos), new TreeMap<Integer,Double>(pm_neg), baseValPos,baseValNeg);
+    }
+    
     /**
      * @return log(P_ij)
      */
@@ -105,14 +117,14 @@ public class ProbabilityGraph implements Graph, Serializable {
     }
     
     /**
-     * @return log(P_ij) - log(1 - P_ij)
+     * @return log(1 - P_ij) - log(P_ij)
      */
     public double addVal(int i, int j) {
         return negVal(i,j) - posVal(i,j);
     }
     
     /**
-     * @return log(1 - P_ij) - log(P_ij)
+     * @return log(P_ij) - log(1 - P_ij)
      */
     public double removeVal(int i, int j) {
         return posVal(i,j) - negVal(i,j);
@@ -212,8 +224,9 @@ public class ProbabilityGraph implements Graph, Serializable {
             while(baseIter.hasNext()) {
                 idx = baseIter.next();
                 if(pm_pos.get(idx) > pm_neg.get(idx))
-                    break;
+                    return;
             }
+            idx = -1;
         }
         
         public Integer next() {
@@ -221,13 +234,12 @@ public class ProbabilityGraph implements Graph, Serializable {
             while(baseIter.hasNext()) {
                 idx = baseIter.next();
                 if(pm_pos.get(idx) > pm_neg.get(idx))
-                    break;
+                    return rv;
             }
-            if(!baseIter.hasNext())
-                idx = -1;
+            idx = -1;
             return rv;
         }
-        public boolean hasNext() { return idx >= 0 && baseIter.hasNext(); }
+        public boolean hasNext() { return idx >= 0; }
         public void remove() { throw new UnsupportedOperationException("Cannot remove from PGIterator"); }
     }
 }
