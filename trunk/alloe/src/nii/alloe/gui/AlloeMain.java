@@ -27,7 +27,7 @@ import weka.core.*;
 public class AlloeMain extends javax.swing.JFrame {
     private Corpus corpus;
     
-    private File corpusTextFile;
+    private String corpusTextFile;
     private File corpusTermSetFile;
     private File corpusIndexFile;
     private CorpusLoader corpusLoader;
@@ -61,7 +61,8 @@ public class AlloeMain extends javax.swing.JFrame {
     /** Creates new form AlloeMain */
     public AlloeMain() {
         initComponents();
-        corpusTextFile = corpusTermSetFile = corpusIndexFile = null;
+        corpusTextFile = null;
+        corpusTermSetFile = corpusIndexFile = null;
         fileChooser = new JFileChooser();
         //thisForAnon = this;
         corpusDisplayTableModel = new CorpusTableModel();
@@ -1355,19 +1356,19 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void sketchSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sketchSizeSpinnerStateChanged
         if(corpusLoader != null) {
-            corpusLoader.setMaxSketchSize((Integer)contextSizeSpinner.getValue());
+            corpusLoader.setMaxSketchSize((Integer)sketchSizeSpinner.getValue());
         }
     }//GEN-LAST:event_sketchSizeSpinnerStateChanged
-
+    
     private void contextSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_contextSizeSpinnerStateChanged
         if(corpusLoader != null) {
             corpusLoader.setContextSize((Integer)contextSizeSpinner.getValue());
         }
     }//GEN-LAST:event_contextSizeSpinnerStateChanged
-
+    
     private void useSketchingCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useSketchingCheckActionPerformed
         maxSketchLabel.setEnabled(useSketchingCheck.isSelected());
         sketchSizeSpinner.setEnabled(useSketchingCheck.isSelected());
@@ -2279,8 +2280,15 @@ public class AlloeMain extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid File Format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
-            corpusLoader = new CorpusLoader((TermList)o, corpusTextFile, corpusIndexFile);
+            CorpusFile corpusFile;
+            if(corpusTextFile.matches(".*\\.zip")) {
+                corpusFile = new ZipCorpusFile(corpusTextFile);
+            } else {
+                corpusFile = new TextCorpusFile(corpusTextFile);
+            }
+            corpusLoader = new CorpusLoader((TermList)o, corpusFile, corpusIndexFile);
+            corpusLoader.setContextSize((Integer)contextSizeSpinner.getValue());
+            corpusLoader.setMaxSketchSize((Integer)sketchSizeSpinner.getValue());
             indexerProgressMonitor.setProcess(corpusLoader);
             if(clProgListener == null)
                 clProgListener = new CorpusLoaderProgressListener();
@@ -2380,7 +2388,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private void openCorpusTextFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTextFileActionPerformed
         if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
             return;
-        corpusTextFile = fileChooser.getSelectedFile();
+        corpusTextFile = fileChooser.getSelectedFile().getAbsolutePath();
         textFileLabel.setText("Text File: " + fileChooser.getSelectedFile().getName());
         if(corpusTextFile != null && corpusTermSetFile != null &&
                 corpusIndexFile != null) {

@@ -13,14 +13,9 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     public Corpus corpus;
     /** The set of terms */
     public TermList terms;
-    /** Filename where the terms start */
-    public File fileName;
-    
-    private int linesRead;
-    private long bytesRead;
-    
-    private transient long fileSize;
-    private transient BufferedReader in;
+    /** Corpus file */
+    public CorpusFile corpusFile;  
+      
     private transient int state;
     private transient Thread theThread;
     private transient LinkedList<AlloeProgressListener> listeners;
@@ -29,11 +24,10 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     private static final int STATE_STOPPING = 1;
     
     /** Creates a new instance of CorpusLoader */
-    public CorpusLoader(TermList terms, File fileName, File indexFile) {
+    public CorpusLoader(TermList terms, CorpusFile corpusFile, File indexFile) {
         this.terms = terms;
-        this.fileName = fileName;
+        this.corpusFile = corpusFile;
         this.indexFile = indexFile;
-        linesRead = 0;
         listeners = new LinkedList<AlloeProgressListener>();
         contextSize = 3;
         maxSketchSize = -1;
@@ -52,8 +46,6 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
         corpus.setMaxSketchSize(getMaxSketchSize());
         try {
             corpus.openIndex(true);
-            fileSize = fileName.length();
-            in = new BufferedReader(new FileReader(fileName),256);
             state = STATE_OK;
             theThread = new Thread(this);
             theThread.start();
@@ -82,11 +74,6 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     public void resume() {
         try {
             corpus.openIndex(false);
-            fileSize = fileName.length();
-            in = new BufferedReader(new FileReader(fileName),256);
-            for(int i = 0; i < linesRead; i++) {
-                in.readLine();
-            }
             state = STATE_OK;
             theThread = new Thread(this);
             theThread.start();
@@ -102,33 +89,21 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     
     public void run() {
         try {
-            String s = readLine();
+            String s = corpusFile.getNextLine();
             while(s != null && state == STATE_OK) {
-                if(!s.matches(".*\\w.*")) {
-                    s = readLine();
-                    continue;
-                }
+              
                 String[] ss = s.split("[\\.;]");
                 for(int i = 0; i < ss.length; i++) {
-                    Vector<String> ss2 = corpus.getContexts(ss[i],getContextSize(),(double)bytesRead/(double)fileSize);
+                    Vector<String> ss2 = corpus.getContexts(ss[i],getContextSize(),corpusFile.getProgress());
                     Iterator<String> siter = ss2.iterator();
                     while(siter.hasNext()) {
                         String s2 = siter.next();
                         corpus.addDoc(s2);
                     }
                 }
-                s = readLine();
-                if(s == null) break;
-                if(s.length() > 200) {
-                    String t = readLine();
-                    s = s + " " + (t != null ? t : "");
-                    while(t != null && t.length() > 200) {
-                        t = readLine();
-                        s = s + " " + (t != null ? t : "");
-                    }
-                }
-                s.replaceAll("\\s\\s+", " ");
-                fireNewProgressChange((double)bytesRead / (double)fileSize);
+                
+                s = corpusFile.getNextLine();
+                fireNewProgressChange(corpusFile.getProgress());
             }
             corpus.closeIndex();
         } catch(IOException x) {
@@ -138,14 +113,7 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
             fireFinished();
     }
     
-    private String readLine() throws IOException {
-        String s = in.readLine();
-        if(s == null)
-            return null;
-        bytesRead += s.length() + 1;
-        linesRead++;
-        return s;
-    }
+   
     
     private void fireNewProgressChange(double newProgress) {
         Iterator<AlloeProgressListener> apliter = listeners.iterator();
