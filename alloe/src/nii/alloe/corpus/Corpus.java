@@ -77,6 +77,12 @@ public class Corpus implements Serializable {
         Directory d = indexWriter.getDirectory();
         indexWriter.close();
         
+        Iterator<Map.Entry<String,Integer>> sketchIter = sketchSize.entrySet().iterator();
+        while(sketchIter.hasNext()) {
+            if(!sketchComplete.contains(sketchIter.next().getKey()))
+                sketchIter.remove();
+        }
+        
         indexSearcher = new IndexSearcher(d);
         indexWriter = null;
     }
@@ -88,6 +94,8 @@ public class Corpus implements Serializable {
                 QueryParser qp = new QueryParser("term", new AlloeAnalyzer());
                 Query q = qp.parse("\"" + cleanQuery(term) + "\"");
                 HitsIterator hi = new HitsIterator();
+                if(sketchComplete.contains(term))
+                    hi.limit = sketchSize.get(term);
                 indexSearcher.search(q, hi);
                 termHits.put(term, hi.hits);
                 return hi;
@@ -110,10 +118,10 @@ public class Corpus implements Serializable {
     
     /** Return the occurences of a particular string */
     public int getHitsForTerm(String term) {
-        if(!sketchComplete.contains(term))
+        if(!sketchComplete.contains(term.toLowerCase()))
             return queryTerm(term).hits.size();
         else
-            return queryTerm(term).hits.size() * trueContextNumber / sketchSize.get(term);
+            return queryTerm(term).hits.size() * trueContextNumber / sketchSize.get(term.toLowerCase());
     }
     
     /** Get all contexts containing term1 and term2 */
@@ -367,10 +375,12 @@ public class Corpus implements Serializable {
         
         TreeSet<Integer> hits;
         Iterator<Integer> i;
+        int limit;
         
         HitsIterator() {
             hits = new TreeSet<Integer>();
             i = null;
+            limit = Integer.MAX_VALUE;
         }
         
         HitsIterator(TreeSet<Integer> hits) {
@@ -379,7 +389,8 @@ public class Corpus implements Serializable {
         }
         
         public void collect(int doc, float score) {
-            hits.add(doc);
+            if(doc < limit);
+                hits.add(doc);
         }
         
         public void remove() {
@@ -468,21 +479,23 @@ public class Corpus implements Serializable {
     
     private void updateSketches(Vector<String> contexts, HashSet<String> terms, double progress) {
         Iterator<String> termIter = terms.iterator();
+        docsSketched += contexts.size();
         while(termIter.hasNext()) {
             String term = termIter.next();
             Iterator<String> contextIter = contexts.iterator();
             while(contextIter.hasNext()) {
                 String context = contextIter.next();
-                docsSketched++;
-                if(context.matches(term)) {
+                if(context.matches(".*\\b" + term + "\\b.*")) {
                     if(sketchSize.get(term) == null)
                         sketchSize.put(term,1);
-                    else
+                    else if(!sketchComplete.contains(term)) {
                         sketchSize.put(term,sketchSize.get(term)+1);
-                    if(sketchSize.get(term) >= maxSketchSize) {
-                        sketchComplete.add(term);
-                        if(trueContextNumber == 0) {
-                            trueContextNumber = (int)((double)docsSketched / progress);
+                        if(sketchSize.get(term) >= maxSketchSize) {
+                            sketchComplete.add(term);
+                            sketchSize.put(term,docsSketched);
+                            if(trueContextNumber == 0) {
+                                trueContextNumber = (int)((double)docsSketched / progress);
+                            }
                         }
                     }
                 }
@@ -508,8 +521,10 @@ public class Corpus implements Serializable {
             if(sketchComplete.contains(term))
                 continue;
             int idx = doc.indexOf(term, 0);
-            if(idx >= 0)
+            if(doc.matches(".*\\b" + term + "\\b.*"))
                 termsFound.add(term);
+            else
+                continue;
             while (idx >= 0) {
                 if ((idx > 0 && !Character.isWhitespace(doc.charAt(idx - 1))) ||
                         (idx + term.length() < doc.length() &&
