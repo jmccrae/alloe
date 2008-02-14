@@ -403,7 +403,7 @@ public class Rule implements Comparable<Rule> {
             }
         }
         
-        newRule.simplify(model);
+        newRule = simplify(newRule,model);
         
         return newRule;
     }
@@ -462,82 +462,71 @@ public class Rule implements Comparable<Rule> {
      * and detects is the rule is trivial (in which case all terms are removed
      * NB do not remove or change assignments after applying this rule!!
      */
-    public void simplify(Model model) {
+    //public void simplify(Model model) {
+    public static Rule simplify(Rule r, Model model) {
         
         // Check for resolution
-        for(int i = 0; i < premiseCount; i++) {
-            for(int k = premiseCount; k < terms.size(); k++) {
-                if(relations.get(i).equals(relations.get(k)) &&
-                        terms.get(i)[0].getAssignment() == terms.get(k)[0].getAssignment() &&
-                        terms.get(i)[1].getAssignment() == terms.get(k)[1].getAssignment()) {
-                    premiseCount = 0;
-                    relations.clear();
-                    terms.clear();
-                    arguments.clear();
-                    return;
+        for(int i = 0; i < r.premiseCount; i++) {
+            for(int k = r.premiseCount; k < r.length(); k++) {
+                if(r.relations.get(i).equals(r.relations.get(k)) &&
+                        r.terms.get(i)[0].getAssignment() == r.terms.get(k)[0].getAssignment() &&
+                        r.terms.get(i)[1].getAssignment() == r.terms.get(k)[1].getAssignment()) {
+                    return null;
                 }
             }
         }
         
         // Check for duplication
-        for(int i = 0; i < premiseCount; i++) {
+        for(int i = 0; i < r.premiseCount; i++) {
             if(model != null) {
-                Graph g = model.graphs.get(relations.get(i));
-                if(!g.mutable(terms.get(i)[0].getAssignment(),
-                        terms.get(i)[1].getAssignment())) {
-                    if(g.isConnected(terms.get(i)[0].getAssignment(),
-                            terms.get(i)[1].getAssignment())) {
-                        relations.remove(i);
-                        terms.remove(i);
-                        premiseCount--;
+                Graph g = model.graphs.get(r.relations.get(i));
+                if(!g.mutable(r.terms.get(i)[0].getAssignment(),
+                        r.terms.get(i)[1].getAssignment())) {
+                    if(g.isConnected(r.terms.get(i)[0].getAssignment(),
+                            r.terms.get(i)[1].getAssignment())) {
+                        r.relations.remove(i);
+                        r.terms.remove(i);
+                        r.premiseCount--;
                         i--;
                         continue;
                     } else {
-                        premiseCount = 0;
-                        relations.clear();
-                        terms.clear();
-                        arguments.clear();
-                        return;
+                        return null;
                     }
                 }
             }
-            for(int k = i+1; k < premiseCount; k++) {
-                if(relations.get(i).equals(relations.get(k)) &&
-                        terms.get(i)[0].getAssignment() == terms.get(k)[0].getAssignment() &&
-                        terms.get(i)[1].getAssignment() == terms.get(k)[1].getAssignment()) {
-                    relations.remove(k);
-                    terms.remove(k);
-                    premiseCount--;
+            for(int k = i+1; k < r.premiseCount; k++) {
+                if(r.relations.get(i).equals(r.relations.get(k)) &&
+                        r.terms.get(i)[0].getAssignment() == r.terms.get(k)[0].getAssignment() &&
+                        r.terms.get(i)[1].getAssignment() == r.terms.get(k)[1].getAssignment()) {
+                    r.relations.remove(k);
+                    r.terms.remove(k);
+                    r.premiseCount--;
                     k--;
                 }
             }
         }
-        for(int i = premiseCount; i < terms.size(); i++) {
+        for(int i = r.premiseCount; i < r.length(); i++) {
             if(model != null) {
-                Graph g = model.graphs.get(relations.get(i));
-                if(!g.mutable(terms.get(i)[0].getAssignment(),
-                        terms.get(i)[1].getAssignment())) {
-                    if(!g.isConnected(terms.get(i)[0].getAssignment(),
-                            terms.get(i)[1].getAssignment())) {
-                        relations.remove(i);
-                        terms.remove(i);
+                Graph g = model.graphs.get(r.relations.get(i));
+                if(!g.mutable(r.terms.get(i)[0].getAssignment(),
+                        r.terms.get(i)[1].getAssignment())) {
+                    if(!g.isConnected(r.terms.get(i)[0].getAssignment(),
+                            r.terms.get(i)[1].getAssignment())) {
+                        r.relations.remove(i);
+                        r.terms.remove(i);
                         i--;
                         continue;
                     } else {
-                        premiseCount = 0;
-                        relations.clear();
-                        terms.clear();
-                        arguments.clear();
-                        return;
+                        return null;
                     }
                 }
             }
-            for(int k = i+1; k < terms.size(); k++) {
-                if(relations.get(i).equals(relations.get(k)) &&
-                        terms.get(i)[0].getAssignment() == terms.get(k)[0].getAssignment() &&
-                        terms.get(i)[1].getAssignment() == terms.get(k)[1].getAssignment()) {
-                    relations.remove(k);
-                    terms.remove(k);
+            for(int k = i+1; k < r.terms.size(); k++) {
+                if(r.relations.get(i).equals(r.relations.get(k)) &&
+                        r.terms.get(i)[0].getAssignment() == r.terms.get(k)[0].getAssignment() &&
+                        r.terms.get(i)[1].getAssignment() == r.terms.get(k)[1].getAssignment()) {
+                    r.relations.remove(k);
+                    r.terms.remove(k);
                     k--;
                 }
             }
@@ -545,8 +534,9 @@ public class Rule implements Comparable<Rule> {
         
         
         // Rebuild Arguments
-        arguments = new TreeMap<Argument, Argument>();
-        addArguments();
+        r.arguments = new TreeMap<Argument, Argument>();
+        r.addArguments();
+        return r;
     }
     
     private void addArguments() {

@@ -172,6 +172,49 @@ public class Logic {
         } while(!finished);
     }
     
+    /** Search for all rules that can resolve with a set of rule from the following set
+     */
+    public void findAllPotentialResolvers(Model model, Set<Integer> resolvePoints, AbstractCollection<Rule> potentialResolvers) {
+        PotentialResolverAction pra = new PotentialResolverAction(potentialResolvers);
+                
+        for(int resolvePoint : resolvePoints) {
+            for(Rule r : rules) {
+                for(int i = 0; i < r.length(); i++) {
+                    if(r.relations.get(i).equals(model.relationByID(resolvePoint)) &&
+                            r.tryAssign(i,model.iByID(resolvePoint),model.jByID(resolvePoint))) {
+                        consistCheck(model,r,0,pra,new PotentialResolverCheck(i));
+                        r.terms.get(i)[0].unsetAssignment();
+                        if(r.terms.get(i)[1].hasAssignment())
+                            r.terms.get(i)[1].unsetAssignment();
+                    }
+                }
+            }
+        }
+    }
+
+    private class PotentialResolverCheck implements CheckerCondition {
+        int arg;
+        public PotentialResolverCheck(int arg) { this.arg = arg; }
+            public boolean check(int argument, Rule rule, Graph g, int i, int j) {
+                return argument == arg ||
+                        (argument < rule.premiseCount && g.isConnected(i,j)) ||
+                        (argument >= rule.premiseCount && !g.isConnected(i,j));
+            }
+            public boolean mustConnect(int argument, Rule rule) { return argument < rule.premiseCount; }
+        
+    }
+    
+    private class PotentialResolverAction implements InconsistentAction {
+        private AbstractCollection<Rule> potentialResolvers;
+        public PotentialResolverAction(AbstractCollection<Rule> potentialResolvers) {
+            this.potentialResolvers = potentialResolvers;
+        }
+        public boolean doAction(Logic logic, Model m, Rule rule) {
+            potentialResolvers.add(rule.createCopy());
+            return true;
+        }
+    }
+    
     /** The workhorse for both consistCheck and premiseCheck */
     protected boolean consistCheck(Model m,
             Rule rule,
@@ -223,7 +266,9 @@ public class Logic {
                     }
                 }
             } else {
-                rval = consistCheck(m, rule, argument + 1,inconsist,checker);
+                if(checker.check(argument,rule,m.getGraphByName(rule.relations.get(argument)),
+                        rule.terms.get(argument)[0].getAssignment(),rule.terms.get(argument)[1].getAssignment()))
+                    rval = consistCheck(m, rule, argument + 1,inconsist,checker);
             }
         } else {
             if(rule.terms.get(argument)[0] == rule.terms.get(argument)[1] &&

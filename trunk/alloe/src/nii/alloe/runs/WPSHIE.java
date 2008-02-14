@@ -135,7 +135,7 @@ public class WPSHIE {
     }
     
     void loadCorpus() {
-        corpus = new Corpus(new TermList(terms), "/e/wp/wp/corpus.idx");
+       /* corpus = new Corpus(new TermList(terms), "/e/wp/wp/corpus.idx");
         try {
             corpus.openIndex(true);
             BufferedReader in = new BufferedReader(new FileReader("/e/wp/wp/corpus.txt"),256);
@@ -147,7 +147,7 @@ public class WPSHIE {
                 }
                 String[] ss = s.split("[\\.;]");
                 for(int i = 0; i < ss.length; i++) {
-                    Vector<String> ss2 = corpus.getContexts(ss[i],3);
+                   // Vector<String> ss2 = corpus.getContexts(ss[i],3);
                     Iterator<String> siter = ss2.iterator();
                     while(siter.hasNext()) {
                         String s2 = siter.next();
@@ -170,6 +170,6 @@ public class WPSHIE {
         } catch(IOException x) {
             x.printStackTrace();
             System.exit(-1);
-        }
+        }*/
     }
 }
