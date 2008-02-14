@@ -2,6 +2,7 @@ package nii.alloe.theory;
 import java.util.*;
 import java.io.Serializable;
 import nii.alloe.corpus.*;
+import nii.alloe.niceties.*;
 
 /**
  * A model is a set of assignments to every possible link of a true/false value. This is in effect means that we have
@@ -532,56 +533,24 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     
     public Iterator<Integer> iterator() { return new ModelIterator(); }
     
-    private class ModelIterator implements Iterator<Integer> {
-        Iterator<Map.Entry<String,Graph>> graphIterator;
-        Iterator<Integer> specIterator;
-        Integer offset;
+    private class ModelIterator extends MultiIterator<Integer> {
+        private Vector<Integer> graphID;
         
         public ModelIterator() {
-            graphIterator = graphs.entrySet().iterator();
-            if(graphIterator.hasNext()) {
-                Map.Entry<String,Graph> e = graphIterator.next();
-                specIterator = e.getValue().iterator(n);
-                offset = relationIdx.indexOf(e.getKey()) * n * n;
-            } else
-                specIterator = null;
+            init(construct());
         }
-        
-        public boolean hasNext() {
-            if(specIterator == null)
-                return false;
-            if(specIterator.hasNext())
-                return true;
-            if(!graphIterator.hasNext())
-                return false;
-            do {
-                Map.Entry<String,Graph> e = graphIterator.next();
-                specIterator = e.getValue().iterator(n);
-                offset = relationIdx.indexOf(e.getKey()) * n * n;
-            } while(graphIterator.hasNext() && !specIterator.hasNext());
-            return specIterator.hasNext();
-        }
-        public Integer next() {
-            if(specIterator == null) {
-                throw new NoSuchElementException();
-            } else if(specIterator.hasNext()) {
-                return specIterator.next() + offset;
-            } else if(graphIterator.hasNext()) {
-                do {
-                    Map.Entry<String,Graph> e = graphIterator.next();
-                    specIterator = e.getValue().iterator(n);
-                    offset = relationIdx.indexOf(e.getKey()) * n * n;
-                } while(graphIterator.hasNext() && !specIterator.hasNext());
-                return next();
-            } else {
-                throw new NoSuchElementException();
+        private Iterator<Iterator<Integer>> construct() {
+            Vector<Iterator<Integer>> v = new Vector<Iterator<Integer>>(graphs.size());
+            graphID = new Vector<Integer>(graphs.size());
+            for(Map.Entry<String,Graph> entries : graphs.entrySet()) {
+                v.add(entries.getValue().iterator(n));
+                graphID.add(relationIdx.indexOf(entries.getKey()));
             }
+            return v.iterator();
         }
-        public void remove() {
-            if(specIterator == null)
-                throw new IllegalStateException();
-            else
-                specIterator.remove();
+       
+        public Integer returnVal(Integer i, int graphNumber) {
+            return i + n * n * graphID.get(graphNumber);
         }
     }
     
