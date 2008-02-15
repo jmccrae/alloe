@@ -24,39 +24,52 @@ public class ZipCorpusFile implements CorpusFile, Serializable {
         zipFile = new ZipFile(fileName);
         zipEntries = zipFile.entries();
     }
-
+    
     public String getNextLine() throws java.io.IOException {
-        String s;
-        while(in == null || (s = in.readLine()) == null) {
-            if(!zipEntries.hasMoreElements())
+        // Have we initialized?
+        if(in == null) {
+            nextFile();
+            // If still no input stream we must have finished
+            if(in == null)
                 return null;
-            ZipEntry entry = (ZipEntry)zipEntries.nextElement();
-            bytesRead += entry.getCompressedSize();
-            in = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
-            zipEntryName = entry.getName();
-            linesRead = 1;
         }
-        while(s != null) {
-            if(!s.matches(".*\\w.*")) {
-                s = in.readLine();
-                linesRead++;
-                continue;
+        String s = in.readLine();
+        linesRead++;
+        // Get a line with at least one word character
+        while(s == null || !s.matches(".*\\w.*")) {
+            if(s == null) {
+                nextFile();
+                if(in == null)
+                    return null;
             }
-            if(s.length() > 200) {
-                String t = in.readLine();
-                linesRead++;
-                while(t != null && t.length() > 200) {
-                    s = s + " " + t;
-                    t = in.readLine();
-                    linesRead++;
-                }
-            }
-            s.replaceAll("\\s+", " ");
-            return s;
+            s = in.readLine();
+            linesRead++;
         }
+        // If the lines is over 230 characters we assume it has some continutation
+        if(s.length() > 230) {
+            String t;
+            do {
+                t = in.readLine();
+                s = s + " " + (t != null ? t : "");
+                linesRead++;
+            } while(t != null && t.length() > 230);
+        }
+        s.replaceAll("\\s+", " ");
         return s;
     }
-   
+    
+    private void nextFile() throws IOException {
+        if(!zipEntries.hasMoreElements()) {
+            in = null;
+            return;
+        }
+        ZipEntry entry = (ZipEntry)zipEntries.nextElement();
+        bytesRead += entry.getCompressedSize();
+        in = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+        zipEntryName = entry.getName();
+        linesRead = 0;
+    }
+    
     public double getProgress() {
         return (double)bytesRead / (double)totalBytes;
     }
