@@ -142,7 +142,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
         rval.compulsoryCount = this.compulsoryCount;
         return rval;
     }
-
+    
     public int getCompulsoryCount() {
         return compulsoryCount;
     }
@@ -188,7 +188,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
         SetGraphAction(Graph g, TermList tl) { this.g = g; this.tl = tl; }
         public void doAction(String term1, String term2) {
             g.add(tl.indexOf(term1),tl.indexOf(term2));
-            }
+        }
     }
     
     /**
@@ -278,10 +278,12 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      * ie, created by subModel, createSpecificCopy, createImmutableCopy etc.
      */
     public boolean add(Model m) {
-        Iterator<Integer> i = m.iterator();
         boolean rval = false;
-        while(i.hasNext()) {
-            rval = add(i.next()) || rval;
+        for(Integer i : m) {
+            if(mutable(i))
+                rval = add(i) || rval;
+            else if(!isConnected(i))
+                throw new LogicException("Attempting to add non-mutable: " + i);
         }
         return rval;
     }
@@ -467,7 +469,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             Integer i = iter.next();
             if(getGraphByID(i) instanceof EquivalenceGraph || getGraphByID(i) instanceof MembershipGraph)
                 continue;
-            if(m.isConnected(i)) 
+            if(m.isConnected(i))
                 rval[0]++;
             else
                 rval[1]++;
@@ -522,7 +524,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             hasCompulsory = true;
         }
     }
-      
+    
     /**
      * An iterator for the name of every graph in this model, although similar can be achieved
      * graphs.keySet().iterator(), this iterator is ordered so that if a second model is created
@@ -548,7 +550,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             }
             return v.iterator();
         }
-       
+        
         public Integer returnVal(Integer i, int graphNumber) {
             return i + n * n * graphID.get(graphNumber);
         }
