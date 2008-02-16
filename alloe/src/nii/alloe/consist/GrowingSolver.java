@@ -18,7 +18,7 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
     /**
      * The solution is placed here after solve is called
      */
-    public TreeSet<Integer> soln;
+    public Model soln;
     /**
      * The minimal cost is placed here after solve is called
      */
@@ -35,9 +35,8 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
     
     private ConsistProblem cp;
     private ConsistSolver cs;
-    private Model baseModel;
+    private Model candidate;
     private int iteration;
-    private Collection<Integer> change;
     
     /**
      * Find closest model to data
@@ -49,15 +48,26 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
         if(cp == null) {
             cp = new ConsistProblem(logic, probModel);
             cs = new ConsistSolver();
-            baseModel = probModel.createSpecificCopy();
+            candidate = probModel.createSpecificCopy();
             iteration = 1;
-            change = baseModel;
         }
         cp.addProgressListener(this);
         cs.addProgressListener(this);
         while(state == STATE_OK) {
             state = STATE_MATRIX;
-            SparseMatrix m = cp.buildGrowingProblemMatrix(baseModel,change);
+            System.out.println("Building matrix");
+            SparseMatrix m = cp.buildGrowingProblemMatrix(candidate);
+            if(iteration > 100) {
+                System.out.println(probModel.toString());
+                System.out.println(candidate.toString());
+                m.printMatrix(System.out);
+                System.out.println(cp.getBases(candidate));
+                System.exit(-1);
+            }
+            if(m == null)
+                break;
+            m = m.createCopy();
+            ConsistProblem.reduceMatrix(m);
             if(state != STATE_MATRIX)
                 break;
             state = STATE_SOLVING;
@@ -65,13 +75,11 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
             if(state == STATE_SOLVING)
                 state = STATE_OK;
             
-            change = (TreeSet<Integer>)cs.soln.clone();
-            change.removeAll(baseModel);
-            if(!baseModel.addAll(cs.soln)) 
-                break;
+            candidate = probModel.createSpecificCopy();
+            candidate.symmDiffAll(cs.soln);
             iteration++;
         }
-        soln = cs.soln;
+        soln = candidate;
         cost = cs.cost;
         if(state == STATE_OK)
             fireFinished();
@@ -95,6 +103,8 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
             return "???";
         }
     }
+    
+    public SparseMatrix getMatrix() { return cp.mat; }
 
     public void run() {
        solve(); 

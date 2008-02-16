@@ -759,7 +759,7 @@ public class SparseMatrix implements Serializable {
         public boolean equals(Object o) {
             if((o instanceof SparseNode)) {
                 SparseNode n = (SparseNode)o;
-                return i.equals(n.i) && j.equals(n.j) && val >= n.val - 0.0000001 && val <= n.val + 0.0000001;
+                return i.equals(n.i) && j.equals(n.j) && val >= n.val * (1 - ConsistProblem.PERTURBATION_SIZE) && val <= n.val * (1 + ConsistProblem.PERTURBATION_SIZE);
             } else
                 return false;
         }

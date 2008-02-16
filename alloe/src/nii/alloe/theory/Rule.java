@@ -55,11 +55,10 @@ public class Rule implements Comparable<Rule> {
         relations = new Vector<String>(positives.size() + negatives.size());
         terms = new Vector<Argument[]>();
         premiseCount = positives.size();
+        List<Integer> ts = new LinkedList<Integer>(positives);
+        ts.addAll(negatives);
         
-        int i = 0;
-        Iterator<Integer> iter = positives.iterator();
-        while(iter.hasNext()) {
-            Integer id = iter.next();
+        for(Integer id : ts) {
             relations.add(model.relationByID(id));
             Argument[] args = new Argument[2];
             args[0] = new Argument(model.iByID(id));
@@ -68,6 +67,7 @@ public class Rule implements Comparable<Rule> {
             args[1].setAssignment(model.jByID(id));
             terms.add(args);
         }
+        
         addArguments();
         return this;
     }
@@ -618,14 +618,8 @@ public class Rule implements Comparable<Rule> {
             if(terms.get(i)[0].compareTo(r.terms.get(i)[0]) != 0) {
                 return terms.get(i)[0].compareTo(r.terms.get(i)[0]);
             }
-            if(terms.get(i)[0].getAssignment() != r.terms.get(i)[0].getAssignment()) {
-                return terms.get(i)[0].getAssignment() < r.terms.get(i)[0].getAssignment() ? -1 : 1;
-            }
             if(terms.get(i)[1].compareTo(r.terms.get(i)[1]) != 0) {
                 return terms.get(i)[1].compareTo(r.terms.get(i)[1]);
-            }
-            if(terms.get(i)[1].getAssignment() != r.terms.get(i)[1].getAssignment()) {
-                return terms.get(i)[1].getAssignment() < r.terms.get(i)[1].getAssignment() ? -1 : 1;
             }
         }
         
@@ -922,6 +916,15 @@ public class Rule implements Comparable<Rule> {
         protected Argument() {}
         
         public int compareTo(Argument t) {
+            if(hasAssignment() && t.hasAssignment()) {
+                if(getAssignment() < t.getAssignment()) {
+                    return -1;
+                } else if(getAssignment() > t.getAssignment()) {
+                    return +1;
+                } else {
+                    return 0;
+                }
+            }
             if(id < t.id) {
                 return -1;
             } else if(id > t.id) {
