@@ -123,7 +123,7 @@ public class Corpus implements Serializable {
     public int getHitsForTerm(String term) {
         if (!sketchComplete.contains(term.toLowerCase())) {
             return queryTerm(term).hits.size();
-        else
+        } else
             return (int)((long)queryTerm(term).hits.size() * (long)trueContextNumber / (long)sketchSize.get(term.toLowerCase()));
     }
 
