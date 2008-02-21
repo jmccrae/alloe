@@ -149,15 +149,28 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             if(baseRules.size() == 0)
                 return null;
         } else {
+            TreeSet<Integer> resolvePoints = new TreeSet<Integer>();
+            for(Rule r : baseRules) {
+                for(int i = 0; i < r.length(); i++) {
+                    int id = probModel.id(r,i);
+                    if(i < r.premiseCount && !probModel.isConnected(id) ||
+                            i >= r.premiseCount && probModel.isConnected(id)) {
+                        resolvePoints.add(id);
+                    }
+                }
+            }
             if(baseRules.size() == 0)
                 return null;
             for(Integer col : mat.cols.keySet()) {
                 if(col < 1)
                     continue;
+                if(!containsAny(mat.getCol(col),resolvePoints))
+                    continue;
                 Rule r = mat.columnToRule(col,probModel);
                 baseRules.add(r);
                 oldRules.add(r);
             }
+            resolvePoints = null;
         }
         orderRules();
         initializeRuleQueue();
@@ -182,6 +195,14 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         }
         
         return mat;
+    }
+    
+    private boolean containsAny(Set<Integer> set1, Set<Integer> set2) {
+        for(Integer i : set2) {
+            if(set1.contains(i))
+                return true;
+        }
+        return false;
     }
     
     /** Complete the model and then remove any unnecessary links
@@ -381,7 +402,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             Iterator<Rule> ruleQueueIter = ruleQueue.iterator();
             while(ruleQueueIter.hasNext()) {
                 Rule r2 = ruleQueueIter.next();
-                if(rNew.subsumes(r2, probModel))
+                if(rNew.subsumes(r2))
                     ruleQueueIter.remove();
             }
         }
@@ -426,19 +447,21 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         // 3. Subsumed in Matrix
         TreeSet<Integer> elems = columnForRule(newR);
         for(Integer col : mat.cols.keySet()) {
+            if(col < 1)
+                continue;
             if(mat.colSubset(col, elems))
                 return true;
         }
         
         // 4. Subsumed by queued rule
         for(Rule subsumer : ruleQueue) {
-            if(subsumer.subsumes(newR,probModel))
+            if(subsumer.subsumes(newR))
                 return true;
         }
         
         // 5. Subsumed by discarded rule
         for(Rule subsumer : usedRules) {
-            if(subsumer.subsumes(newR,probModel))
+            if(subsumer.subsumes(newR))
                 return true;
         }
         return false;

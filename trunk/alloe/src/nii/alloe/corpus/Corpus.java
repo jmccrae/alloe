@@ -123,10 +123,8 @@ public class Corpus implements Serializable {
     public int getHitsForTerm(String term) {
         if (!sketchComplete.contains(term.toLowerCase())) {
             return queryTerm(term).hits.size();
-        } else {
-            return (int)(((long)queryTerm(term).hits.size() * (long)trueContextNumber) / 
-                    (long)sketchSize.get(term.toLowerCase()));
-        }
+        else
+            return (int)((long)queryTerm(term).hits.size() * (long)trueContextNumber / (long)sketchSize.get(term.toLowerCase()));
     }
 
     /** Get all contexts containing term1 and term2 */
@@ -480,12 +478,12 @@ public class Corpus implements Serializable {
         Integer sketch2 = sketchSize.get(term2);
         if (!sketchComplete.contains(term1) && !sketchComplete.contains(term2)) {
             return cooccs;
-        } else if (!sketchComplete.contains(term1)) {
+        } else if(!sketchComplete.contains(term1)) {
             return (int)((long)trueContextNumber * (long)cooccs / (long)sketch2);
-        } else if (!sketchComplete.contains(term2)) {
+        } else if(!sketchComplete.contains(term2)) {
             return (int)((long)trueContextNumber * (long)cooccs / (long)sketch1);
         } else {
-            return (int)((long)trueContextNumber * (long)cooccs / (long)Math.min(sketch1, sketch2));
+            return (int)((long)trueContextNumber * (long)cooccs / (long)Math.min(sketch1,sketch2));
         }
     }
 

@@ -1542,7 +1542,9 @@ public class AlloeMain extends javax.swing.JFrame {
             soln = consistSolver.soln;
             cost = consistSolver.cost;
         } else {
-            soln = growingSolver.soln;
+            // TODO fix here
+            //soln = growingSolver.soln;
+            soln = null;
             cost = growingSolver.cost;
         }
         TreeSet<Integer> added = (TreeSet<Integer>)soln.clone();
