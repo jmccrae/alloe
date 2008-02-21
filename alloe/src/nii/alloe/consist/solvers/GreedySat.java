@@ -39,28 +39,20 @@ public class GreedySat {
         buildInitialSet(probModel);
         while(!greedySats.isEmpty()) {
             System.out.println(greedySats.toString());
-            int maxID = -1;
-            double maxCost = 0;
-            for(Map.Entry<Integer,GreedySatNode> entry : greedySats.entrySet()) {
-                Graph g;
-                if((g = probModel.getGraphByID(entry.getKey())) instanceof ProbabilityGraph) {
-                    double consistGain = (double)(entry.getValue().satisfys.size() - entry.getValue().breaks.size());
-                    double cost = Math.abs(((ProbabilityGraph)g).addVal(probModel.iByID(entry.getKey()),probModel.jByID(entry.getKey())));
-                    cost = consistGain / cost;
-                    if(cost > maxCost) {
-                        maxID = entry.getKey();
-                        maxCost = cost;
-                    }
+            int maxID = findCheapest();
+            if(maxID == -1) {
+                buildInitialSet(candidate);
+                if(greedySats.isEmpty())
+                    break;
+                maxID = findCheapest();
+                if(maxID /*still*/ == -1) {
+                    System.out.println(probModel.toString());
+                    System.out.println(candidate.toString());
+                    System.out.println(greedySats.toString());
+                    System.out.println("FAIL");
+                    System.exit(-1);
                 }
             }
-            if(maxCost <= 0) {
-                System.out.println(probModel.toString());
-                System.out.println(candidate.toString());
-                System.out.println(greedySats.toString());
-                System.out.println("FAIL");
-                System.exit(-1);
-            }
-            assert(maxID != -1);
             cost += Math.abs(((ProbabilityGraph)probModel.getGraphByID(maxID)).addVal(probModel.iByID(maxID),probModel.jByID(maxID)));
             
             Collection<Integer> newNodes = greedySats.flip(maxID);
@@ -80,6 +72,24 @@ public class GreedySat {
             }
         }
         soln = candidate;
+    }
+    
+    private int findCheapest() {
+        int maxID = -1;
+        double maxCost = 0;
+        for(Map.Entry<Integer,GreedySatNode> entry : greedySats.entrySet()) {
+            Graph g;
+            if((g = probModel.getGraphByID(entry.getKey())) instanceof ProbabilityGraph) {
+                double consistGain = (double)(entry.getValue().satisfys.size() - entry.getValue().breaks.size());
+                double cost = Math.abs(((ProbabilityGraph)g).addVal(probModel.iByID(entry.getKey()),probModel.jByID(entry.getKey())));
+                cost = consistGain / cost;
+                if(cost > maxCost) {
+                    maxID = entry.getKey();
+                    maxCost = cost;
+                }
+            }
+        }
+        return maxID;
     }
     
     private void buildInitialSet(Model model) {

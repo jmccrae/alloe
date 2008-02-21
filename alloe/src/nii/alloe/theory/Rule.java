@@ -567,7 +567,7 @@ public class Rule implements Comparable<Rule> {
      * A rule subsumes another this rule if in any case that rule is true, this rule is also true. This means that every
      * term in this rule can be found in the other rule
      */
-    public boolean subsumes(Rule r, Model m) {
+    public boolean subsumes(Rule r/*, Model m*/) {
         THIS_LOOP: for(int i = 0; i < premiseCount; i++) {
             for(int j = 0; j < r.premiseCount; j++) {
                 if(relations.get(i).equals(r.relations.get(j)) &&
@@ -580,7 +580,7 @@ public class Rule implements Comparable<Rule> {
         }
         
         THIS_LOOP2: for(int i = premiseCount; i < length(); i++) {
-            if(m != null) {
+            /*if(m != null) {
                 Graph g = m.graphs.get(relations.get(i));
                 if(g.isConnected(terms.get(i)[0].getAssignment(),
                         terms.get(i)[1].getAssignment()) ||
@@ -588,7 +588,7 @@ public class Rule implements Comparable<Rule> {
                         terms.get(i)[1].getAssignment())) {
                     continue;
                 }
-            }
+            }*/
             for(int j = r.premiseCount; j < r.length(); j++) {
                 if(relations.get(i).equals(r.relations.get(j)) &&
                         terms.get(i)[0].getAssignment() == r.terms.get(j)[0].getAssignment() &&
