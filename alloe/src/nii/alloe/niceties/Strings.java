@@ -121,6 +121,6 @@ public class Strings {
     
     /** Escape all regex meta-characters */
     public static String quoteMeta(String s) {
-        return s.replaceAll("([\\.\\[\\]\\^\\$\\|\\?\\(\\)\\\\\\+\\{\\}\\*)","\\\\$1");
+        return s.replaceAll("([\\.\\[\\]\\^\\$\\|\\?\\(\\)\\\\\\+\\{\\}\\*])","\\\\$1");
     }
 }
