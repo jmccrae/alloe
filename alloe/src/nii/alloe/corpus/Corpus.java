@@ -586,6 +586,7 @@ public class Corpus implements Serializable {
             idx = matcher.start(1);
 
             if (sketchComplete.contains(term)) {
+                idx = matcher.end(1);
                 continue;
             }
             termsFound.add(term);
