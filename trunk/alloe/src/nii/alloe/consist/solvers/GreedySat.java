@@ -267,7 +267,7 @@ public class GreedySat {
                 set.add(r);
                 allRules.add(r);
             } else {
-                set.add(set2.pollFirst());
+                set.add(set2.first());
             }
         }
         
