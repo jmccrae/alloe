@@ -22,7 +22,7 @@ import java.util.*;
  */
 public class Simulations {
     
-    private static final int VEC = 4;
+    private static final int VEC = 11;
     
     /** Creates a new instance of Simulations */
     public Simulations() {
@@ -34,16 +34,18 @@ public class Simulations {
     public static void main(String[] args) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("results"));
-            bw.write("connect,time_complete,fm_pre,fm_post_complete,rows_complete,cols_complete,complexity_complete,time_growing,fm_post_growing,row_growing,cols_growing\n");
-            for(double d = -2; d <= -0.2; d += 0.01) {
+            bw.write("connect,time_complete,fm_pre,fm_post_complete,rows,cols,cm1,cm2,cm3,cm4,cm5,cm6\n");
+            for(double d = -1; d <= -0.6; d += 0.01) {
                 double[] res = new double[VEC];
-                for(int i = 0; i < 1; i++) {
-                    double[] res2 = doRun(.8,.8,100,"logics/hypernym.logic",d,1);
+                double[] resSq = new double[VEC];
+                for(int i = 0; i < 500; i++) {
+                    double[] res2 = doRun(.8,.8,100,"logics/synonym.logic",d,1);
                     for(int j = 0; j < VEC; j++) {
                         res[j] += res2[j];
+                        resSq[j] += res2[j] * 2;
                     }
                 }
-                bw.write(d + "," + Strings.join(",",res) + "\n");
+                bw.write(d + "," + Strings.join(",",res) +","+ Strings.join(",",resSq) + "\n");
                 bw.flush();
             }
             bw.close();
@@ -72,7 +74,7 @@ public class Simulations {
             solvedModel.symmDiffAll(cs.soln);
             int[] presolve = s.probModel.computeComparison(s.trueModel);
             int[] postsolve = solvedModel.computeComparison(s.trueModel);*/
-            GreedySat gs = new GreedySat(new Logic(new File(logicFile)),s.probModel);
+            /*GreedySat gs = new GreedySat(new Logic(new File(logicFile)),s.probModel);
             long time = System.nanoTime();
             gs.solve();
             time = System.nanoTime() - time;
@@ -82,20 +84,29 @@ public class Simulations {
             rval[0] = (double)time / 1000000000.0;
             rval[1] = 2.0 * (double)presolve[0] / (double)(2 * presolve[0] + presolve[1] + presolve[2]);
             rval[2] = 2.0 * (double)postsolve[0] / (double)(2 * postsolve[0] + postsolve[1] + postsolve[2]);
-            /*rval[3] = cs.getMatrix().getRowCount();
+            rval[3] = cs.getMatrix().getRowCount();
             rval[4] = cs.getMatrix().getColumnCount();
-            rval[5] = complexity;
+            rval[5] = complexity;*/
             
+            double []rval = new double[VEC];
             GrowingSolver gs = new GrowingSolver(new Logic(new File(logicFile)),s.probModel);
-            time = System.nanoTime();
+            long time = System.nanoTime();
             gs.solve();
             time = System.nanoTime() - time;
-            postsolve = gs.soln.computeComparison(s.trueModel);
-            rval[6] = (double)time / 1000000000.0;
-            rval[7] = 2.0 * (double)postsolve[0] / (double)(2 * postsolve[0] + postsolve[1] + postsolve[2]);
-            rval[8] = gs.getMatrix().getRowCount();
-            rval[9] = gs.getMatrix().getColumnCount();
-            if(Math.abs(rval[7] - rval[2]) > 0.005) {
+            int[] presolve = s.probModel.computeComparison(s.trueModel);
+            int []postsolve = gs.soln.computeComparison(s.trueModel);
+            rval[0] = (double)time / 1000000000.0;
+            rval[1] = 2.0 * (double)presolve[0] / (double)(2 * presolve[0] + presolve[1] + presolve[2]);
+            rval[2] = 2.0 * (double)postsolve[0] / (double)(2 * postsolve[0] + postsolve[1] + postsolve[2]);
+            rval[3] = gs.getMatrix().getRowCount();
+            rval[4] = gs.getMatrix().getColumnCount();
+            rval[5] = presolve[0];
+            rval[6] = presolve[1];
+            rval[7] = presolve[2];
+            rval[8] = postsolve[0];
+            rval[9] = postsolve[1];
+            rval[10] = postsolve[2];
+            /*if(Math.abs(rval[7] - rval[2]) > 0.005) {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("disagreement.model"));
                 oos.writeObject(s.probModel);
                 oos.close();

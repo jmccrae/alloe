@@ -19,7 +19,9 @@ import org.apache.lucene.queryParser.*;
  * @author John McCrae, National Institute of Informatics
  */
 public class Corpus implements Serializable {
-
+    
+    private static final long serialVersionUID = 2162153049062891242L;
+    
     private transient IndexWriter indexWriter;
     private transient IndexSearcher indexSearcher;
     public TermList terms;
@@ -31,25 +33,30 @@ public class Corpus implements Serializable {
     private int docsSketched;
     private HashMap<String, Integer> sketchSize;
     private HashSet<String> sketchComplete;
-
+    
     /** Creates a new instance of Corpus */
     public Corpus(TermList terms, String indexFile) {
         this(terms, new File(indexFile));
     }
-
+    
     public Corpus(TermList terms, File indexFile) {
         this.terms = terms;
         this.indexFile = indexFile;
         termHits = new HashMap<String, TreeSet<Integer>>(terms.size());
     }
-
+    
+    private Corpus(TermList terms) {
+        this.terms = terms;
+        termHits = new HashMap<String, TreeSet<Integer>>(terms.size());
+    }
+    
     /** Opens the corpus so that new documents can be added
      * @param newIndex If true any index on existing path will be removed
      */
     public void openIndex(boolean newIndex) throws IOException {
         indexWriter = new IndexWriter(indexFile, new AlloeAnalyzer(), newIndex);
     }
-
+    
     /** Add a new document to corpus
      * @param contents The text of the new document
      * @throws IllegalStateException if {@link #openIndex()} has not been called
@@ -64,31 +71,31 @@ public class Corpus implements Serializable {
         Iterator<String> termIter = terms.iterator();
         while (termIter.hasNext()) {
             String term = termIter.next();
-
+            
             if (contents.matches(".*\\b" + term.toLowerCase() + "\\b.*")) {
                 d.add(new Field("term", term.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
             }
         }
         indexWriter.addDocument(d);
     }
-
+    
     /** Close the corpus, after which no more documents can be added */
     public void closeIndex() throws IOException {
         indexWriter.optimize();
         Directory d = indexWriter.getDirectory();
         indexWriter.close();
-
+        
         Iterator<Map.Entry<String, Integer>> sketchIter = sketchSize.entrySet().iterator();
         while (sketchIter.hasNext()) {
             if (!sketchComplete.contains(sketchIter.next().getKey())) {
                 sketchIter.remove();
             }
         }
-
+        
         indexSearcher = new IndexSearcher(d);
         indexWriter = null;
     }
-
+    
     private HitsIterator queryTerm(String term) {
         TreeSet<Integer> h = termHits.get(term);
         if (h == null) {
@@ -110,7 +117,7 @@ public class Corpus implements Serializable {
             return new HitsIterator(h);
         }
     }
-
+    
     private HitsIterator queryTerms(String term1, String term2) {
         TreeSet<Integer> h1 = queryTerm(term1).hits;
         TreeSet<Integer> h2 = queryTerm(term2).hits;
@@ -118,7 +125,7 @@ public class Corpus implements Serializable {
         hr.retainAll(h2);
         return new HitsIterator(hr);
     }
-
+    
     /** Return the occurences of a particular string */
     public int getHitsForTerm(String term) {
         if (!sketchComplete.contains(term.toLowerCase())) {
@@ -126,12 +133,12 @@ public class Corpus implements Serializable {
         } else
             return (int)((long)queryTerm(term).hits.size() * (long)trueContextNumber / (long)sketchSize.get(term.toLowerCase()));
     }
-
+    
     /** Get all contexts containing term1 and term2 */
     public Iterator<String> getContextsForTerms(String term1, String term2) {
         return queryTerms(term1, term2);
     }
-
+    
     /** Get all contexts which match the pattern p */
     public Iterator<String> getContextsForPattern(nii.alloe.corpus.pattern.Pattern p) {
         try {
@@ -145,17 +152,17 @@ public class Corpus implements Serializable {
             return null;
         }
     }
-
+    
     /** Get all the contexts matching pattern with term1 and term inserted */
     public Iterator<String> getContextsForTermInPattern(nii.alloe.corpus.pattern.Pattern p, String term1, String term2) {
         try {
             String[] queries = {cleanQuery2(p.getQueryWithTerms(term1, term2)),
-                "\"" + cleanQuery(term1) + "\" AND \"" + cleanQuery(term2) + "\""
+            "\"" + cleanQuery(term1) + "\" AND \"" + cleanQuery(term2) + "\""
             };
             String[] fields = {"contents", "terms"};
             MultiFieldQueryParser qp = new MultiFieldQueryParser(fields, new AlloeAnalyzer());
             Query q = MultiFieldQueryParser.parse(queries, fields, new AlloeAnalyzer());
-
+            
             HitsIterator hi = new HitsIterator();
             indexSearcher.search(q, hi);
             return hi;
@@ -164,7 +171,7 @@ public class Corpus implements Serializable {
             return null;
         }
     }
-
+    
     /** Call this if you want to check every term pair with a pattern. This first
      * initializes the query and then call {@link #getContextsForTermPrepared}.
      * @return The prepared query data
@@ -181,7 +188,7 @@ public class Corpus implements Serializable {
             return null;
         }
     }
-
+    
     /** Find the number of hits found by a prepared query
      * @param query The query object as returned from prepareQueryPattern
      */
@@ -191,7 +198,7 @@ public class Corpus implements Serializable {
         }
         return ((PreparedQuery) query).preparedHits.size();
     }
-
+    
     /** Get the string iterator for a prepared query
      * @param query The query object as returned from prepareQueryPattern
      */
@@ -201,7 +208,7 @@ public class Corpus implements Serializable {
         }
         return new HitsIterator(((PreparedQuery) query).preparedHits);
     }
-
+    
     /** Find term pairs on a prepared query. = getContextsForTermPrepared(term1,term2,query,true)
      * @see #preparedQueryPattern
      * @param query The query object as returned from prepareQueryPattern
@@ -209,7 +216,7 @@ public class Corpus implements Serializable {
     public Iterator<String> getContextsForTermPrepared(String term1, String term2, Object query) {
         return getContextsForTermPrepared(term1, term2, query, true);
     }
-
+    
     /** Find term pairs on a prepared query.
      *
      * @see #preparedQueryPattern
@@ -219,7 +226,7 @@ public class Corpus implements Serializable {
         if (!(query instanceof PreparedQuery)) {
             throw new IllegalArgumentException("query passed to getContextsForTermPrepared not valid");
         }
-
+        
         if ((termHits.get(term1) == null || termHits.get(term2) == null) && !cache) {
             try {
                 QueryParser qp = new QueryParser("term", new AlloeAnalyzer());
@@ -240,11 +247,11 @@ public class Corpus implements Serializable {
     }
     private transient HashSet<String> singleTermsInCorpus;
     private transient HashSet<TermPair> termPairsInCorpus;
-
+    
     public void initTermsInCorpusCache() {
         HashSet<String> tempSingleTermsInCorpus = new HashSet<String>();
         HashSet<TermPair> tempTermPairsInCorpus = new HashSet<TermPair>();
-
+        
         Iterator<String> termIter1 = terms.iterator();
         while (termIter1.hasNext()) {
             String term1 = termIter1.next();
@@ -258,22 +265,22 @@ public class Corpus implements Serializable {
             Iterator<String> termIter2 = tempSingleTermsInCorpus.iterator();
             while (termIter2.hasNext()) {
                 String term2 = termIter2.next();
-
+                
                 if (areTermsInCorpus(term1, term2)) {
                     tempTermPairsInCorpus.add(new TermPair(term1, term2));
                 }
             }
-
+            
         }
         singleTermsInCorpus = tempSingleTermsInCorpus;
         termPairsInCorpus = tempTermPairsInCorpus;
     }
-
+    
     public void clearTermsInCorpusCache() {
         singleTermsInCorpus = null;
         termPairsInCorpus = null;
     }
-
+    
     /** @return true if term1 occurs in the corpus */
     public boolean isTermInCorpus(String term1) {
         if (singleTermsInCorpus == null) {
@@ -283,7 +290,7 @@ public class Corpus implements Serializable {
             return singleTermsInCorpus.contains(term1);
         }
     }
-
+    
     /** @return true if term1 and term2 occur in the same document in the corpus */
     public boolean areTermsInCorpus(String term1, String term2) {
         if (termPairsInCorpus == null) {
@@ -293,15 +300,15 @@ public class Corpus implements Serializable {
             return termPairsInCorpus.contains(new TermPair(term1, term2));
         }
     }
-
+    
     public class TermPair implements Comparable<TermPair> {
-
+        
         public TermPair(String term1, String term2) {
             this.term1 = term1;
             this.term2 = term2;
         }
         public String term1,  term2;
-
+        
         public int compareTo(Corpus.TermPair o) {
             int rval = term1.compareTo(o.term1);
             if (rval == 0) {
@@ -310,14 +317,14 @@ public class Corpus implements Serializable {
                 return rval;
             }
         }
-
+        
         public boolean equals(Object obj) {
             if (obj instanceof TermPair) {
                 return compareTo((TermPair) obj) == 0;
             }
             return false;
         }
-
+        
         public int hashCode() {
             int hash = 7;
             hash = 67 * hash + (this.term1 != null ? this.term1.hashCode() : 0);
@@ -325,7 +332,7 @@ public class Corpus implements Serializable {
             return hash;
         }
     }
-
+    
     public Iterator<TermPair> getTermsInCorpus() {
         if (termPairsInCorpus != null) {
             return termPairsInCorpus.iterator();
@@ -333,14 +340,14 @@ public class Corpus implements Serializable {
             throw new IllegalStateException();
         }
     }
-
+    
     /** Put to lower case and bs all reserved terms */
     public static String cleanQuery(String s) {
         s = s.toLowerCase();
         s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\]|\\|\\||\\&\\&)", "\\\\$1");
         return s;
     }
-
+    
     private String cleanQuery2(String s) {
         s = s.toLowerCase();
         s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\\\*]|\\|\\||\\&\\&)", "\\\\$1");
@@ -349,7 +356,7 @@ public class Corpus implements Serializable {
         s = s.replaceAll("\\s+", " AND ");
         return s;
     }
-
+    
     /** @return number of documents in the corpus */
     public int size() {
         if (indexWriter != null) {
@@ -363,46 +370,88 @@ public class Corpus implements Serializable {
             }
         }
     }
-
+    
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         // We need to restore indexSearcher after loading
         indexSearcher = new IndexSearcher(indexFile.getAbsolutePath());
         termHits = new HashMap<String, TreeSet<Integer>>();
     }
-
+    
     public Directory getDirectory() {
         return directory;
     }
-
+    
+    /** Takes an existing corpus and applies sketching to it to reduce it
+     * @param sketchSize The maximum size of a sketch
+     * @param newCorpusDirectory Location of the new corpus root
+     * @return The new corpus
+     */
+    public Corpus sketchCorpus(int sketchSize, String newCorpusDirectory) throws IOException {
+        TreeSet<Integer> sketches = new TreeSet<Integer>();
+        Corpus corpus = new Corpus(terms,newCorpusDirectory);
+        System.out.println("Sketching");
+        for(String term : terms) {
+            System.out.println(term);
+            HitsIterator hi = queryTerm(term);
+            int i = 0;
+            for(Integer hit : hi.hits) {
+                if(i < sketchSize) {
+                    i++;
+                    sketches.add(hit);
+                } else {
+                    if(corpus.sketchSize == null)
+                        corpus.sketchSize = new HashMap<String,Integer>();
+                    corpus.sketchSize.put(term,hit);
+                    break;
+                }
+            }
+        }
+        System.out.println("Reindexing");
+        corpus.openIndex(true);
+        TreeMap<Integer,Integer> sketchTranslator = new TreeMap<Integer,Integer>();
+        int i = 0;
+        for(Integer sketch : sketches) {
+            corpus.addDoc(indexSearcher.doc(sketch).get("contents"));
+            sketchTranslator.put(sketch,i++);
+        }
+        corpus.closeIndex();
+        corpus.sketchComplete = new HashSet<String>();
+        for(String term : corpus.sketchSize.keySet()) {
+            corpus.sketchComplete.add(term);
+            corpus.sketchSize.put(term,sketchTranslator.get(corpus.sketchSize.get(term)));
+        }
+        return corpus;
+    }
+    
     class HitsIterator extends HitCollector implements Iterator<String> {
-
+        
         TreeSet<Integer> hits;
         Iterator<Integer> i;
         int limit;
-
+        
         HitsIterator() {
             hits = new TreeSet<Integer>();
             i = null;
             limit = Integer.MAX_VALUE;
         }
-
+        
         HitsIterator(TreeSet<Integer> hits) {
             this.hits = hits;
             i = null;
         }
-
+        
         public void collect(int doc, float score) {
             if (doc < limit) {
                 ;
             }
             hits.add(doc);
         }
-
+        
         public void remove() {
             throw new UnsupportedOperationException();
         }
-
+        
         public String next() {
             if (i == null) {
                 i = hits.iterator();
@@ -416,7 +465,7 @@ public class Corpus implements Serializable {
                 throw new RuntimeException("An IO Exception occurred");
             }
         }
-
+        
         public boolean hasNext() {
             if (i == null) {
                 i = hits.iterator();
@@ -424,19 +473,19 @@ public class Corpus implements Serializable {
             return i.hasNext();
         }
     }
-
+    
     private class PreparedQuery extends HitsIterator {
-
+        
         private TreeSet<Integer> preparedHits;
         boolean preparing;
-
+        
         PreparedQuery() {
             super();
             preparedHits = new TreeSet<Integer>();
             hits = new TreeSet<Integer>();
             preparing = true;
         }
-
+        
         public void collect(int doc, float score) {
             if (preparing) {
                 preparedHits.add(doc);
@@ -446,7 +495,7 @@ public class Corpus implements Serializable {
                 }
             }
         }
-
+        
         public PreparedQuery preparedCopy() {
             PreparedQuery pq = new PreparedQuery();
             pq.preparedHits = this.preparedHits;
@@ -454,21 +503,21 @@ public class Corpus implements Serializable {
             return pq;
         }
     }
-
+    
     /**
      * The maximum size of a sketch
      */
     public int getMaxSketchSize() {
         return maxSketchSize;
     }
-
+    
     /**
      * Set the maximum sketch size (-1 for no sketching)
      */
     public void setMaxSketchSize(int maxSketchSize) {
         this.maxSketchSize = maxSketchSize;
     }
-
+    
     /**
      * If sketching was used for the corpus this will give the true number of occurences of this
      * cooccurrence value
@@ -486,7 +535,7 @@ public class Corpus implements Serializable {
             return (int)((long)trueContextNumber * (long)cooccs / (long)Math.min(sketch1,sketch2));
         }
     }
-
+    
     private void updateSketches(Vector<String> contexts, HashSet<String> terms, double progress) {
         Iterator<String> termIter = terms.iterator();
         docsSketched += contexts.size();
@@ -514,7 +563,7 @@ public class Corpus implements Serializable {
     }
     private transient java.util.regex.Pattern allTerms;
     private transient HashSet<String> isSubbed;
-
+    
     private void buildSubTerms() {
         HashMap<String, TreeSet<String>> wordAssoc = new HashMap<String, TreeSet<String>>();
         for (String term : terms) {
@@ -528,7 +577,7 @@ public class Corpus implements Serializable {
                 wa.add(term.toLowerCase());
             }
         }
-
+        
         isSubbed = new HashSet<String>();
         for (TreeSet<String> wa : wordAssoc.values()) {
             if (wa.size() == 1) {
@@ -546,7 +595,7 @@ public class Corpus implements Serializable {
             }
         }
     }
-
+    
     // TODO: Fix for subterms
     private void compileAllTerms() {
         buildSubTerms();
@@ -561,7 +610,7 @@ public class Corpus implements Serializable {
         allTerms = java.util.regex.Pattern.compile(regex);
         isSubbed = null;
     }
-
+    
     /** Returns only those areas in a fixed window of a particular term
      * @param progress For use with CorpusLoader really... important for sketching
      */
@@ -584,22 +633,22 @@ public class Corpus implements Serializable {
         while (matcher.find(idx)) {
             String term = matcher.group(1);
             idx = matcher.start(1);
-
+            
             if (sketchComplete.contains(term)) {
                 idx = matcher.end(1);
                 continue;
             }
             termsFound.add(term);
-
+            
             int before = findNWordsBeforeAfter(true, doc, idx, wordWindow);
             int after = findNWordsBeforeAfter(false, doc, idx + term.length(), wordWindow);
             boolean beforeFound = false, afterFound = false;
-
+            
             Iterator<Integer> bIter = bounds.iterator();
             while (bIter.hasNext()) {
                 int oldBefore = bIter.next();
                 int oldAfter = bIter.next();
-
+                
                 if (!beforeFound && oldBefore < before && before <= oldAfter) {
                     before = oldBefore;
                     beforeFound = true;
@@ -624,23 +673,23 @@ public class Corpus implements Serializable {
         while (bIter.hasNext()) {
             int before = bIter.next();
             int after = bIter.next();
-
+            
             rval.add(doc.substring(before, after));
         }
-
+        
         if (maxSketchSize > 0) {
             updateSketches(rval, termsFound, progress);
         }
-
+        
         return rval;
     }
     /** The maximum number of non-word characters to count as a single window */
     private static final String nonWordMax = nii.alloe.corpus.pattern.Pattern.nonWord + "{10,}";
-
+    
     private int findNWordsBeforeAfter(boolean before, String doc, int idx, int window) {
         String regex;
-
-
+        
+        
         if (before) {
             regex = ".*?(";
         } else // after
@@ -663,7 +712,7 @@ public class Corpus implements Serializable {
         {
             doc2 = doc.substring(idx, doc.length());
         }
-
+        
         int offSet = 0;
         // Check for really long whitespace sections
         if (doc2.matches(".*" + nonWordMax + ".*")) {
@@ -699,7 +748,7 @@ public class Corpus implements Serializable {
             }
         }
     }
-
+    
     public int getTotalDocs() {
         try {
             return indexSearcher.maxDoc();
