@@ -101,8 +101,8 @@ public class Simulate {
         Random rand = new Random();
         
         for(int i = 0; i < n * n; i++) {
-            if(i % n == i / n)
-                continue;
+            //if(i % n == i / n)
+            //    continue;
             if(g.isConnected(i / n, i % n)) {
                 rval.setPosVal(i/n,i%n,ntr_normal.cdf(pos_normal.nextDouble()));
                 if(rval.isConnected(i/n,i%n)) {

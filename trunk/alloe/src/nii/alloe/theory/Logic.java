@@ -231,6 +231,10 @@ public class Logic {
                 return rule.isRuleSatisfied(m);
         }
         Graph g = m.graphs.get(rule.relations.get(argument));
+        if(g == null) {
+            System.err.println(rule.toString());
+            System.err.println(argument);
+        }
         boolean rval = true;
         
         if(checker.mustConnect(argument, rule)) {
