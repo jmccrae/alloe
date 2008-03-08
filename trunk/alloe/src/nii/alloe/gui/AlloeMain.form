@@ -299,9 +299,7 @@
                               <Component id="corpusDisplayScroll" alignment="0" pref="456" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="openIndexedCorpus" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="saveIndexedCorpus" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="129" max="-2" attributes="0"/>
                                   <Component id="corpusTotalLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -315,7 +313,6 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="openIndexedCorpus" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="saveIndexedCorpus" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="corpusTotalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -332,15 +329,6 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openIndexedCorpusActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="saveIndexedCorpus">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Save Corpus"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="saveIndexedCorpusActionPerformed"/>
                   </Events>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="corpusDisplayScroll">

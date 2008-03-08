@@ -30,6 +30,8 @@ public class PseudoFMMetric implements PatternMetric {
     public double scorePattern(Pattern pattern) {
         System.out.println(pattern.toString());
         Object query = corpus.prepareQueryPattern(pattern);
+        if(query == null)
+            return 0.0;
         SPSearch sps = new SPSearch(pattern, query);
         termPairs.forEachPair(sps);
 
