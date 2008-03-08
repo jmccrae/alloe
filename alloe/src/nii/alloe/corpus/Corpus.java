@@ -18,21 +18,18 @@ import org.apache.lucene.queryParser.*;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class Corpus implements Serializable {
-    
-    private static final long serialVersionUID = 2162153049062891242L;
-    
+public class Corpus {
     private transient IndexWriter indexWriter;
     private transient IndexSearcher indexSearcher;
     public TermList terms;
-    private transient Directory directory;
     private File indexFile;
+    private transient Directory directory;
     private transient HashMap<String, TreeSet<Integer>> termHits;
-    private int trueContextNumber;
-    private int maxSketchSize;
-    private int docsSketched;
-    private HashMap<String, Integer> sketchSize;
-    private HashSet<String> sketchComplete;
+    int trueContextNumber;
+    int maxSketchSize;
+    int docsSketched;
+    HashMap<String, Integer> sketchSize;
+    HashSet<String> sketchComplete;
     
     /** Creates a new instance of Corpus */
     public Corpus(TermList terms, String indexFile) {
@@ -79,7 +76,7 @@ public class Corpus implements Serializable {
         indexWriter.addDocument(d);
     }
     
-    /** Close the corpus, after which no more documents can be added */
+    /** Close the corpus, after which no more documents can be added. Also commits the corpus to disk */
     public void closeIndex() throws IOException {
         indexWriter.optimize();
         Directory d = indexWriter.getDirectory();
@@ -94,6 +91,9 @@ public class Corpus implements Serializable {
         
         indexSearcher = new IndexSearcher(d);
         indexWriter = null;
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile.getAbsolutePath() + "/info"));
+        oos.writeObject(new CorpusSave(this));
+        oos.close();
     }
     
     private HitsIterator queryTerm(String term) {
@@ -371,11 +371,34 @@ public class Corpus implements Serializable {
         }
     }
     
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+   /* private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         // We need to restore indexSearcher after loading
         indexSearcher = new IndexSearcher(indexFile.getAbsolutePath());
         termHits = new HashMap<String, TreeSet<Integer>>();
+    }*/
+    
+    /** Open the corpus.
+     * @param file A directory containing all the files for this corpus
+     * @return The corpus object */
+    public static Corpus openCorpus(File file) throws IOException {
+        try {
+            if(!file.isDirectory())
+                throw new IOException("Passed corpus file is not a directory!");
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file.getAbsolutePath() + "/info"));
+            CorpusSave cs = (CorpusSave)ois.readObject();
+            ois.close();
+            Corpus c = new Corpus(cs.terms, file);
+            c.indexSearcher = new IndexSearcher(file.getAbsolutePath());
+            c.docsSketched = cs.docsSketched;
+            c.maxSketchSize = cs.maxSketchSize;
+            c.sketchComplete = cs.sketchComplete;
+            c.sketchSize = cs.sketchSize;
+            c.trueContextNumber = cs.trueContextNumber;
+            return c;
+        } catch(ClassNotFoundException x) {
+            throw new IOException("Sketch information file exists in corpus directory but is not valid");
+        }
     }
     
     public Directory getDirectory() {
@@ -756,5 +779,24 @@ public class Corpus implements Serializable {
             x.printStackTrace();
             return -1;
         }
+    }
+}
+
+/** A class containing all data to be serialized */
+class CorpusSave implements Serializable {
+    public TermList terms;
+    int trueContextNumber;
+    int maxSketchSize;
+    int docsSketched;
+    HashMap<String, Integer> sketchSize;
+    HashSet<String> sketchComplete;
+    
+    CorpusSave(Corpus corpus) {
+        terms = corpus.terms;
+        trueContextNumber = corpus.trueContextNumber;
+        maxSketchSize = corpus.maxSketchSize;
+        docsSketched = corpus.docsSketched;
+        sketchSize = corpus.sketchSize;
+        sketchComplete = corpus.sketchComplete;
     }
 }

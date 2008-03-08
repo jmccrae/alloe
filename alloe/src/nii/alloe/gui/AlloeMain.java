@@ -106,7 +106,6 @@ public class AlloeMain extends javax.swing.JFrame {
         sketchSizeSpinner = new javax.swing.JSpinner();
         jPanel5 = new javax.swing.JPanel();
         openIndexedCorpus = new javax.swing.JButton();
-        saveIndexedCorpus = new javax.swing.JButton();
         corpusDisplayScroll = new javax.swing.JScrollPane();
         corpusDisplay = new javax.swing.JTable();
         corpusTotalLabel = new javax.swing.JLabel();
@@ -345,14 +344,6 @@ public class AlloeMain extends javax.swing.JFrame {
             }
         });
 
-        saveIndexedCorpus.setText("Save Corpus");
-        saveIndexedCorpus.setEnabled(false);
-        saveIndexedCorpus.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveIndexedCorpusActionPerformed(evt);
-            }
-        });
-
         corpusDisplay.setAutoCreateRowSorter(true);
         corpusDisplay.setModel(getCorpusDisplayTableModel());
         corpusDisplayScroll.setViewportView(corpusDisplay);
@@ -369,9 +360,7 @@ public class AlloeMain extends javax.swing.JFrame {
                     .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(openIndexedCorpus)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(saveIndexedCorpus)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(129, 129, 129)
                         .addComponent(corpusTotalLabel)))
                 .addContainerGap())
         );
@@ -381,7 +370,6 @@ public class AlloeMain extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(openIndexedCorpus)
-                    .addComponent(saveIndexedCorpus)
                     .addComponent(corpusTotalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(corpusDisplayScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
@@ -2243,18 +2231,6 @@ public class AlloeMain extends javax.swing.JFrame {
         
     }//GEN-LAST:event_patternGeneratorRelationshipActionPerformed
     
-    private void saveIndexedCorpusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveIndexedCorpusActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            try {
-                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
-                oos.writeObject(corpus);
-                oos.close();
-            } catch(IOException x) {
-                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save corpus", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }//GEN-LAST:event_saveIndexedCorpusActionPerformed
-    
     private void setIndexButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setIndexButtonActionPerformed
         int oldFMS = fileChooser.getFileSelectionMode();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -2341,25 +2317,24 @@ public class AlloeMain extends javax.swing.JFrame {
         corpusTotalLabel.setText("Total Contexts: " + corpus.getTotalDocs());
         corpusDisplayTableModel.fireTableDataChanged();
         corpusDisplay.revalidate();
-        saveIndexedCorpus.setEnabled(true);
         dataSet = new DataSet(corpus.terms);
     }
     
     private void openIndexedCorpusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openIndexedCorpusActionPerformed
         try {
-            if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
-                return;
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
-            Object o = ois.readObject();
-            if(!(o instanceof Corpus)) {
-                JOptionPane.showMessageDialog(this, "Invalid Format", "Could not load corpus", JOptionPane.ERROR_MESSAGE);
+            int oldFMS = fileChooser.getFileSelectionMode();
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+                fileChooser.setFileSelectionMode(oldFMS);
+                fileChooser.setAcceptAllFileFilterUsed(true);
                 return;
             }
-            corpus = (Corpus)o;
+            fileChooser.setFileSelectionMode(oldFMS);
+            fileChooser.setAcceptAllFileFilterUsed(true);
+            corpus = Corpus.openCorpus(fileChooser.getSelectedFile());
             onCorpusLoad();
         } catch(IOException x) {
-            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not load corpus", JOptionPane.ERROR_MESSAGE);
-        } catch(ClassNotFoundException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not load corpus", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_openIndexedCorpusActionPerformed
@@ -2496,7 +2471,6 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JLabel recallPreLabel;
     private javax.swing.JButton saveClassifierButton;
     private javax.swing.JButton saveDataSet;
-    private javax.swing.JButton saveIndexedCorpus;
     private javax.swing.JButton saveLogicButton;
     private javax.swing.JButton saveModel;
     private javax.swing.JButton savePatternSet;

@@ -28,8 +28,6 @@ public class MakeConsistent implements InconsistentAction {
         if(rule.isRuleSatisfied(m))
             return true;
         
-        System.out.println(rule.toString());
-        
         Random r = new Random();
         
         LinkedList<Integer> conclusions = getMutableConclusions(m,rule);

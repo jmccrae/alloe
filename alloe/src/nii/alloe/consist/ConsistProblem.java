@@ -353,7 +353,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         //    usedRules.add(r);
         //    return;
         //}
-        Output.out.println("Adding: " + r.toString());
+        //Output.out.println("Adding: " + r.toString());
         
         TreeSet<Integer> elems = columnForRule(r);
         

@@ -138,7 +138,7 @@ public class Simplex {
             }
             iterations++;
             
-            Output.out.println("Negatives: " + m.negativesInRow(solnRow));
+            //Output.out.println("Negatives: " + m.negativesInRow(solnRow));
             // Check for cycling
             for(int n = 1; n <= CYCLE_DEPTH; n++) {
                 if(isCycling(n)) {
