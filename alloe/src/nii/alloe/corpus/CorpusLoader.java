@@ -8,7 +8,7 @@ import java.io.*;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
+public class CorpusLoader extends AlloeProcessAdapter {
     /** The Corpus, when it is loaded */
     public Corpus corpus;
     /** The set of terms */
@@ -33,62 +33,31 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
         maxSketchSize = -1;
     }
     
-    /** Register a progress listener */
-    public void addProgressListener(AlloeProgressListener apl) {
-        if(!listeners.contains(apl))
-            listeners.add(apl);
-    }
-    
-    /** Start process. It is expected that this function should start the progress
-     * in a new thread */
-    public void start() {
-        corpus = new Corpus(terms,indexFile);
-        corpus.setMaxSketchSize(getMaxSketchSize());
-        try {
-            corpus.openIndex(true);
-            state = STATE_OK;
-            theThread = new Thread(this);
-            theThread.start();
-        } catch(IOException x) {
-            throw new RuntimeException("File Not Found or other disk error");
-        }
-    }
-    
-    /** Pause the process. The assumption is that this will work by changing a variable
-     * in the running thread and then wait for this thread to finish by use of join().
-     * It then returns an object (generally this), which is Serializable and can be written
-     * to a file.
-     *
-     * @throws CannotPauseException If the process is not in a state where it can be resumed
-     */
     public void pause() throws CannotPauseException {
-        state = STATE_STOPPING;
         try {
-            theThread.join();
-        } catch(InterruptedException x) {
-            throw new CannotPauseException("The running thread was interrupted");
+            super.pause();
+            corpus.closeIndex();
+        } catch(IOException x) {
+            throw new CannotPauseException(x.getMessage());
         }
     }
-    
+        
     /** Resume the process. */
     public void resume() {
         try {
             corpus.openIndex(false);
-            state = STATE_OK;
-            theThread = new Thread(this);
-            theThread.start();
+            super.resume();
         } catch(IOException x) {
-            throw new RuntimeException("File not found or other disk error");
+            throw new RuntimeException(x.getMessage());
         }
-    }
-    
-    private void readObject(ObjectInputStream ois)  throws IOException, ClassNotFoundException {
-        ois.defaultReadObject();
-        listeners = new LinkedList<AlloeProgressListener>();
     }
     
     public void run() {
         try {
+            corpus = new Corpus(terms,indexFile);
+            corpus.setMaxSketchSize(getMaxSketchSize());
+            corpus.openIndex(true);
+            
             String s = corpusFile.getNextLine();
             while(s != null && state == STATE_OK) {
               
@@ -114,20 +83,6 @@ public class CorpusLoader implements AlloeProcess, Runnable, Serializable {
     }
     
    
-    
-    private void fireNewProgressChange(double newProgress) {
-        Iterator<AlloeProgressListener> apliter = listeners.iterator();
-        while(apliter.hasNext()) {
-            apliter.next().progressChange(newProgress);
-        }
-    }
-    
-    private void fireFinished() {
-        Iterator<AlloeProgressListener> apliter = listeners.iterator();
-        while(apliter.hasNext()) {
-            apliter.next().finished();
-        }
-    }
     
     public String getStateMessage() { return "Indexing corpus: "; }
 
