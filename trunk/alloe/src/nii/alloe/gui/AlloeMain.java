@@ -55,8 +55,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private Model standardModel;
     private Model solvedModel;
     private HashMap<String, String> standardModelTermPairs;
-    
-    //private AlloeMain thisForAnon;
+    private PatternAdvancedDialog patternAdvancedDialog;
     
     /** Creates new form AlloeMain */
     public AlloeMain() {
@@ -1378,9 +1377,11 @@ public class AlloeMain extends javax.swing.JFrame {
     }//GEN-LAST:event_useLazyMatchingActionPerformed
     
     private void patternAdvancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternAdvancedActionPerformed
-        PatternAdvancedDialog pad = new PatternAdvancedDialog(this,true);
-        pad.setPatternBuilder(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
-        pad.setVisible(true);
+        if(patternAdvancedDialog == null)
+            patternAdvancedDialog = new PatternAdvancedDialog(this,true);
+        patternAdvancedDialog.setPatternBuilder(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
+        patternAdvancedDialog.setPatternSet(patternSets.get(patternViewerRelationship.getSelectedItem().toString()));
+        patternAdvancedDialog.setVisible(true);
     }//GEN-LAST:event_patternAdvancedActionPerformed
     
     private void useStandardSolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useStandardSolverActionPerformed
@@ -2080,6 +2081,7 @@ public class AlloeMain extends javax.swing.JFrame {
         }
         String [] s = { "Pattern", "Score" };
         dtm.setDataVector(o,s);
+        
     }
     
     private class PatternGeneratorListener implements PatternBuilderListener {

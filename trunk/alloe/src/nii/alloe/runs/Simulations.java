@@ -35,7 +35,7 @@ public class Simulations {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("results-" + args[1]));
             bw.write("connect,time_complete,fm_pre,fm_post_complete,rows,cols,cm1,cm2,cm3,cm4,cm5,cm6\n");
-            for(int n = 50; n < 4000; n += 50) {
+            for(int n = Integer.parseInt(args[2]); n < 4000; n += 50) {
                 double[] res = new double[VEC];
                 for(int i = 0; i < 1; i++) {
                     double[] res2 = doRun(.8,.8,n,args[0],-.8,.15);
