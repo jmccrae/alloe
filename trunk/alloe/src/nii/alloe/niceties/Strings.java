@@ -123,4 +123,13 @@ public class Strings {
     public static String quoteMeta(String s) {
         return s.replaceAll("([\\.\\[\\]\\^\\$\\|\\?\\(\\)\\\\\\+\\{\\}\\*])","\\\\$1");
     }
+    
+    /** Create a new string by repeating s n-times */
+    public static String repString(String s, int n) {
+        String rval = "";
+        for(int i = 0; i < n; i++) {
+            rval = rval + s;
+        }
+        return rval;
+    }
 }
