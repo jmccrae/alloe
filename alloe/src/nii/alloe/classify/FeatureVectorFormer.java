@@ -78,6 +78,8 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
         while (patIter.hasNext() && state == STATE_OK) {
             Pattern p = patIter.next();
             Object query = corpus.prepareQueryPattern(p);
+            if(query == null)
+                continue;
             /*Iterator<Corpus.TermPair>*/ termIter = corpus.getTermsInCorpus();
             /*Corpus.TermPair tp;*/
             while (termIter.hasNext() && state == STATE_OK) {
@@ -104,7 +106,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                     value = corpus.getTrueCooccurences(term1,term2,(int)value);
                     SparseInstance inst = instances.get(term1 + glue + term2);
                     if (inst == null) {
-                        instances.put(term1 + glue + term2, inst = new SparseInstance(10, new double[patterns.size() + 1]));
+                        instances.put(term1 + glue + term2, inst = new SparseInstance(1.0, new double[patterns.size() + 1]));
                     }
                     inst.setValue(i, value / corpusSize);
                 }

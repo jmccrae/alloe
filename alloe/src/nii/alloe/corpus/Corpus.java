@@ -389,7 +389,7 @@ public class Corpus {
             CorpusSave cs = (CorpusSave)ois.readObject();
             ois.close();
             Corpus c = new Corpus(cs.terms, file);
-            c.indexSearcher = new IndexSearcher(file.getAbsolutePath());
+            c.indexSearcher = new IndexSearcher(new RAMDirectory(file));
             c.docsSketched = cs.docsSketched;
             c.maxSketchSize = cs.maxSketchSize;
             c.sketchComplete = cs.sketchComplete;
