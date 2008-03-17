@@ -10,7 +10,6 @@ package nii.alloe.consist;
 import junit.framework.*;
 import java.util.*;
 import nii.alloe.theory.*;
-import nii.alloe.niceties.*;
 import java.io.*;
 
 /**
