@@ -10,7 +10,7 @@ package nii.alloe.termvar;
 import junit.framework.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.*;
-import nii.alloe.niceties.Strings;
+import nii.alloe.niceties.*;
 
 /**
  *
@@ -34,12 +34,12 @@ public class FindMatchingsTest extends TestCase {
     public void testFindMatchings() {
         System.out.println("findMatchings");
         
-        String string1 = "romania";
-        String string2 = "republic of romania";
+        StringList string1 = new StringList("te");
+        StringList string2 = new StringList("cid");
         FindMatchings instance = new FindMatchings();
         
         
-        Vector<String[]> result = instance.findMatchings(string1, string2);
+        Vector<String[]> result = instance.findMatchingsAsStrings(string1, string2);
         for(String[] ss : result) {
             System.out.println(ss[0]);
             System.out.println(ss[1]);
