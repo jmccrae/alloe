@@ -27,6 +27,8 @@ import java.io.*;
  * @author John McCrae, National Institute of Informatics
  */
 public class DataSet implements Serializable {
+    static final long serialVersionUID = 289061548026090707l;
+    
     public Map<String,Instances> instances;
     private Set<String> trainingSets;
     Map<String,Vector<String>> terms;
@@ -43,6 +45,8 @@ public class DataSet implements Serializable {
         termSet = termList;
         trainingSets = new HashSet<String>();
     }
+    
+    public Vector<String> getTerms(String relation) { return terms.get(relation); }
     
     /**
      * Add a new relation with a given set of attributes

@@ -33,12 +33,12 @@ public class GreedySat {
     private Model candidate;
     private GreedySatSet greedySats;
     
-    public void solve() {
+    public boolean solve() {
         candidate = probModel.createSpecificCopy();
         cost = 0;
         buildInitialSet(probModel);
         while(!greedySats.isEmpty()) {
-            System.out.println(greedySats.toString());
+            //System.out.println(greedySats.toString());
             int maxID = findCheapest();
             if(maxID == -1) {
                 buildInitialSet(candidate);
@@ -50,7 +50,7 @@ public class GreedySat {
                     System.out.println(candidate.toString());
                     System.out.println(greedySats.toString());
                     System.out.println("FAIL");
-                    System.exit(-1);
+                    return false;                    
                 }
             }
             cost += Math.abs(((ProbabilityGraph)probModel.getGraphByID(maxID)).addVal(probModel.iByID(maxID),probModel.jByID(maxID)));
@@ -72,6 +72,7 @@ public class GreedySat {
             }
         }
         soln = candidate;
+        return true;
     }
     
     private int findCheapest() {
@@ -138,6 +139,7 @@ public class GreedySat {
             Rule r = ruleIter.next();
             if(!r.isRuleSatisfied(candidate))
                 ruleIter.remove();
+            
         }
         return newRules;
     }
