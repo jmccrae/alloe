@@ -3,6 +3,8 @@ import java.util.*;
 import java.io.*;
 import cern.jet.random.*;
 import cern.jet.random.engine.*;
+import nii.alloe.consist.solvers.GreedySat;
+import nii.alloe.consist.GrowingSolver;
 import nii.alloe.theory.Graph;
 import nii.alloe.theory.Logic;
 import nii.alloe.theory.Model;
@@ -29,12 +31,20 @@ public class Simulate {
     
     
     public void createModels() {
-        trueModel = makeGraphs(l);
-        l.consistCheck(trueModel, new MakeConsistent());
+        GrowingSolver gs;
+        //do {
+            trueModel = makeGraphs(l);
+            //l.consistCheck(trueModel, new MakeConsistent());
+            Model gsModel = trueModel.createProbabilityCopy(.73,.27);
+            gs = new GrowingSolver(l,gsModel);
+            gs.setApproxSolve(true);
+        //} while(!gs.solve());
+            gs.solve();
+        trueModel = gs.soln;
         probModel = makeProbGraphs(trueModel);
     }
     
-      
+    
     private Model makeGraphs(Logic l) {
         Iterator<String> i = l.relationDensity.keySet().iterator();
         TreeMap<String, Graph> tig = new TreeMap<String, Graph>();
@@ -71,7 +81,7 @@ public class Simulate {
         return rval;
     }
     
-
+    
     
     
     //public void format_error(String problem) {
@@ -82,7 +92,7 @@ public class Simulate {
     //    System.err.println(" p: desired precision");
     //    System.err.println(" r: desired recall");
     //    System.err.println(" n: size of data set");
-     //   System.err.println(" logic_file: logic file");
+    //   System.err.println(" logic_file: logic file");
     //    System.exit(0);
     //}
     

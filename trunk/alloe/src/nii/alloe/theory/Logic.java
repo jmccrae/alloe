@@ -213,7 +213,9 @@ public class Logic {
             this.potentialResolvers = potentialResolvers;
         }
         public boolean doAction(Logic logic, Model m, Rule rule) {
-            potentialResolvers.add(rule.createCopy());
+            rule = Rule.simplify(rule.createCopy(),m);
+            if(rule != null)
+                potentialResolvers.add(rule);
             return true;
         }
     }

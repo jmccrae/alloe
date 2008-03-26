@@ -47,7 +47,11 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
     public void solve() {
         if(cp == null) {
             cp = new ConsistProblem(logic, probModel);
-            cs = new ConsistSolver();
+            if(approxSolve) {
+                cs = new ApproxConsistSolver();
+            } else {
+                cs = new ConsistSolver();
+            }
             candidate = probModel.createSpecificCopy();
             iteration = 1;
         }
@@ -116,5 +120,26 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
 
     public void progressChange(double newProgress) {
         fireNewProgressChange(newProgress);
+    }
+
+    /**
+     * Holds value of property approxSolve.
+     */
+    private boolean approxSolve = false;
+
+    /**
+     * Getter for property approxSolve.
+     * @return Value of property approxSolve.
+     */
+    public boolean isApproxSolve() {
+        return this.approxSolve;
+    }
+
+    /**
+     * Setter for property approxSolve.
+     * @param approxSolve New value of property approxSolve.
+     */
+    public void setApproxSolve(boolean approxSolve) {
+        this.approxSolve = approxSolve;
     }
 }

@@ -22,7 +22,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
      */
     public double cost;
     
-    private static Simplex simplex;
+    static Simplex simplex;
     
     static {
         simplex = new Simplex();
@@ -33,7 +33,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
         soln = new TreeSet<Integer>();
     }
     
-    private SparseMatrix matrix;
+    SparseMatrix matrix;
     
     /** Create a new instance. Please use this constructor if you plan to start the solver
      * as a process */
@@ -179,7 +179,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
     
     
     
-    private void fireNewProgressChange(double newProgress) {
+    protected void fireNewProgressChange(double newProgress) {
         if(aplListeners != null) {
             Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
             while(apliter.hasNext()) {
@@ -188,7 +188,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
         }
     }
     
-    private void fireFinished() {
+    protected void fireFinished() {
         if(aplListeners != null) {
             Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
             while(apliter.hasNext()) {

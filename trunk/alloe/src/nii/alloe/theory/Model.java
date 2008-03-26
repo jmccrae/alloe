@@ -143,6 +143,37 @@ public class Model extends AbstractSet<Integer> implements Serializable {
         return rval;
     }
     
+    /**
+     * Create a copy where all the specific graphs have been replaced by specific graphs with a certain value
+     */
+    public Model createProbabilityCopy(double posProb, double negProb) {
+        Iterator<String> pgiter = graphNameIterator();
+        Model rval = new Model(this);
+        while(pgiter.hasNext()) {
+            String str = pgiter.next();
+            Graph pg = graphs.get(str);
+            
+            if(pg instanceof SpecificGraph) {
+                ProbabilityGraph g = rval.addProbabilityGraph(str);
+                g.setBaseVal(negProb);
+                Iterator<Integer> i1 = pg.iterator(this.n);
+                while(i1.hasNext()) {
+                    int i2 = i1.next();
+                    int i = i2 / n;
+                    int j = i2 % n;
+                    if(pg.isConnected(i,j)) {
+                        g.setPosVal(i,j,posProb);
+                    }
+                }
+                rval.graphs.put(str,g);
+            } else {
+                rval.graphs.put(str,pg);
+            }
+        }
+        rval.compulsoryCount = this.compulsoryCount;
+        return rval;
+    }
+    
     public int getCompulsoryCount() {
         return compulsoryCount;
     }

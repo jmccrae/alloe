@@ -374,7 +374,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
                 if(newR != null && !isSubsumed(newR,r)) {
                     scoreRule(newR);
                     tempQueue.add(newR);
-                    Output.out.println(r.toString(probModel) + " + " + r2.toString(probModel) + " = " + newR.toString(probModel));
+                    //Output.out.println(r.toString(probModel) + " + " + r2.toString(probModel) + " = " + newR.toString(probModel));
                 }
             }
             if(r2.canResolveWith(r)) {
@@ -383,7 +383,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
                 if(newR != null && !isSubsumed(newR,r)) {
                     scoreRule(newR);
                     tempQueue.add(newR);
-                    Output.out.println(r.toString(probModel) + " + " + r2.toString(probModel) + " = " + newR.toString(probModel));
+                    //Output.out.println(r.toString(probModel) + " + " + r2.toString(probModel) + " = " + newR.toString(probModel));
                 }
             }
         }

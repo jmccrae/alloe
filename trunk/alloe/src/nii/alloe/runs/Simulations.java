@@ -32,6 +32,8 @@ public class Simulations {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        String []newArgs = { "logics/hypernym.logic","test","50" };
+        args = newArgs;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("results-" + args[1]));
             bw.write("connect,time_complete,fm_pre,fm_post_complete,rows,cols,cm1,cm2,cm3,cm4,cm5,cm6\n");
