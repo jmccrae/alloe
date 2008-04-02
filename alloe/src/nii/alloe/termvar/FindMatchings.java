@@ -10,13 +10,40 @@ import nii.alloe.niceties.lattice.*;
 public class FindMatchings {
     
     public static Collection<TreeSet<Match>> findMatchings(List string1, List string2) {
-        return findMatchings(new TreeSet<Match>(), getAllMatches(string1, string2)).getInfimumSet();
+        return findMatchings(string1, string2,true);   
+    }
+    public static Collection<TreeSet<Match>> findMatchings(List string1, List string2, boolean best) {
+        Collection<TreeSet<Match>> matchings = findMatchings(new TreeSet<Match>(), getAllMatches(string1, string2)).getInfimumSet();
+        LinkedList<TreeSet<Match>> rval = new LinkedList<TreeSet<Match>>();
+        int score = Integer.MAX_VALUE;
+        for(TreeSet<Match> matching : matchings) {
+            int matchScore = scoreMatching(matching,string1,string2);
+            if(matchScore < score) {
+                rval.clear();
+                rval.add(matching);
+                score = matchScore;
+            } else if(matchScore == score) {
+                rval.add(matching);
+            }
+        }
+        return rval;
+    }
+    
+    public static int scoreMatching(TreeSet<Match> matching, List string1, List string2) {
+        Match lastMatch = new Match(-1,-1);
+        int score = 0;
+        for(Match match : matching) {
+            score += Math.max(match.i1 - lastMatch.i1, match.i2 - lastMatch.i2) - 1;
+            lastMatch = match;
+        }
+        score += Math.max(string1.size() - lastMatch.i1, string2.size() - lastMatch.i2) - 1;
+        return score;
     }
     
     public static Vector<String[]> findMatchingsAsStrings(List string1, List string2) {
-        SemiLattice<TreeSet<Match>> matches = findMatchings(new TreeSet<Match>(), getAllMatches(string1,string2));
+        Collection<TreeSet<Match>> matches = findMatchings(string1, string2);
         Vector<String[]> rval = new Vector<String[]>();
-        for(TreeSet<Match> matching : matches.getInfimumSet()) {
+        for(TreeSet<Match> matching : matches) {
             System.out.println(matching);
             String [] strings = new String[2];
             strings[0] = string1.toString();
@@ -54,7 +81,6 @@ public class FindMatchings {
         }
         return semilattice;
     }
-    
     private static TreeSet<Match> getAllMatches(List string1, List string2) {
         TreeSet<Match> matches = new TreeSet<Match>();
         for(int i = 0; i < string1.size(); i++) {

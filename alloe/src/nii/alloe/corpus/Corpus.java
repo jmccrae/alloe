@@ -34,17 +34,23 @@ public class Corpus {
     /** Creates a new instance of Corpus */
     public Corpus(TermList terms, String indexFile) {
         this(terms, new File(indexFile));
+        sketchSize = new HashMap<String, Integer>();
+        sketchComplete = new HashSet<String>();
     }
     
     public Corpus(TermList terms, File indexFile) {
         this.terms = terms;
         this.indexFile = indexFile;
         termHits = new HashMap<String, TreeSet<Integer>>(terms.size());
+        sketchSize = new HashMap<String, Integer>();
+        sketchComplete = new HashSet<String>();
     }
     
     private Corpus(TermList terms) {
         this.terms = terms;
         termHits = new HashMap<String, TreeSet<Integer>>(terms.size());
+        sketchSize = new HashMap<String, Integer>();
+        sketchComplete = new HashSet<String>();
     }
     
     /** Opens the corpus so that new documents can be added
@@ -135,12 +141,12 @@ public class Corpus {
     }
     
     /** Get all contexts containing term1 and term2 */
-    public Iterator<String> getContextsForTerms(String term1, String term2) {
+    public Iterator<Hit> getContextsForTerms(String term1, String term2) {
         return queryTerms(term1, term2);
     }
     
     /** Get all contexts which match the pattern p */
-    public Iterator<String> getContextsForPattern(nii.alloe.corpus.pattern.Pattern p) {
+    public Iterator<Hit> getContextsForPattern(nii.alloe.corpus.pattern.Pattern p) {
         try {
             QueryParser qp = new QueryParser("contents", new AlloeAnalyzer());
             Query q = qp.parse(cleanQuery2(p.getQuery()));
@@ -149,12 +155,12 @@ public class Corpus {
             return hi;
         } catch (Exception x) {
             x.printStackTrace();
-            return null;
+            return new HitsIterator();
         }
     }
     
     /** Get all the contexts matching pattern with term1 and term inserted */
-    public Iterator<String> getContextsForTermInPattern(nii.alloe.corpus.pattern.Pattern p, String term1, String term2) {
+    public Iterator<Hit> getContextsForTermInPattern(nii.alloe.corpus.pattern.Pattern p, String term1, String term2) {
         try {
             String[] queries = {cleanQuery2(p.getQueryWithTerms(term1, term2)),
             "\"" + cleanQuery(term1) + "\" AND \"" + cleanQuery(term2) + "\""
@@ -168,7 +174,7 @@ public class Corpus {
             return hi;
         } catch (Exception x) {
             x.printStackTrace();
-            return null;
+            return new HitsIterator();
         }
     }
     
@@ -202,7 +208,7 @@ public class Corpus {
     /** Get the string iterator for a prepared query
      * @param query The query object as returned from prepareQueryPattern
      */
-    public Iterator<String> getPreparedQuery(Object query) {
+    public Iterator<Hit> getPreparedQuery(Object query) {
         if (!(query instanceof PreparedQuery)) {
             throw new IllegalArgumentException("query passed to getPreparedQuery not valid");
         }
@@ -213,7 +219,7 @@ public class Corpus {
      * @see #preparedQueryPattern
      * @param query The query object as returned from prepareQueryPattern
      */
-    public Iterator<String> getContextsForTermPrepared(String term1, String term2, Object query) {
+    public Iterator<Hit> getContextsForTermPrepared(String term1, String term2, Object query) {
         return getContextsForTermPrepared(term1, term2, query, true);
     }
     
@@ -222,7 +228,7 @@ public class Corpus {
      * @see #preparedQueryPattern
      * @param query The query object as returned from prepareQueryPattern
      * @param cache If true attempt to cache term hits */
-    public Iterator<String> getContextsForTermPrepared(String term1, String term2, Object query, boolean cache) {
+    public Iterator<Hit> getContextsForTermPrepared(String term1, String term2, Object query, boolean cache) {
         if (!(query instanceof PreparedQuery)) {
             throw new IllegalArgumentException("query passed to getContextsForTermPrepared not valid");
         }
@@ -344,16 +350,25 @@ public class Corpus {
     /** Put to lower case and bs all reserved terms */
     public static String cleanQuery(String s) {
         s = s.toLowerCase();
-        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\]|\\|\\||\\&\\&)", "\\\\$1");
+        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\\\{\\}\\|\\*]|\\&\\&)", "\\\\$1");
         return s;
     }
     
     private String cleanQuery2(String s) {
         s = s.toLowerCase();
-        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\\\*]|\\|\\||\\&\\&)", "\\\\$1");
+        // Escape Lucene Meta
+        s = s.replaceAll("([\\+\\-\\!\\(\\)\\[\\]\\^\\\"\\~\\?\\:\\\\\\*\\{\\}\\|]|\\&\\&)", "\\\\$1");
+        // Remove leading space
         s = s.replaceAll("^\\s*", "");
+        // Remvoe trailing space
         s = s.replaceAll("\\s*$", "");
-        s = s.replaceAll("\\s+", " AND ");
+        // Replace wildcards with block querys
+        s = s.replaceAll("\\\\\\*", "\" AND \"");
+        // Close first and last block query
+        s = "\"" + s + "\"";
+        // Remove empty queries
+        s = s.replaceAll("AND\\s*\"\\s*\"","");
+        s = s.replaceAll("^\"\\s*\"\\s*AND ","");
         return s;
     }
     
@@ -447,7 +462,30 @@ public class Corpus {
         return corpus;
     }
     
-    class HitsIterator extends HitCollector implements Iterator<String> {
+    /** Used to return a document found by a query on this corpus */
+    public class Hit {
+        private String text;
+        private String[] terms;
+        
+        Hit(String text, Field[] fields) {
+            this.text = text;
+            if(fields == null) {
+                this.terms = new String[0];
+            } else {
+                this.terms = new String[fields.length];
+                for(int i = 0; i < fields.length; i++) {
+                    terms[i] = fields[i].stringValue();
+                }
+            }
+        }
+        
+        /** Get the text for this section */
+        public String getText() { return text; }
+        /** Get the terms in this section of text (note this is much faster than searching) */
+        public String[] getTerms() { return terms; }
+    }
+    
+    class HitsIterator extends HitCollector implements Iterator<Hit> {
         
         TreeSet<Integer> hits;
         Iterator<Integer> i;
@@ -466,23 +504,22 @@ public class Corpus {
         
         public void collect(int doc, float score) {
             if (doc < limit) {
-                ;
+                hits.add(doc);
             }
-            hits.add(doc);
         }
         
         public void remove() {
             throw new UnsupportedOperationException();
         }
         
-        public String next() {
+        public Hit next() {
             if (i == null) {
                 i = hits.iterator();
             }
             try {
                 Document d = indexSearcher.doc(i.next());
                 //String s = d.getField("term").stringValue();
-                return d.getField("contents").stringValue();
+                return new Hit(d.getField("contents").stringValue(), d.getFields("term"));
             } catch (IOException x) {
                 x.printStackTrace();
                 throw new RuntimeException("An IO Exception occurred");
@@ -622,14 +659,14 @@ public class Corpus {
     // TODO: Fix for subterms
     private void compileAllTerms() {
         buildSubTerms();
-        String regex = ".*\\b(";
+        String regex = "\\b(";
         for (String term : terms) {
             if (isSubbed.contains(term)) {
                 continue;
             }
             regex = regex + Strings.quoteMeta(term.toLowerCase()) + "|";
         }
-        regex = Strings.chop(regex) + ")\\b.*";
+        regex = Strings.chop(regex) + ")\\b";
         allTerms = java.util.regex.Pattern.compile(regex);
         isSubbed = null;
     }
@@ -640,20 +677,14 @@ public class Corpus {
     public Vector<String> getContexts(String doc, int wordWindow, double progress) {
         TreeSet<Integer> bounds = new TreeSet<Integer>();
         doc = doc.toLowerCase();
-        if (sketchSize == null) {
-            sketchSize = new HashMap<String, Integer>();
-            sketchComplete = new HashSet<String>();
-        }
+        
         if(allTerms == null) {
             compileAllTerms();
         }
         java.util.regex.Matcher matcher = allTerms.matcher(doc);
-        if (!matcher.matches()) {
-            return new Vector<String>();
-        }
         int idx = 0;
         HashSet<String> termsFound = new HashSet<String>();
-        while (matcher.find(idx)) {
+        while (matcher.find()) {
             String term = matcher.group(1);
             idx = matcher.start(1);
             

@@ -10,6 +10,9 @@ package nii.alloe.theory;
 import junit.framework.*;
 import java.util.*;
 import java.io.*;
+import java.io.Serializable;
+import nii.alloe.corpus.*;
+import nii.alloe.niceties.*;
 
 /**
  *
@@ -226,6 +229,325 @@ public class ModelTest extends TestCase {
         instance.add(id);
         
         assertTrue(instance.isConnected(id));
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(ModelTest.class);
+        
+        return suite;
+    }
+
+    /**
+     * Test of subModel method, of class nii.alloe.theory.Model.
+     */
+    public void testSubModel() {
+        System.out.println("subModel");
+        
+        TreeSet<Integer> rels = new TreeSet<Integer>();
+        rels.add(12);
+        rels.add(34);
+        Model instance = new Model(10);
+        Graph g  = instance.addSpecificGraph("r1");
+        g.add(1,2);
+        g.add(7,8);
+        g.add(3,4);
+        
+        Model result = instance.subModel(rels);
+        assertEquals(2, result.size());
+    }
+
+    /**
+     * Test of createSpecificCopy method, of class nii.alloe.theory.Model.
+     */
+    public void testCreateSpecificCopy() {
+        System.out.println("createSpecificCopy");
+        
+        Model instance = null;
+        
+        Model expResult = null;
+        Model result = instance.createSpecificCopy();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of createProbabilityCopy method, of class nii.alloe.theory.Model.
+     */
+    public void testCreateProbabilityCopy() {
+        System.out.println("createProbabilityCopy");
+        
+        double posProb = 0.0;
+        double negProb = 0.0;
+        Model instance = null;
+        
+        Model expResult = null;
+        Model result = instance.createProbabilityCopy(posProb, negProb);
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getCompulsoryCount method, of class nii.alloe.theory.Model.
+     */
+    public void testGetCompulsoryCount() {
+        System.out.println("getCompulsoryCount");
+        
+        Model instance = null;
+        
+        int expResult = 0;
+        int result = instance.getCompulsoryCount();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of createCopy method, of class nii.alloe.theory.Model.
+     */
+    public void testCreateCopy() {
+        System.out.println("createCopy");
+        
+        Model instance = null;
+        
+        Model expResult = null;
+        Model result = instance.createCopy();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of createBlankSpecificCopy method, of class nii.alloe.theory.Model.
+     */
+    public void testCreateBlankSpecificCopy() {
+        System.out.println("createBlankSpecificCopy");
+        
+        Model instance = null;
+        
+        Model expResult = null;
+        Model result = instance.createBlankSpecificCopy();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of setGraphAs method, of class nii.alloe.theory.Model.
+     */
+    public void testSetGraphAs() {
+        System.out.println("setGraphAs");
+        
+        String name = "";
+        TermPairSet termPairs = null;
+        TermList termList = null;
+        Model instance = null;
+        
+        instance.setGraphAs(name, termPairs, termList);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of createImmutableCopy method, of class nii.alloe.theory.Model.
+     */
+    public void testCreateImmutableCopy() {
+        System.out.println("createImmutableCopy");
+        
+        Model instance = null;
+        
+        Model expResult = null;
+        Model result = instance.createImmutableCopy();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of remove method, of class nii.alloe.theory.Model.
+     */
+    public void testRemove() {
+        System.out.println("remove");
+        
+        Model m = null;
+        Model instance = null;
+        
+        boolean expResult = true;
+        boolean result = instance.remove(m);
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of containsAny method, of class nii.alloe.theory.Model.
+     */
+    public void testContainsAny() {
+        System.out.println("containsAny");
+        
+        Collection<Integer> ids = null;
+        Model instance = null;
+        
+        boolean expResult = true;
+        boolean result = instance.containsAny(ids);
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of symmDiffAll method, of class nii.alloe.theory.Model.
+     */
+    public void testSymmDiffAll() {
+        System.out.println("symmDiffAll");
+        
+        Collection<Integer> c = null;
+        Model instance = null;
+        
+        instance.symmDiffAll(c);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of computeComparison method, of class nii.alloe.theory.Model.
+     */
+    public void testComputeComparison() {
+        System.out.println("computeComparison");
+        
+        Model m = null;
+        Model instance = null;
+        
+        int[] expResult = null;
+        int[] result = instance.computeComparison(m);
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of size method, of class nii.alloe.theory.Model.
+     */
+    public void testSize() {
+        System.out.println("size");
+        
+        Model instance = null;
+        
+        int expResult = 0;
+        int result = instance.size();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getGraphIDByName method, of class nii.alloe.theory.Model.
+     */
+    public void testGetGraphIDByName() {
+        System.out.println("getGraphIDByName");
+        
+        String name = "";
+        Model instance = null;
+        
+        int expResult = 0;
+        int result = instance.getGraphIDByName(name);
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getGraphByName method, of class nii.alloe.theory.Model.
+     */
+    public void testGetGraphByName() {
+        System.out.println("getGraphByName");
+        
+        String name = "";
+        Model instance = null;
+        
+        Graph expResult = null;
+        Graph result = instance.getGraphByName(name);
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getGraphNames method, of class nii.alloe.theory.Model.
+     */
+    public void testGetGraphNames() {
+        System.out.println("getGraphNames");
+        
+        Model instance = null;
+        
+        Vector<String> expResult = null;
+        Vector<String> result = instance.getGraphNames();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of addCompulsorys method, of class nii.alloe.theory.Model.
+     */
+    public void testAddCompulsorys() {
+        System.out.println("addCompulsorys");
+        
+        Logic logic = null;
+        Model instance = null;
+        
+        instance.addCompulsorys(logic);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of graphNameIterator method, of class nii.alloe.theory.Model.
+     */
+    public void testGraphNameIterator() {
+        System.out.println("graphNameIterator");
+        
+        Model instance = null;
+        
+        Iterator<String> expResult = null;
+        Iterator<String> result = instance.graphNameIterator();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of iterator method, of class nii.alloe.theory.Model.
+     */
+    public void testIterator() {
+        System.out.println("iterator");
+        
+        Model instance = null;
+        
+        Iterator<Integer> expResult = null;
+        Iterator<Integer> result = instance.iterator();
+        assertEquals(expResult, result);
+        
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
     
 }

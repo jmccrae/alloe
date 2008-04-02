@@ -207,9 +207,9 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         public void doAction(String term1, String term2) {
             if(isIgnoreReflexives() && term1.equals(term2))
                 return;
-            Iterator<String> learnData = corpus.getContextsForTerms(term1,term2);
+            Iterator<Corpus.Hit> learnData = corpus.getContextsForTerms(term1,term2);
             while(learnData.hasNext()) {
-                String s1 = learnData.next();
+                String s1 = learnData.next().getText();
                 s1 = Pattern.makeSafe(s1);
                 String[] splitsByTerm1 = s1.split("\\b" + Pattern.cleanTerm(term1) + "\\b");
                 if(splitsByTerm1.length < 2)

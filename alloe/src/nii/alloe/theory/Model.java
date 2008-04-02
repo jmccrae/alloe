@@ -17,7 +17,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     /**
      * The elements used in this model
      */
-    public final AbstractCollection<Integer> elems;
+    public final Collection<Integer> elems;
     /**
      * A map used to order the graphs, this is used for creating IDs
      */
@@ -80,7 +80,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     /**
      * Create a model that is a copy of this but contains only the specified links
      */
-    public Model subModel(AbstractCollection<Integer> rels) {
+    public Model subModel(Collection<Integer> rels) {
         Model rval = new Model();
         rval.n = n;
         Iterator<String> iter = relationIdx.iterator();

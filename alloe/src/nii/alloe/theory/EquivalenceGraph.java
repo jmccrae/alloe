@@ -1,4 +1,5 @@
 package nii.alloe.theory;
+import com.sun.org.apache.xpath.internal.compiler.OpCodes;
 import java.util.*;
 import java.io.*;
 
@@ -33,11 +34,11 @@ public class EquivalenceGraph implements Graph, Serializable {
     }
 
     public void add(int i, int j) {
-	System.err.println("Attempted add on non-mutable equivalence graph");
+	throw new UnsupportedOperationException("Attempted add on non-mutable equivalence graph");
     }
 
     public void remove(int i, int j) {
-	System.err.println("Attempted remove on non-mutable equivalence graph");
+	throw new UnsupportedOperationException("Attempted remove on non-mutable equivalence graph");
     }
 
     public int linkCount() { return 0; }
