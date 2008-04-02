@@ -12,12 +12,15 @@ import nii.alloe.corpus.*;
  */
 public class PatternMetricFactory {
     public static final String PSEUDO_FM = "Pseudo F-Measure";
+    public static final String MIN_SUP_PREC = "Minimum Support, Precision";
     
     /** Create a new pattern metric object */
     public static PatternMetric getPatternMetric(String id, Corpus corpus, TermPairSet termPairs) 
         throws PatternMetricUnknownException {
         if(id.equals(PSEUDO_FM)) {
             return new PseudoFMMetric(corpus, termPairs);
+        } else if(id.equals(MIN_SUP_PREC)) {
+            return new MinSupportPrecisionMetric(corpus,termPairs);
         } else {
             throw new PatternMetricUnknownException("Invalid Pattern Metric: " + id);
         }
@@ -26,7 +29,7 @@ public class PatternMetricFactory {
     /**
      * Holds value of property patternMetrics.
      */
-    private static String[] patternMetrics = { PSEUDO_FM };
+    private static String[] patternMetrics = { PSEUDO_FM, MIN_SUP_PREC };
 
     /**
      * Indexed getter for property patternMetrics.

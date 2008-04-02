@@ -224,9 +224,9 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
             return null;
     }
     
-    /** @return The pattern with all wildcards & capturers stripped out (for use with indexer) */
+    /** @return The pattern with all wildcards & capturers replaced with * */
     public String getQuery() {
-        String rval = val.replaceAll("[\\*12]"," ");
+        String rval = val.replaceAll("[\\*12]","*");
         //rval = rval.replace("1"," ");
         //rval = rval.replace("2"," ");
         return deSafe(rval);

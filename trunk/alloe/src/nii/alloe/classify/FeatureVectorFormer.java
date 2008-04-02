@@ -77,12 +77,32 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
         double corpusSize = corpus.size();
         while (patIter.hasNext() && state == STATE_OK) {
             Pattern p = patIter.next();
-            Object query = corpus.prepareQueryPattern(p);
-            if(query == null)
+            Iterator<Corpus.Hit> contexts = corpus.getContextsForPattern(p);
+            if(contexts == null)
                 continue;
-            /*Iterator<Corpus.TermPair>*/ termIter = corpus.getTermsInCorpus();
+            while(contexts.hasNext()) {
+                Corpus.Hit context = contexts.next();
+                String text = context.getText();
+                String[] terms = context.getTerms();
+                for(int j = 0; j < terms.length; j++) {
+                    for(int k = 0; k < terms.length; k++) {
+                        if(p.matches(text, terms[j],terms[k],isLazyMatching())) {
+                            SparseInstance inst = instances.get(terms[j] + glue + terms[k]);
+                            if(inst == null) {
+                                instances.put(terms[j] + glue + terms[k], inst = new SparseInstance(1.0, new double[patterns.size() + 1]));
+                            }
+                            inst.setValue(i,inst.value(i) + 1.0 / (double)corpusSize);
+                        }
+                    }
+                }
+            }
+            
+            /*Object query = corpus.prepareQueryPattern(p);
+            if(query == null)
+                continue;*/
+            /*Iterator<Corpus.TermPair>*/ //termIter = corpus.getTermsInCorpus();
             /*Corpus.TermPair tp;*/
-            while (termIter.hasNext() && state == STATE_OK) {
+            /*while (termIter.hasNext() && state == STATE_OK) {
                 if (term1 != null) {
                     while (!(tp = termIter.next()).term1.equals(term1)) {}
                 } else {
@@ -112,7 +132,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                 }
                 term2 = null;
                 term1 = null;
-            }
+            }*/
             i++;
             fireNewProgressChange((double) i / (double) patterns.size());
         }
@@ -139,83 +159,8 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
         
         fireFinished();
         return dataSet;
-        
-        
-    /*    TreeMap<Pattern,Object> preparedQuerys = prepareQuerys();
-    double termCounts = (double)(terms.size() * terms.size());
-    double leftTermCount = 0;
-    Iterator<String> termIter1 = terms.iterator();
-    while(termIter1.hasNext() && state == STATE_OK) {
-    if(term1 != null) {
-    while(!termIter1.next().equals(term1));
-    } else
-    term1 = termIter1.next();
-    if(!corpus.isTermInCorpus(term1)) {
-    leftTermCount++;
-    term1 = null;
-    continue;
     }
-    Iterator<String> termIter2 = terms.iterator();
-    double rightTermCount = 0;
-    while(termIter2.hasNext() && state == STATE_OK) {
-    if(term2 != null) {
-    while(!termIter2.next().equals(term2));
-    } else {
-    term2 = termIter2.next();
-    }
-    if(!corpus.areTermsInCorpus(term1, term2)) {
-    rightTermCount++;
-    term2 = null;
-    continue;
-    }
-    double[] data = new double[patterns.size() + 1];
-    // TODO benchmark using corpus.getContextsForTermInPattern()
-    Iterator<Pattern> patIter = patterns.keySet().iterator();
-    while(patIter.hasNext()) {
-    int i = 0;
-    Pattern p = patIter.next();
-    Iterator<String> contexts = corpus.getContextsForTermPrepared(term1, term2, preparedQuerys.get(p));
-    while(contexts.hasNext()) {
-    String ctxt = contexts.next();
-    if(p.matches(ctxt,term1,term2,isLazyMatching()))
-    data[i]++;
-    i++;
-    }
-    }
-    boolean isAllZero = true;
-    for(int i = 0; i < patterns.size(); i++) {
-    data[i] = data[i] / corpus.size();
-    if(data[i] != 0.0)
-    isAllZero = false;
-    }
-    fireNewProgressChange((leftTermCount * terms.size() + rightTermCount) / termCounts);
-    if(!isAllZero) {
-    if(termPairs != null)
-    data[patterns.size()] = dataSet.getClassVal(termPairs.contains(term1,term2));
-    else
-    data[patterns.size()] = dataSet.getClassVal(false);
-    dataSet.addInstance(new SparseInstance(1.0,data),
-    relation, term1, term2);
-    }
-    rightTermCount++;
-    term2 = null;
-    }
-    term1 = null;
-    leftTermCount++;
-    }
-    fireFinished();
-    return dataSet;*/
-    }
-    
-    /* private TreeMap<Pattern,Object> prepareQuerys() {
-    Iterator<Pattern> patIter = patterns.keySet().iterator();
-    TreeMap<Pattern,Object> rval = new TreeMap<Pattern,Object>();
-    while(patIter.hasNext()) {
-    Pattern p = patIter.next();
-    rval.put(p,corpus.prepareQueryPattern(p));
-    }
-    return rval;
-    }*/
+
     public void run() {
         makeFeatureVectors();
     }

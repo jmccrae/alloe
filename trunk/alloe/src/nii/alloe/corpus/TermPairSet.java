@@ -8,7 +8,7 @@ import nii.alloe.niceties.*;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class TermPairSet implements Serializable {
+public class TermPairSet extends AbstractCollection<String[]> implements Serializable {
     
     private transient TreeSet<String> termPairs;
     static final String glue = " => ";
@@ -150,5 +150,23 @@ public class TermPairSet implements Serializable {
             }
         });
         termPairs.addAll((Vector<String>)ois.readObject());
+    }
+
+    public Iterator<String[]> iterator() {
+        return new TPSIterator();
+    }
+    
+    private class TPSIterator implements Iterator<String[]> {
+        Iterator<String> iter;
+        public TPSIterator() { iter = termPairs.iterator(); }
+        public String[] next() { return iter.next().split(glue); }
+        public boolean hasNext() { return iter.hasNext(); }
+        public void remove() { iter.remove(); }
+    }
+
+    public boolean add(String[] ss) {
+        if(ss.length != 2)
+            throw new IllegalArgumentException();
+        return add(ss[0],ss[1]);
     }
 }

@@ -29,10 +29,8 @@ public class PseudoFMMetricTest extends TestCase {
 
     protected void setUp() throws Exception {
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/corpus"));
-            corpus = (Corpus)ois.readObject();
-            ois.close();
-            ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/hyps.atps"));
+            corpus = Corpus.openCorpus(new File("/home/john/wpshie/corpus-short.idx"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/hyps.atps"));
             tps = (TermPairSet)ois.readObject();
             ois.close();
         } catch(Exception x) {
@@ -49,13 +47,15 @@ public class PseudoFMMetricTest extends TestCase {
     public void testScorePattern() {
         System.out.println("scorePattern");
         
-        Pattern pattern = new Pattern("2= 1}}");
+        Pattern pattern = new Pattern("for a 5-1 (originally 7-2) term");
         PatternMetric instance = PatternMetricFactory.getPatternMetric(PatternMetricFactory.PSEUDO_FM,
                 corpus, tps);
         
-        double expResult = 0.0;
         double result = instance.scorePattern(pattern);
-        assertEquals(expResult, result);
+        assertTrue(result >= 0);
+        assertTrue(result <= 1);
+        assertFalse(Double.isNaN(result));
+        assertFalse(Double.isInfinite(result));
     }
     
 }

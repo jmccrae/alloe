@@ -6,6 +6,7 @@
 
 package nii.alloe.gui;
 
+import javax.crypto.NullCipher;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
@@ -2165,7 +2166,7 @@ public class AlloeMain extends javax.swing.JFrame {
     
     private void patternBuilderMetricActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternBuilderMetricActionPerformed
         PatternBuilder pb = patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString());
-        if(pb != null && !pb.isRunning()) {
+        if(pb != null) {
             pb.setPatternMetric(patternBuilderMetric.getSelectedItem().toString());
         }
     }//GEN-LAST:event_patternBuilderMetricActionPerformed

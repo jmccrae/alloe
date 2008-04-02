@@ -37,14 +37,14 @@ public class MembershipGraph implements Graph, Serializable {
     }
     
     public void add(int i, int j) {
-	System.err.println("Attempted add on non-mutable equivalence graph");
+	throw new UnsupportedOperationException("Attempted add on non-mutable equivalence graph");
     }
     
     public void remove(int i, int j) {
-	System.err.println("Attempted remove on non-mutable equivalence graph");
+	throw new UnsupportedOperationException("Attempted remove on non-mutable equivalence graph");
     }
     
-    public int linkCount() { return 0; }
+    public int linkCount() { return set.size(); }
     
     public void dumpToDot(String dotFile) {
 	return;

@@ -19,74 +19,45 @@ public class PseudoFMMetric implements PatternMetric {
     Corpus corpus;
     TermPairSet termPairs;
 
-    ///** The number of hits the pattern has to had to make it worth querying every
-    // * single term. May be replaced by automatic benchmarker */
-    //public static int PATTERN_HITS_TO_QUERY = 1000;
     public PseudoFMMetric(Corpus corpus, TermPairSet termPairs) {
         this.corpus = corpus;
         this.termPairs = termPairs;
     }
 
     public double scorePattern(Pattern pattern) {
-        System.out.println(pattern.toString());
-        Object query = corpus.prepareQueryPattern(pattern);
-        if(query == null)
-            return 0.0;
-        SPSearch sps = new SPSearch(pattern, query);
-        termPairs.forEachPair(sps);
-
         int n = 0;
         int N = 0;
-        Iterator<String> contexts = corpus.getContextsForPattern(pattern);
-        while (contexts.hasNext()) {
-            String[] ss = pattern.getTermMatch(contexts.next());
-            if (ss != null && termPairs.contains(ss[0], ss[1])) { // Maybe search among pairs ??
-                n++;
+        
+        TermPairSet foundTerms = new TermPairSet();
+        Iterator<Corpus.Hit> contexts = corpus.getContextsForPattern(pattern);
+        if(contexts == null)
+            return 0;
+        LOOP : while(contexts.hasNext()) {
+            Corpus.Hit context = contexts.next();
+            String text = context.getText();
+            String[] terms = context.getTerms();
+            boolean goodContext = false;
+            for(int i = 0; i < terms.length; i++) {
+                for(int j = 0; j < terms.length; j++) {
+                    if(termPairs.contains(terms[i],terms[j]) && pattern.matches(text, terms[i],terms[j])) {
+                        foundTerms.add(terms[i],terms[j]);
+                        if(!goodContext) {
+                            n++;
+                            goodContext = true;
+                        }
+                    }
+                }
             }
-            if (ss != null) {
-                N++;
-            }
+            N++;
         }
-
-        assert N != 0;
-
-        double pseudoRecall = (double) sps.spCount / (double) termPairs.size();
+        
+        double pseudoRecall = (double) foundTerms.size() / (double) termPairs.size();
         double pseudoPrecision = (double) n / (double) N;
-        if (pseudoRecall == 0 && pseudoPrecision == 0) {
+        if (pseudoRecall == 0 && pseudoPrecision == 0 || Double.isInfinite(pseudoRecall) || Double.isInfinite(pseudoPrecision)
+            || Double.isNaN(pseudoRecall) || Double.isNaN(pseudoPrecision)) {
             return 0;
         } else {
             return 2 * pseudoRecall * pseudoPrecision / (pseudoPrecision + pseudoRecall);
-        }
-    }
-
-    private class SPSearch implements EachTermPairAction {
-
-        int spCount;
-        Pattern pattern;
-        Object query;
-        // boolean doQuery;
-        public SPSearch(Pattern pattern, Object query) {
-            this.pattern = pattern;
-            this.query = query;
-            //doQuery = corpus.getPreparedQueryHits(query) > PATTERN_HITS_TO_QUERY;
-            spCount = 0;
-        }
-
-        public void doAction(String term1, String term2) {
-            Iterator<String> contexts;
-            // if(doQuery)
-            //if (!corpus.areTermsInCorpus(term1, term2)) {
-            //    return;
-            //}
-            contexts = corpus.getContextsForTermPrepared(
-                    term1, term2, query);
-            // else
-            //     contexts = corpus.getPreparedQuery(query);
-            while (contexts.hasNext()) {
-                if (pattern.matches(contexts.next(), Pattern.cleanTerm(term1), Pattern.cleanTerm(term2))) {
-                    spCount++;
-                }
-            }
         }
     }
 
