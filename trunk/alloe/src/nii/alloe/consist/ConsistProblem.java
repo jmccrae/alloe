@@ -7,8 +7,13 @@ import nii.alloe.theory.LogicException;
 import nii.alloe.theory.Model;
 import nii.alloe.theory.ProbabilityGraph;
 import nii.alloe.theory.Rule;
-import nii.alloe.niceties.*;
 import java.util.*;
+import nii.alloe.tools.process.AlloeProcess;
+import nii.alloe.tools.process.AlloeProgressListener;
+import nii.alloe.tools.process.CannotPauseException;
+import nii.alloe.tools.struct.InverseComparator;
+import nii.alloe.tools.struct.MapComparator;
+import nii.alloe.tools.struct.MultiIterator;
 
 /**
  * Creates a matrix which can be solved by the 0-1 integer programming solver.
@@ -368,17 +373,8 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     private LinkedList<Rule> getNewRules(Rule r, Rule r2) {
         LinkedList<Rule> tempQueue = new LinkedList<Rule>();
         if(r.compareTo(r2) != 0) {
-            if(r.canResolveWith(r2)) {
+            if(Rule.canResolve(r,r2)) {
                 Rule newR = r.resolve(r2,probModel);
-                
-                if(newR != null && !isSubsumed(newR,r)) {
-                    scoreRule(newR);
-                    tempQueue.add(newR);
-                    //Output.out.println(r.toString(probModel) + " + " + r2.toString(probModel) + " = " + newR.toString(probModel));
-                }
-            }
-            if(r2.canResolveWith(r)) {
-                Rule newR = r2.resolve(r,probModel);
                 
                 if(newR != null && !isSubsumed(newR,r)) {
                     scoreRule(newR);
@@ -695,8 +691,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         public boolean doAction(Logic logic,
                 Model m,
                 Rule rule) {
-            Rule r = rule.createCopy();
-            r.multiplexFunctions(m.elems);
+            Rule r = new Rule(rule);
             if(limitToCompleteModel)
                 r.limitToModel(completeModel);
             r = Rule.simplify(r,probModel);

@@ -8,7 +8,6 @@
 package nii.alloe.termvar;
 
 import junit.framework.*;
-import nii.alloe.niceties.*;
 import java.util.*;
 
 /**
@@ -33,12 +32,12 @@ public class MatchPairTest extends TestCase {
     public void testJoinWith() {
         System.out.println("joinWith");
         
-       /* MatchPair mp2 = null;
-        MatchPair instance = new MatchPair();
+        MatchPair mp2 = new MatchPair("abc","cde");
+        MatchPair instance = new MatchPair("cba","edc");
         
         Collection<List<MatchPair>> expResult = null;
         Collection<List<MatchPair>> result = instance.joinWith(mp2);
-        assertEquals(expResult, result);*/
+        assertEquals(expResult, result);
         
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

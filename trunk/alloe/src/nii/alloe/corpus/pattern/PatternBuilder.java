@@ -2,9 +2,15 @@ package nii.alloe.corpus.pattern;
 import nii.alloe.corpus.Corpus;
 import nii.alloe.corpus.EachTermPairAction;
 import nii.alloe.corpus.TermPairSet;
-import nii.alloe.niceties.*;
 import java.util.*;
 import java.io.*;
+import nii.alloe.tools.process.AlloeProcess;
+import nii.alloe.tools.process.AlloeProgressListener;
+import nii.alloe.tools.process.CannotPauseException;
+import nii.alloe.tools.process.Output;
+import nii.alloe.tools.process.PauseSignal;
+import nii.alloe.tools.struct.ConcurrentLinkedList;
+import nii.alloe.tools.struct.MultiSet;
 
 /**
  * Build a set of patterns from the corpus. Initially whenever a term pair is found in the same
@@ -56,7 +62,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     /** Creates a new instance of PatternBuilder
      * @param corpus The corpus
      * @param termPairSet The term pairs
-     * @param pm A metric used to score new patterns
+     * @param patternMetric A metric used to score new patterns
      */
     public PatternBuilder(Corpus corpus, TermPairSet termPairSet, String patternMetric, String relationship) {
         this.corpus = corpus;

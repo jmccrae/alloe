@@ -2,7 +2,7 @@ package nii.alloe.theory;
 import java.util.*;
 import java.io.Serializable;
 import nii.alloe.corpus.*;
-import nii.alloe.niceties.*;
+import nii.alloe.tools.struct.MultiIterator;
 
 /**
  * A model is a set of assignments to every possible link of a true/false value. This is in effect means that we have
@@ -511,7 +511,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     }
     
     /**
-     * Sum of each graphs {@link Graph.linkCount}
+     * Sum of each graphs {@link Graph#linkCount()}
      **/
     public int size() {
         int rval = 0;

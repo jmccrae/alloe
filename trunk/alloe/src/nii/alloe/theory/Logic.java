@@ -213,7 +213,7 @@ public class Logic {
             this.potentialResolvers = potentialResolvers;
         }
         public boolean doAction(Logic logic, Model m, Rule rule) {
-            rule = Rule.simplify(rule.createCopy(),m);
+            rule = Rule.simplify(new Rule(rule),m);
             if(rule != null)
                 potentialResolvers.add(rule);
             return true;
@@ -406,10 +406,7 @@ public class Logic {
             public boolean doAction(Logic logic, Model m, Rule rule) {
                 if(rule.premiseCount != rule.length() -1)
                     return true;
-                if(rule.terms.get(rule.premiseCount)[0] instanceof Rule.FunctionArgument ||
-                        rule.terms.get(rule.premiseCount)[1] instanceof Rule.FunctionArgument) {
-                    return true;
-                }
+                
                 return !m.add(m.id(rule.relations.get(rule.premiseCount),
                         rule.terms.get(rule.premiseCount)[0].getAssignment(),
                         rule.terms.get(rule.premiseCount)[1].getAssignment()));

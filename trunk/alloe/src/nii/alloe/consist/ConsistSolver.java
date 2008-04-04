@@ -2,7 +2,10 @@ package nii.alloe.consist;
 import java.util.*;
 import nii.alloe.theory.Logic;
 import nii.alloe.theory.Model;
-import nii.alloe.niceties.*;
+import nii.alloe.tools.process.AlloeProcess;
+import nii.alloe.tools.process.AlloeProgressListener;
+import nii.alloe.tools.process.CannotPauseException;
+import nii.alloe.tools.process.Output;
 
 /**
  * Implements the branch and bound section of the solution. This is carried out by first attempting a

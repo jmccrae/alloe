@@ -12,8 +12,8 @@ package nii.alloe.runs;
 import nii.alloe.classify.*;
 import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
-import nii.alloe.niceties.*;
 import java.io.*;
+import nii.alloe.tools.process.AlloeProgressListener;
 
 /**
  *

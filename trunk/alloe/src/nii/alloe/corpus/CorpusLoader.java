@@ -1,8 +1,10 @@
 package nii.alloe.corpus;
 
-import nii.alloe.niceties.*;
 import java.util.*;
 import java.io.*;
+import nii.alloe.tools.process.AlloeProcessAdapter;
+import nii.alloe.tools.process.AlloeProgressListener;
+import nii.alloe.tools.process.CannotPauseException;
 
 /**
  *

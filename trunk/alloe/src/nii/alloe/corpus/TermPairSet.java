@@ -1,7 +1,7 @@
 package nii.alloe.corpus;
 import java.io.*;
 import java.util.*;
-import nii.alloe.niceties.*;
+import nii.alloe.tools.process.PauseSignal;
 
 /**
  * A set of term pairs. Implemented via a tree set on the string "term1 => term2"
@@ -89,7 +89,7 @@ public class TermPairSet extends AbstractCollection<String[]> implements Seriali
     /**
      * Get the progress of a forEachPair action
      * @param v Internal representation of a term pair, for example return value of 
-     * {@link #forEachPair(EachTermPairAction,String,PauseSignal}
+     * {@link #forEachPair(EachTermPairAction,String,PauseSignal)}
      * @return the ratio of term pairs done over all term pairs */
      public double getForEachPairProgress(String v) {
         return (double)termPairs.headSet(v).size() / (double)termPairs.size();

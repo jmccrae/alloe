@@ -1,8 +1,10 @@
 package nii.alloe.classify;
-import nii.alloe.niceties.*;
 import nii.alloe.theory.*;
 import java.io.*;
 import java.util.*;
+import nii.alloe.tools.process.AlloeProcess;
+import nii.alloe.tools.process.AlloeProgressListener;
+import nii.alloe.tools.process.CannotPauseException;
 import weka.classifiers.*;
 import weka.core.*;
 

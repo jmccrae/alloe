@@ -5,7 +5,9 @@ import java.io.*;
 import nii.alloe.corpus.Corpus;
 import nii.alloe.corpus.TermPairSet;
 import nii.alloe.corpus.pattern.*;
-import nii.alloe.niceties.*;
+import nii.alloe.tools.process.AlloeProcess;
+import nii.alloe.tools.process.AlloeProgressListener;
+import nii.alloe.tools.process.CannotPauseException;
 import weka.core.*;
 
 /**
@@ -27,7 +29,6 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
     
     /** Create a new feature vector former
      * @param relation The relation to create data for
-     * @param terms A list of term participating in relations
      * @param patterns The pattern set to use to create vectors;
      * @param termPairs The true/false value of a particular term pair set, maybe null, if so all termPairs default to negative class
      * @param corpus The corpus
@@ -46,7 +47,6 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
     
     /**
      * Makes a set of feature vectors
-     * @param dataSet The dataSet to put data into (if null a new DataSet is created)
      * @return dataSet if the value passed was non-null, else a new DataSet with all information inserted */
     public DataSet makeFeatureVectors() {
         if (dataSet == null) {

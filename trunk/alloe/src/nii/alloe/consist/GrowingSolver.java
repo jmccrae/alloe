@@ -2,8 +2,9 @@ package nii.alloe.consist;
 import java.util.*;
 import nii.alloe.theory.Logic;
 import nii.alloe.theory.Model;
-import nii.alloe.niceties.*;
 import java.io.*;
+import nii.alloe.tools.process.AlloeProcessAdapter;
+import nii.alloe.tools.process.AlloeProgressListener;
 
 /**
  * Solves a problem using the growing matrix method. This is similar to {@link ConsistSolver}, however instead
@@ -41,8 +42,6 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
     /**
      * Find closest model to data
      * 
-     * @param logic The logic the model should be made constitent with
-     * @param probModel A weighted model of the inconsistent data
      */
     public void solve() {
         if(cp == null) {

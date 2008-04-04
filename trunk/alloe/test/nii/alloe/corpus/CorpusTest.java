@@ -20,7 +20,7 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.queryParser.*;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.corpus.analyzer.*;
-import nii.alloe.niceties.Strings;
+import nii.alloe.tools.strings.Strings;
 
 /**
  *
