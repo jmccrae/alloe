@@ -9,7 +9,6 @@ package nii.alloe.termvar;
 
 import junit.framework.*;
 import nii.alloe.corpus.*;
-import nii.alloe.niceties.*;
 import java.util.*;
 import java.io.*;
 

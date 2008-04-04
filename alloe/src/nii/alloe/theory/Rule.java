@@ -9,26 +9,63 @@ import java.util.*;
  * the form: P1 n ... n PN -> C1 v ... v CM . For this rule to be satisfied
  * it requires that either one of the premises is not true, or one of the
  * conclusions is true. This form is normally referred to as Conjunctive
- * Normal Form. We allow statements to have two kinds of variables, standard
- * variables and functional variables. Standard variables must be satisfied first
- * and then a search is done for functional variables and a term is considered
- * to be false if it involves a functional variable which could not be found.
- * In first-order logic a standard variable x in a rule r(x) is equivalent
- * to FORALL x : r(x); a functional variable x() in a rule r(x) is equivalent
- * to EXISTS x() : r(x(y1,...,yn)) where y1,...,yn are the standard variables in
- * r(x). NB Constants are not yet supported but will be soon (hopefully)
+ * Normal Form. Variables are given by Rule.Argument objects, these can have
+ * assignements. <br>
+ * NB Constants are not yet supported but will be soon (hopefully) <br>
+ * NB Skolemized arguments are not yet implemented either
  */
 public class Rule implements Comparable<Rule> {
+    /** The list of relationship names for each term */
     public Vector<String> relations;
+    /** The arguments of each term. The array is always two-dimensional */
     public Vector<Argument[]> terms;
+    /** The number of premises. Premises are always first */
     public int premiseCount;
+    /** A map of all the arguments in the rule, each value maps to itself */
     public TreeMap<Argument,Argument> arguments;
-    
+    /** Scores which can be attached to the rule. 
+     * @see ConsistProblem */
     public Integer score, maxScore;
     
     private Rule() { arguments = new TreeMap<Argument,Argument>(); }
     
+    /** Create a rule with assignments */
+    public Rule(List<Integer> positives, List<Integer> negatives, Model model) {
+        relations = new Vector<String>(positives.size() + negatives.size());
+        terms = new Vector<Argument[]>();
+        premiseCount = positives.size();
+        List<Integer> ts = new LinkedList<Integer>(positives);
+        ts.addAll(negatives);
+        
+        for(Integer id : ts) {
+            relations.add(model.relationByID(id));
+            Argument[] args = new Argument[2];
+            args[0] = new Argument(model.iByID(id));
+            args[0].setAssignment(model.iByID(id));
+            args[1] = new Argument(model.jByID(id));
+            args[1].setAssignment(model.jByID(id));
+            terms.add(args);
+        }
+        
+        addArguments();
+    }
+    
+    /** Copy constructor */
+    public Rule(Rule rule) {
+        arguments = new TreeMap<Argument,Argument>();
+        premiseCount = rule.premiseCount;
+        relations = (Vector<String>)rule.relations.clone();
+        terms = new Vector<Argument[]>();
+        
+        for(int i = 0; i < length(); i++) {
+            terms.add(rule.cloneArgPair(rule.terms.get(i)));
+            arguments.put(terms.get(i)[0], terms.get(i)[0]);
+            arguments.put(terms.get(i)[0], terms.get(i)[0]);
+        }
+    }
+    
     /**
+     * Number of terms in the rule.
      * @return length (number of statements) of this rule
      */
     public int length() { return relations.size(); }
@@ -47,31 +84,6 @@ public class Rule implements Comparable<Rule> {
         return r;
     }
     
-    /** Create a rule with assignments */
-    static public Rule create(List<Integer> positives, List<Integer> negatives, Model model) {
-        return (new Rule())._create(positives, negatives, model);
-    }
-    private Rule _create(List<Integer> positives, List<Integer> negatives, Model model) {
-        relations = new Vector<String>(positives.size() + negatives.size());
-        terms = new Vector<Argument[]>();
-        premiseCount = positives.size();
-        List<Integer> ts = new LinkedList<Integer>(positives);
-        ts.addAll(negatives);
-        
-        for(Integer id : ts) {
-            relations.add(model.relationByID(id));
-            Argument[] args = new Argument[2];
-            args[0] = new Argument(model.iByID(id));
-            args[0].setAssignment(model.iByID(id));
-            args[1] = new Argument(model.jByID(id));
-            args[1].setAssignment(model.jByID(id));
-            terms.add(args);
-        }
-        
-        addArguments();
-        return this;
-    }
-    
     private void loadFromString(String rule) throws IllegalArgumentException {
         String []pc = rule.split("->",-1);
         if(pc.length != 2) {
@@ -79,20 +91,8 @@ public class Rule implements Comparable<Rule> {
                     "Unexpected number of splits in rule: " + rule);
         }
         String p = "",c = "";
-        //if(pc.length == 2) {
         p = pc[0];
         c = pc[1];
-        //} else if(pc.length == 1) {
-        //if(rule.matches(".*\\S+.*->.*")) {
-        //	p = pc[0];
-        //	c = null;
-        //} else if(rule.matches(".*->.*\\S+.*")) {
-        //	p = null;
-        //	c = pc[0];
-        //} else {
-        //	throw new IllegalArgumentException("Couldn't split:" + rule);
-        //}
-        //}
         if(p.matches("\\s*")) p = null;
         if(c.matches("\\s*")) c = null;
         
@@ -171,94 +171,7 @@ public class Rule implements Comparable<Rule> {
     }
     
     /**
-     * Removes assignments to all functions
-     */
-    public void removeFunctionAssignments() {
-        Iterator<Argument> i = arguments.keySet().iterator();
-        while(i.hasNext()) {
-            Argument arg = i.next();
-            if(arg instanceof FunctionArgument) {
-                ((FunctionArgument)arg).setFunctionAssignment(-1);
-            }
-        }
-    }
-    
-    
-    /**
-     * This functions attempts to find an assignment which satisfies all
-     * "functions" in this Rule.
-     *
-     * The sketch of this algorithm is for each function in this Rule, we
-     * attempt to find an assignment that matched the first statement this is
-     * involved in, then we check this is valid with all other statement in
-     * the rule involving this function
-     *
-     * @param m A mapping from the graph names to valid graphs
-     * @return if a function assignment fails, true if this was in premise, false otherwise. Returns true is all function assignments successful.
-     */
-    public boolean addFunctionAssignments(Model m) {
-        Iterator<Argument> i = arguments.keySet().iterator();
-        return afaIterator(i, m);
-    }
-    
-    private boolean afaIterator(Iterator<Argument> iter,
-            Model m) {
-        
-        if(!iter.hasNext()) {
-            return true;
-        }
-        Argument arg = iter.next();
-        
-        if(!(arg instanceof FunctionArgument)) {
-            return afaIterator(iter,m);
-        }
-        
-        List<Integer> stats = statementsForArgument(arg);
-        return afaIterator2(stats.iterator(), (FunctionArgument)arg, iter, m);
-    }
-    
-    private boolean afaIterator2(Iterator<Integer> stats,
-            FunctionArgument arg,
-            Iterator<Argument> iter,
-            Model m) {
-        
-        if(stats.hasNext() && arg.getAssignment() == -1) {
-            int i = stats.next().intValue();
-            int sn;
-            if(terms.get(i)[0].compareTo(arg) == 0) {
-                sn = 0;
-            } else {
-                sn = 1;
-            }
-            Graph g = m.graphs.get(relations.get(i));
-            for(int j = 0; j < length(); j++) {
-                if((terms.get(i)[0].compareTo(arg) == 0 &&
-                        g.isConnected(j,terms.get(i)[1].getAssignment())) ||
-                        (terms.get(i)[1].compareTo(arg) == 0 &&
-                        g.isConnected(terms.get(i)[1].getAssignment(),j))) {
-                    arg.setFunctionAssignment(j);
-                    if(afaIterator2(stats, arg, iter, m)) {
-                        return i >= premiseCount;
-                    } else {
-                        arg.setFunctionAssignment(-1);
-                    }
-                }
-            }
-            return false;
-        } else if(arg.getAssignment() >= 0) {
-            int i = stats.next().intValue();
-            Graph g = m.graphs.get(relations.get(i));
-            if(!g.isConnected(terms.get(i)[0].getAssignment(),
-                    terms.get(i)[1].getAssignment()))
-                return false;
-            else
-                return afaIterator2(stats,arg,iter,m);
-        } else {
-            return afaIterator(iter,m);
-        }
-    }
-    
-    /*
+     * Find the terms involving a particular argument.
      * @param arg An argument
      * @return a list of the arguments that arg is involved in
      */
@@ -276,14 +189,13 @@ public class Rule implements Comparable<Rule> {
     }
     
     /**
-     * Checks if this rule is satisfied in a given context
+     * Checks if this rule is satisfied in a given context.
      * This function must be called after all non-function assignments
      * have been made (!)
      * @param m A mapping from Graph names to graphs
      * @return true if the rule is satisfied
      */
     public boolean isRuleSatisfied(Model m) {
-        addFunctionAssignments(m);
         for(int i = 0; i < length(); i++) {
             Graph g = m.graphs.get(relations.get(i));
             int v1 = terms.get(i)[0].getAssignment();
@@ -291,11 +203,9 @@ public class Rule implements Comparable<Rule> {
             
             if((i < premiseCount && (v1 == -1 || v2 == -1 || !g.isConnected(v1,v2))) ||
                     (i >= premiseCount && v1 >= 0 && v2 >= 0 && g.isConnected(v1,v2))) {
-                removeFunctionAssignments();
                 return true;
             }
         }
-        removeFunctionAssignments();
         return false;
     }
     
@@ -304,13 +214,13 @@ public class Rule implements Comparable<Rule> {
         Argument rval;
         if(s.matches("\\d+")) {
             rval = new Argument(Integer.parseInt(s));
-        } else if(s.matches("\\d+\\(\\)")) {
+        } /*else if(s.matches("\\d+\\(\\)")) {
             Matcher m = Pattern.compile("(\\d+)\\(\\)").matcher(s);
-            
+           
             m.matches();
-            
+           
             rval = new FunctionArgument(Integer.parseInt(m.group(1)));
-        } else {
+        }*/ else {
             throw new IllegalArgumentException("Couldn't read argument: " + s);
         }
         
@@ -319,50 +229,25 @@ public class Rule implements Comparable<Rule> {
             return rval;
         } else {
             Argument arg = arguments.get(rval);
-            if(((rval instanceof FunctionArgument) &&
-                    !(arg instanceof FunctionArgument)) ||
-                    (!(rval instanceof FunctionArgument) &&
-                    (arg instanceof FunctionArgument))) {
-                throw new IllegalArgumentException("Argument " + arg.id + " is defined as both functional and non-functional in this rule!");
-            }
             return arg;
         }
     }
     
-    /**
-     * @return a list of the functional arguments in this rule
-     */
-    public LinkedList<FunctionArgument> getFunctionalArguments() {
-        Iterator<Argument> i = arguments.keySet().iterator();
-        LinkedList<FunctionArgument> rval = new LinkedList<FunctionArgument>();
-        while(i.hasNext()) {
-            Argument arg = i.next();
-            if(arg instanceof FunctionArgument) {
-                rval.add((FunctionArgument)arg);
-            }
-        }
-        return rval;
-    }
+
     
     /**
-     * clone this rule
+     * Resolve this rule with another rule. This does it maximally, ie at all potential
+     * resolve points. The rule is simplified afterwards, note this is symmetric
+     * and will return a new rule, even if the two rules are not resolvable. The method
+     * works by unioning the two rules and removing anything that matches between the
+     * new rule's premise and conclusion. After this simplification is applied.
+     * @param rule The rule to be resolved with this
+     * @param model A model (this is used to simplify the rule after resolution, this may be
+     * null, see simplify(Rule,Model) for more details)
+     * @return The resolved rule
+     * @see #canResolveWith(Rule)
+     * @see #simplify(Rule,Model)
      */
-    public Rule createCopy() {
-        Rule r = new Rule();
-        r.premiseCount = premiseCount;
-        r.arguments = new TreeMap<Argument, Argument>();
-        r.relations = (Vector<String>)relations.clone();
-        r.terms = new Vector<Argument[]>();
-        
-        for(int i = 0; i < length(); i++) {
-            r.terms.add(cloneArgPair(terms.get(i)));
-            r.arguments.put(r.terms.get(i)[0], r.terms.get(i)[0]);
-            r.arguments.put(r.terms.get(i)[0], r.terms.get(i)[0]);
-        }
-        
-        return r;
-    }
-    
     public Rule resolve(Rule rule, Model model) {
         Rule newRule = new Rule();
         newRule.terms = new Vector<Argument[]>(length() + rule.length());
@@ -408,10 +293,10 @@ public class Rule implements Comparable<Rule> {
         return newRule;
     }
     
-    private static Argument[] cloneArgPair(Argument[] args) {
+    private Argument[] cloneArgPair(Argument[] args) {
         Argument[] rval = new Argument[2];
-        rval[0] = args[0].createCopy();
-        rval[1] = args[1].createCopy();
+        rval[0] = new Argument(args[0]);
+        rval[1] = new Argument(args[1]);
         return rval;
     }
     
@@ -458,11 +343,16 @@ public class Rule implements Comparable<Rule> {
     }
     
     /**
-     * Simplifies this rule by removing terms which due to assignment have been duplicated
+     * Simplifies this rule. Performed by removing terms which due to assignment have been duplicated
      * and detects is the rule is trivial (in which case all terms are removed
      * NB do not remove or change assignments after applying this rule!!
+     * @param r The rule to be simplified
+     * @param model The model, this may be null, if it is not null the model is used to check if this
+     * rule has any non-mutable terms, these are removed if they do not automatically make the rule
+     * consistent, or null is returned if the non-mutable term makes the rule consistent
+     * @return The simplified rule (note this will not be a new instance), or null if the
+     * rule must be satisfied (ie it is tautologous or satisfied by some non-mutable).
      */
-    //public void simplify(Model model) {
     public static Rule simplify(Rule r, Model model) {
         
         // Check for resolution
@@ -547,9 +437,11 @@ public class Rule implements Comparable<Rule> {
     }
     
     /**
-     * Check for resolution, note this is not a symmetric it checks if there is a resolution between this's premise and r's conclusion
+     * Check for resolution. Note this is not a symmetric it checks if there is a resolution between this's premise and
+     * r's conclusion
+     *
      */
-    public boolean canResolveWith(Rule r) {
+    protected boolean canResolveWith(Rule r) {
         for(int i = 0; i < premiseCount; i++) {
             for(int k = r.premiseCount; k < r.length(); k++) {
                 if(relations.get(i).equals(r.relations.get(k)) &&
@@ -563,11 +455,21 @@ public class Rule implements Comparable<Rule> {
         return false;
     }
     
+    /** Checks if two rules can resolve in some way. This is symmetric.
+     * @see #resolve(Rule, Model)
+     * @see #canResolveWith(Rule)
+     */
+    public static boolean canResolve(Rule rule1, Rule rule2) {
+        return rule1.canResolveWith(rule2) || rule1.canResolveWith(rule1);
+    }
+    
     /**
+     * Check if r subsumes this rule.
      * A rule subsumes another this rule if in any case that rule is true, this rule is also true. This means that every
      * term in this rule can be found in the other rule
+     * @return true iff this rule is subsumed by r
      */
-    public boolean subsumes(Rule r/*, Model m*/) {
+    public boolean subsumes(Rule r) {
         THIS_LOOP: for(int i = 0; i < premiseCount; i++) {
             for(int j = 0; j < r.premiseCount; j++) {
                 if(relations.get(i).equals(r.relations.get(j)) &&
@@ -580,15 +482,6 @@ public class Rule implements Comparable<Rule> {
         }
         
         THIS_LOOP2: for(int i = premiseCount; i < length(); i++) {
-            /*if(m != null) {
-                Graph g = m.graphs.get(relations.get(i));
-                if(g.isConnected(terms.get(i)[0].getAssignment(),
-                        terms.get(i)[1].getAssignment()) ||
-                        !g.mutable(terms.get(i)[0].getAssignment(),
-                        terms.get(i)[1].getAssignment())) {
-                    continue;
-                }
-            }*/
             for(int j = r.premiseCount; j < r.length(); j++) {
                 if(relations.get(i).equals(r.relations.get(j)) &&
                         terms.get(i)[0].getAssignment() == r.terms.get(j)[0].getAssignment() &&
@@ -601,6 +494,20 @@ public class Rule implements Comparable<Rule> {
         return true;
     }
     
+    /** 
+     * Compare two rules.
+     * Mostly so that rules can be put into a unique associative container, such as TreeSet
+     * The ordering principle is as follows:
+     * <ol>
+     * <li> number of premises </li>
+     * <li> number of conclusions </li>
+     * <li> relationship of 1st term (by String.compareTo(Object))</li>
+     * <li> 1st argument of 1st term </li>
+     * <li> 2nd argument of 1st term </li>
+     * <li> relationship of 2nd term (etc...) </li>
+     * </ol>
+     * @see Rule.Argument.compareTo(Argument)
+     */
     public int compareTo(Rule r) {
         if(r == this)
             return 0;
@@ -626,6 +533,11 @@ public class Rule implements Comparable<Rule> {
         return 0;
     }
     
+    /** 
+     * Check if two rules are equal.
+     * Derived from compareTo
+     * @see #compareTo(Rule)
+     */
     public boolean equals(Object obj) {
         if(obj instanceof Rule)
             return compareTo((Rule)obj) == 0;
@@ -635,7 +547,11 @@ public class Rule implements Comparable<Rule> {
     
     
     /**
-     * returns true if the conclusion must be satisfied ie. the conclusion contains a satisfied immutable
+     * Returns true if the conclusion must be satisfied.
+     * That is, the conclusion contains a satisfied immutable, note this function is really only
+     * for ConsistProblem, as it avoids cloning the object, or risking changing the rule object
+     * by using simplify(Rule,Model)
+     * @see #simplify(Rule,Model)
      */
     public boolean conclusionMustBeSatisified(Model model) {
         for(int i = premiseCount; i < length(); i++) {
@@ -651,7 +567,8 @@ public class Rule implements Comparable<Rule> {
     }
     
     /**
-     * Same as subsumes where testTerms is the representation of this rule in the model
+     * Checks if this rule has a term in its conclusion corresponding to a value
+     * in testTerms by the model.
      */
     public boolean conclusionContains(TreeSet<Integer> testTerms, Model model) {
         for(int i = premiseCount; i < length(); i++) {
@@ -662,23 +579,6 @@ public class Rule implements Comparable<Rule> {
             }
         }
         return false;
-    }
-    
-    /**
-     * Are all the premises and all the conclusions true in a specific model
-     */
-    public boolean completelyTrueIn(Model model) {
-        for(int i = 0; i < length(); i++)
-            if(!model.isConnected(model.id(this,i)))
-                return false;
-        return true;
-    }
-    
-    /**
-     * This rule can be used to simplify other rules, ie the conclusion is smaller than the premise
-     */
-    public boolean isReductive() {
-        return premiseCount > (length() - premiseCount);
     }
     
     /**
@@ -696,7 +596,7 @@ public class Rule implements Comparable<Rule> {
     /**
      * Remove a lit of terms
      */
-    public void removeTerms(List<Integer> terms) {
+    public void removeAllTerms(List<Integer> terms) {
         if(terms.isEmpty())
             return;
         Collections.sort(terms);
@@ -732,27 +632,21 @@ public class Rule implements Comparable<Rule> {
         arguments.put(term[1],term[1]);
     }
     
-    /**
-     * Set this rule to be identical (not merely a copy) of another rule
-     */
-    public void setRule(Rule r) {
-        arguments = r.arguments;
-        maxScore = r.maxScore;
-        premiseCount = r.premiseCount;
-        relations = r.relations;
-        score = r.score;
-        terms = r.terms;
-    }
     
     /**
-     * same as forAllAssignment(model,true,action)
+     * Same as forAllAssignment(model,true,action)
+     * @see #forAllAssignments(Model,boolean,AssignmentAction)
      */
     public boolean forAllAssignments(Model model, AssignmentAction action) {
         return forAllAssignments(model,true,action);
     }
     
     /**
-     * find all assignments to this rule and perform action
+     * Find all assignments to this rule and perform action
+     * @param model The model from which assignements can be drawn
+     * @param validate Use only assignments where the ground instance is inconsistent
+     * @param action The action to be performed
+     * @see AssignmentAction
      */
     public boolean forAllAssignments(Model model, boolean validate, AssignmentAction action) {
         boolean rval = true;
@@ -804,7 +698,7 @@ public class Rule implements Comparable<Rule> {
     }
     
     /**
-     * Limit this rule to the model, so the rule only contains terms with true assignments in the model.
+     * Limit this rule to the model. so the rule only contains terms with true assignments in the model.
      * Conclusions can be discarded freely but if a premise is not in the model this rule is not applicable
      * to that model so we set the rule to nothing
      */
@@ -832,58 +726,10 @@ public class Rule implements Comparable<Rule> {
         }
     }
     
-    /**
-     * Replace every functional assignment with a disjunction for ever element in elems
-     * eg r1(1(),2=2) ->    and elems = (1,2,3) becomes
-     *  r1(1=1,2=2) ; r1(1=2; 2=2) ; r1(1=3,2=3)
-     */
-    public void multiplexFunctions(AbstractCollection<Integer> elems) {
-        boolean changed = false;
-        for(int i = 0; i < length(); i++) {
-            if(terms.get(i)[0].getAssignment() == -1) {
-                Iterator<Integer> eiter = elems.iterator();
-                int j = i;
-                while(eiter.hasNext()) {
-                    Integer elem = eiter.next();
-                    Argument []newTerms = new Argument[2];
-                    
-                    newTerms[0] = new Argument(terms.get(i)[0].id);
-                    newTerms[0].setAssignment(elem);
-                    newTerms[1] = terms.get(i)[1];
-                    terms.insertElementAt(newTerms,j);
-                    relations.insertElementAt(relations.get(i),j++);
-                }
-                if(i < premiseCount)
-                    premiseCount += elems.size();
-                changed = true;
-                i--;
-            } else if(terms.get(i)[1].getAssignment() == -1) {
-                Iterator<Integer> eiter = elems.iterator();
-                int j = i;
-                while(eiter.hasNext()) {
-                    Integer elem = eiter.next();
-                    Argument []newTerms = new Argument[2];
-                    
-                    newTerms[1] = new Argument(terms.get(i)[1].id);
-                    newTerms[1].setAssignment(elem);
-                    newTerms[0] = terms.get(i)[0];
-                    terms.insertElementAt(newTerms,j);
-                    relations.insertElementAt(relations.get(i),j++);
-                }
-                if(i < premiseCount)
-                    premiseCount += elems.size();
-                changed = true;
-                i--;
-            }
-        }
-        if(changed) {
-            arguments.clear();
-            addArguments();
-        }
-    }
     
     /**
-     * Check the rule is not in some inconsistent state
+     * Check the rule is not in some inconsistent state.
+     * Used for testing and debugging.
      */
     public boolean isOK() {
         if(arguments.size() != terms.size() || premiseCount < 0 || premiseCount > length())
@@ -903,7 +749,9 @@ public class Rule implements Comparable<Rule> {
     }
     
     /**
-     * Argument this class is used for standard variables
+     * A variable in the rule. This object may be given an 
+     * assignment.
+     * this class is used for standard variables
      * it should not be instantiated directly but instead
      * constructed through Rule.loadRule()
      */
@@ -912,9 +760,17 @@ public class Rule implements Comparable<Rule> {
         // -1 means no assignment
         protected int assignment;
         
-        public Argument(int id) { this.id = id; assignment = -1; }
+        Argument(int id) { this.id = id; assignment = -1; }
+        /** Does nothing */
         protected Argument() {}
+        /** Copy constructor */
+        public Argument(Argument arg) {
+            this.id = arg.id;
+            this.setAssignment(arg.assignment);
+        }
         
+        /** Compares two arguments. if they both have assignments the value assigned
+         * to them is used, otherwise the id of the variable is used */
         public int compareTo(Argument t) {
             if(hasAssignment() && t.hasAssignment()) {
                 if(getAssignment() < t.getAssignment()) {
@@ -934,78 +790,45 @@ public class Rule implements Comparable<Rule> {
             }
         }
         
+        /** Does this argument have an assigned value */
         public boolean hasAssignment() { return assignment >= 0; }
+        
+        /** Get the assignment
+         * @throws IllegalStateException if the argument has no assignment */
         public int getAssignment() {
             if(hasAssignment()) {
                 return assignment;
             } else {
-                System.err.println("Tried to obtain assignment on unassigned argument!");
-                return -1;
+                throw new IllegalStateException("Tried to obtain assignment on unassigned argument!");
             }
         }
+        
+        /** Set the assignment
+         * @throws IlleglalStateException if the argument already has an assignment */
         public void setAssignment(int assign) {
             if(hasAssignment()) {
-                System.err.println("Tried to set already assigned argument");
+                throw new IllegalStateException("Tried to set already assigned argument");
             } else {
                 assignment = assign;
             }
         }
+        
+        /** Clear the current assignment
+         * @throws IllegalStateException  if the argument does not have an assignment */
         public void unsetAssignment() {
             if(hasAssignment()) {
                 assignment = -1;
             } else {
-                System.err.println("Attempting to unset already set assignment");
+                throw new IllegalStateException("Attempting to unset already set assignment");
             }
-        }
-        
-        public boolean canGetAssignment() {
-            return true;
         }
         
         public String toString() {
             return id + (assignment >= 0 ? ("=" + assignment) : "");
         }
         
-        
         public int getId() {
             return id;
         }
-        
-        Argument createCopy() {
-            Argument arg = new Argument(id);
-            arg.setAssignment(assignment);
-            return arg;
-        }
     }
-    
-    public class FunctionArgument extends Argument {
-        
-        public FunctionArgument(int id) {
-            super(id);
-        }
-        
-        public boolean hasAssignment() { return true; }
-        
-        public int getAssignment() {
-            return assignment;
-        }
-        
-        public void setFunctionAssignment(int x) {
-            assignment = x;
-        }
-        
-        public int getFunctionAssignment() {
-            return assignment;
-        }
-        
-        public boolean hasFunctionAssignment() {
-            return assignment >= 0;
-        }
-        
-        Argument createCopy() {
-            Argument arg = new FunctionArgument(id);
-            arg.setAssignment(assignment);
-            return arg;
-        }
-    }
-};
+}

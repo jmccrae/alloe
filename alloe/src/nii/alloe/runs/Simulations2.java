@@ -5,9 +5,9 @@ import nii.alloe.consist.*;
 import nii.alloe.consist.solvers.*;
 import nii.alloe.theory.*;
 import nii.alloe.simulate.*;
-import nii.alloe.niceties.*;
 import java.io.*;
 import java.util.*;
+import nii.alloe.tools.strings.Strings;
 
 /**
  *

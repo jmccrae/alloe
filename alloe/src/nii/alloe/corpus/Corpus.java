@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.corpus.analyzer.*;
-import nii.alloe.niceties.Strings;
+import nii.alloe.tools.strings.Strings;
 import org.apache.lucene.index.*;
 import org.apache.lucene.store.*;
 import org.apache.lucene.analysis.*;
@@ -62,7 +62,7 @@ public class Corpus {
     
     /** Add a new document to corpus
      * @param contents The text of the new document
-     * @throws IllegalStateException if {@link #openIndex()} has not been called
+     * @throws IllegalStateException if {@link #openIndex(boolean)} has not been called
      */
     public void addDoc(String contents) throws IOException {
         if (indexWriter == null) {
@@ -216,7 +216,7 @@ public class Corpus {
     }
     
     /** Find term pairs on a prepared query. = getContextsForTermPrepared(term1,term2,query,true)
-     * @see #preparedQueryPattern
+     * @see #prepareQueryPattern(Pattern)
      * @param query The query object as returned from prepareQueryPattern
      */
     public Iterator<Hit> getContextsForTermPrepared(String term1, String term2, Object query) {
@@ -225,7 +225,7 @@ public class Corpus {
     
     /** Find term pairs on a prepared query.
      *
-     * @see #preparedQueryPattern
+     * @see #prepareQueryPattern(Pattern)
      * @param query The query object as returned from prepareQueryPattern
      * @param cache If true attempt to cache term hits */
     public Iterator<Hit> getContextsForTermPrepared(String term1, String term2, Object query, boolean cache) {

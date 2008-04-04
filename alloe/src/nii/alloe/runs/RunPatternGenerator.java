@@ -12,7 +12,7 @@ import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
 import java.io.*;
 import java.util.*;
-import nii.alloe.niceties.*;
+import nii.alloe.tools.process.AlloeProgressListener;
 
 /**
  *

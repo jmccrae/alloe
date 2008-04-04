@@ -12,8 +12,8 @@ import java.io.*;
 import java.util.*;
 import nii.alloe.consist.*;
 import nii.alloe.theory.*;
-import nii.alloe.niceties.*;
 import nii.alloe.simulate.*;
+import nii.alloe.tools.strings.Strings;
 
 /**
  *

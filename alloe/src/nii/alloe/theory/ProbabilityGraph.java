@@ -1,7 +1,7 @@
 package nii.alloe.theory;
 import java.util.*;
 import java.io.*;
-import nii.alloe.niceties.Output;
+import nii.alloe.tools.process.Output;
 
 /**
  * Represents a matrix that contains probabilities of links

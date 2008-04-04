@@ -12,7 +12,7 @@ import java.util.*;
 import java.io.*;
 import nii.alloe.corpus.pattern.*;
 import nii.alloe.corpus.analyzer.*;
-import nii.alloe.niceties.Strings;
+import nii.alloe.tools.strings.Strings;
 import org.apache.lucene.index.*;
 import org.apache.lucene.store.*;
 import org.apache.lucene.analysis.*;

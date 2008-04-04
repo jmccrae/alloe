@@ -1,7 +1,9 @@
 package nii.alloe.termvar;
 import java.util.*;
-import nii.alloe.niceties.*;
 import nii.alloe.niceties.lattice.*;
+import nii.alloe.tools.lattice.SemiLattice;
+import nii.alloe.tools.lattice.SubsetSemiLatticeComparator;
+import nii.alloe.tools.strings.Strings;
 
 /**
  *

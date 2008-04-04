@@ -12,7 +12,6 @@ import weka.core.*;
 import weka.classifiers.functions.*;
 import java.io.*;
 import java.util.*;
-import nii.alloe.niceties.*;
 import nii.alloe.classify.*;
 import nii.alloe.corpus.*;
 import nii.alloe.theory.*;

@@ -182,7 +182,7 @@ public class GreedySat {
                     badPoints++;
             }
             if(badPoints == rule.length() - 2)
-                newBreaks.add(rule.createCopy());
+                newBreaks.add(new Rule(rule));
             return true;
         }
     }
@@ -237,8 +237,7 @@ public class GreedySat {
         public boolean doAction(Logic logic,
                 Model m,
                 Rule rule) {
-            Rule r = rule.createCopy();
-            r.multiplexFunctions(m.elems);
+            Rule r = new Rule(rule);
             r = Rule.simplify(r,probModel);
             if(r != null && r.length() > 0) {
                 baseRules.add(r);

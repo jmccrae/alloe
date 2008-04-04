@@ -1,6 +1,6 @@
 package nii.alloe.termvar;
-import nii.alloe.niceties.*;
 import java.util.*;
+import nii.alloe.tools.strings.StringList;
 
 /**
  *
@@ -60,6 +60,11 @@ public class MatchPair  {
                         s2.substring(match.i2,match.i2+1)));
             }
             lastMatch = match;
+        }
+        if(lastMatch.i1 + 1 != s1.length() || lastMatch.i2 + 1 != s2.length()) {
+            rval.add(new MatchPair(
+                    s1.substring(lastMatch.i1 + 1, s1.length()),
+                    s2.substring(lastMatch.i2 + 1, s1.length())));
         }
         return rval;
     }

@@ -12,7 +12,6 @@ import java.util.*;
 import java.io.*;
 import java.io.Serializable;
 import nii.alloe.corpus.*;
-import nii.alloe.niceties.*;
 
 /**
  *

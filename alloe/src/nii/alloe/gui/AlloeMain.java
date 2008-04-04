@@ -16,8 +16,9 @@ import nii.alloe.classify.*;
 import nii.alloe.consist.*;
 import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
-import nii.alloe.niceties.*;
 import nii.alloe.theory.*;
+import nii.alloe.tools.process.AlloeProcess;
+import nii.alloe.tools.process.AlloeProgressListener;
 import weka.classifiers.*;
 import weka.core.*;
 

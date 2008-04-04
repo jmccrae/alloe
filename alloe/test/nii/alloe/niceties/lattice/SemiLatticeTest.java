@@ -9,6 +9,8 @@ package nii.alloe.niceties.lattice;
 
 import junit.framework.*;
 import java.util.*;
+import nii.alloe.tools.lattice.SemiLattice;
+import nii.alloe.tools.lattice.SemiLatticeComparator;
 
 /**
  *

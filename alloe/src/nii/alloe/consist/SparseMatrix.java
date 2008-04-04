@@ -742,7 +742,7 @@ public class SparseMatrix implements Serializable {
                 negatives.add(n.i);
         }
         
-        return Rule.create(positives, negatives, model);
+        return new Rule(positives, negatives, model);
     }
     
     public class SparseNode implements Serializable {

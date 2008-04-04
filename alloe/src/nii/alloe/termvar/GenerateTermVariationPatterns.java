@@ -1,7 +1,8 @@
 package nii.alloe.termvar;
 import nii.alloe.corpus.*;
-import nii.alloe.niceties.*;
 import java.util.*;
+import nii.alloe.tools.strings.StringList;
+import nii.alloe.tools.struct.ToStringComparator;
 
 /**
  *

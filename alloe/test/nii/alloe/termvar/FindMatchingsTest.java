@@ -10,8 +10,8 @@ package nii.alloe.termvar;
 import junit.framework.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.*;
-import nii.alloe.niceties.*;
 import nii.alloe.niceties.lattice.*;
+import nii.alloe.tools.strings.StringList;
 
 /**
  *

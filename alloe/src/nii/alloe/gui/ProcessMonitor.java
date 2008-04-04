@@ -5,10 +5,12 @@
  */
 
 package nii.alloe.gui;
-import nii.alloe.niceties.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+import nii.alloe.tools.process.AlloeProcess;
+import nii.alloe.tools.process.AlloeProgressListener;
+import nii.alloe.tools.process.CannotPauseException;
 
 /**
  *

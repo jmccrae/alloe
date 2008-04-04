@@ -1,6 +1,6 @@
 package nii.alloe.consist;
 import java.util.*;
-import nii.alloe.niceties.*;
+import nii.alloe.tools.process.Output;
 
 /**
  * Simplex Algorithm. Implemented as follows, initially set the tableau to be
