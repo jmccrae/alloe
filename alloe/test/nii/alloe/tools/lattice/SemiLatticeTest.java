@@ -5,12 +5,10 @@
  * Created on 13 March 2008, 17:19
  */
 
-package nii.alloe.niceties.lattice;
+package nii.alloe.tools.lattice;
 
 import junit.framework.*;
 import java.util.*;
-import nii.alloe.tools.lattice.SemiLattice;
-import nii.alloe.tools.lattice.SemiLatticeComparator;
 
 /**
  *
