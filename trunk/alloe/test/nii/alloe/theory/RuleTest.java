@@ -76,7 +76,7 @@ public class RuleTest extends TestCase {
         Model model = null;
         
         Rule expResult = null;
-        Rule result = Rule.create(positives, negatives, model);
+        Rule result = new Rule(positives, negatives, model);
         assertEquals(expResult, result);
         
         // TODO review the generated test code and remove the default call to fail.
@@ -99,36 +99,6 @@ public class RuleTest extends TestCase {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of removeFunctionAssignments method, of class nii.alloe.theory.Rule.
-     */
-    public void testRemoveFunctionAssignments() {
-        System.out.println("removeFunctionAssignments");
-        
-        Rule instance = null;
-        
-        instance.removeFunctionAssignments();
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of addFunctionAssignments method, of class nii.alloe.theory.Rule.
-     */
-    public void testAddFunctionAssignments() {
-        System.out.println("addFunctionAssignments");
-        
-        Model m = null;
-        Rule instance = null;
-        
-        boolean expResult = true;
-        boolean result = instance.addFunctionAssignments(m);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
     /**
      * Test of statementsForArgument method, of class nii.alloe.theory.Rule.
@@ -158,38 +128,6 @@ public class RuleTest extends TestCase {
         
         boolean expResult = true;
         boolean result = instance.isRuleSatisfied(m);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getFunctionalArguments method, of class nii.alloe.theory.Rule.
-     */
-    public void testGetFunctionalArguments() {
-        System.out.println("getFunctionalArguments");
-        
-        Rule instance = null;
-        
-        LinkedList<Rule.FunctionArgument> expResult = null;
-        LinkedList<Rule.FunctionArgument> result = instance.getFunctionalArguments();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of createCopy method, of class nii.alloe.theory.Rule.
-     */
-    public void testCreateCopy() {
-        System.out.println("createCopy");
-        
-        Rule instance = null;
-        
-        Rule expResult = null;
-        Rule result = instance.createCopy();
         assertEquals(expResult, result);
         
         // TODO review the generated test code and remove the default call to fail.
@@ -353,38 +291,7 @@ public class RuleTest extends TestCase {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of completelyTrueIn method, of class nii.alloe.theory.Rule.
-     */
-    public void testCompletelyTrueIn() {
-        System.out.println("completelyTrueIn");
-        
-        Model model = null;
-        Rule instance = null;
-        
-        boolean expResult = true;
-        boolean result = instance.completelyTrueIn(model);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
-    /**
-     * Test of isReductive method, of class nii.alloe.theory.Rule.
-     */
-    public void testIsReductive() {
-        System.out.println("isReductive");
-        
-        Rule instance = null;
-        
-        boolean expResult = true;
-        boolean result = instance.isReductive();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
     /**
      * Test of removeTerm method, of class nii.alloe.theory.Rule.
@@ -401,20 +308,6 @@ public class RuleTest extends TestCase {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of removeTerms method, of class nii.alloe.theory.Rule.
-     */
-    public void testRemoveTerms() {
-        System.out.println("removeTerms");
-        
-        List<Integer> terms = null;
-        Rule instance = null;
-        
-        instance.removeTerms(terms);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
     /**
      * Test of addTerm method, of class nii.alloe.theory.Rule.
@@ -433,20 +326,6 @@ public class RuleTest extends TestCase {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of setRule method, of class nii.alloe.theory.Rule.
-     */
-    public void testSetRule() {
-        System.out.println("setRule");
-        
-        Rule r = null;
-        Rule instance = null;
-        
-        instance.setRule(r);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
     /**
      * Test of forAllAssignments method, of class nii.alloe.theory.Rule.
@@ -481,20 +360,6 @@ public class RuleTest extends TestCase {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of multiplexFunctions method, of class nii.alloe.theory.Rule.
-     */
-    public void testMultiplexFunctions() {
-        System.out.println("multiplexFunctions");
-        
-        AbstractCollection<Integer> elems = null;
-        Rule instance = null;
-        
-        instance.multiplexFunctions(elems);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
     /**
      * Test of isOK method, of class nii.alloe.theory.Rule.

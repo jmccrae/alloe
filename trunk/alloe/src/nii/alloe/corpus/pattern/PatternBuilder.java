@@ -180,6 +180,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             return;
         if(p.isTrivial())
             return;
+        System.out.println(p.toString());
         double d = pm.scorePattern(p);
         if(d < 0 || d > 1 || Double.isInfinite(d) || Double.isNaN(d)) {
             Output.err.println(p.toString());
