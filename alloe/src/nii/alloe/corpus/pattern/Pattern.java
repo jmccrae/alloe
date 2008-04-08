@@ -177,8 +177,8 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         term2 = cleanTerm(term2);
         if(matchesCacheOr == 0 || Math.abs(matchesCacheOr) == (lazy ? 1 : 2)) {
             regex = val.replaceAll(regexMetachars, "\\\\$1");
-            regex = regex.replaceAll("\\*","(" + wordDBS + (lazy ? "*)" : "+)"));
-            regex = regex.replaceAll("\\s","(" + nonWordDBS + (lazy ? "*)" : "+)"));
+            regex = regex.replaceAll("\\*",wordDBS + (lazy ? "*" : "+"));
+            regex = regex.replaceAll("\\s+",nonWordDBS + (lazy ? "*" : "+"));
             regex = ".*" + regex + ".*";
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.*)([12])(.*)([12])(.*)").matcher(regex);
             if(!m.matches()) assert false;
