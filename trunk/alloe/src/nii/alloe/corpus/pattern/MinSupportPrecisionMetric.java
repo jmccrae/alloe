@@ -19,6 +19,7 @@ public class MinSupportPrecisionMetric implements PatternMetric {
     public double scorePattern(Pattern pattern) {
         int n = 0;
         int N = 0;
+        int contextsSeen = 0;
         
         Iterator<Corpus.Hit> contexts = corpus.getContextsForPattern(pattern);
         if(contexts == null)
@@ -36,7 +37,14 @@ public class MinSupportPrecisionMetric implements PatternMetric {
                     }
                 }
             }
-            N++;
+            if(pattern.canMatch(text,false))
+                N++;
+            contextsSeen++;
+            if(contextsSeen > sketchSize) {
+                N = (int)Math.round(((double)N / (double)contextsSeen) * corpus.getHitsFromIterator(contexts));
+                n = (int)Math.round(((double)n / (double)contextsSeen) * corpus.getHitsFromIterator(contexts));
+                break;
+            }
         }
         
         double precision = (double) n / (double) N;
@@ -72,5 +80,26 @@ public class MinSupportPrecisionMetric implements PatternMetric {
         if(minSupport < 0)
             throw new IllegalArgumentException();
         this.minSupport = minSupport;
+    }
+
+    /**
+     * Holds value of property sketchSize.
+     */
+    private int sketchSize = 3000;
+
+    /**
+     * Getter for property sketchSize.
+     * @return Value of property sketchSize.
+     */
+    public int getSketchSize() {
+        return this.sketchSize;
+    }
+
+    /**
+     * Setter for property sketchSize.
+     * @param sketchSize New value of property sketchSize.
+     */
+    public void setSketchSize(int sketchSize) {
+        this.sketchSize = sketchSize;
     }
 }

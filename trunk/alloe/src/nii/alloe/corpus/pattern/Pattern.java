@@ -166,7 +166,8 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         return matches(str,term1,term2,false);
     }
     
-    /** @return true if this pattern matches str, with the capturers replaced by term1 and term2
+    /** Does this pattern match. 
+     * @return true if this pattern matches str, with the capturers replaced by term1 and term2
      * @param term1 the left hand side of the relation
      * @param term2 the right hand side of the relation
      * @param lazy Use lazy matching (drop any wildcard)
@@ -196,6 +197,38 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
             regex = matchesCache1 + term1 + matchesCache2 + term2 + matchesCache3;
         } else {
             regex = matchesCache1 + term2 + matchesCache2 + term1 + matchesCache3;
+        }
+        
+        return str.matches(regex);
+    }
+    
+    /** Can this pattern match the context for any term pair.
+     * @return true if this pattern matches str, with captureres replaced with .+
+     * @param lazy use lazy matching
+     */
+    public boolean canMatch(String str, boolean lazy) {
+        String regex;
+        if(matchesCacheOr == 0 || Math.abs(matchesCacheOr) == (lazy ? 1 : 2)) {
+            regex = val.replaceAll(regexMetachars, "\\\\$1");
+            regex = regex.replaceAll("\\*",wordDBS + (lazy ? "*" : "+"));
+            regex = regex.replaceAll("\\s+",nonWordDBS + (lazy ? "*" : "+"));
+            regex = ".*" + regex + ".*";
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.*)([12])(.*)([12])(.*)").matcher(regex);
+            if(!m.matches()) assert false;
+            matchesCache1 = deSafe(m.group(1));
+            matchesCache2 = deSafe(m.group(3));
+            matchesCache3 = deSafe(m.group(5));
+            if(m.group(2).equals("1") && m.group(4).equals("2")) {
+                matchesCacheOr = lazy ? 2 : 1;
+            } else if(m.group(2).equals("2") && m.group(4).equals("1")) {
+                matchesCacheOr = lazy ? -2 : -1;
+            } else assert false;
+            regex = regex.replaceAll("1",".+");
+            regex = deSafe(regex.replaceAll("2",".+"));
+        } else if(matchesCacheOr > 0) {
+            regex = matchesCache1 + ".+" + matchesCache2 + ".+" + matchesCache3;
+        } else {
+            regex = matchesCache1 + ".+" + matchesCache2 + ".+" + matchesCache3;
         }
         
         return str.matches(regex);
@@ -265,6 +298,13 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
     
     public int compareTo(Pattern p) {
         return val.compareTo(p.val);
+    }
+    
+    public boolean equals(Object o) {
+        if(o instanceof Pattern) {
+            return val.equals(((Pattern)o).val);
+        } else
+            return false;
     }
     
     public String toString() { return deSafe(val); }

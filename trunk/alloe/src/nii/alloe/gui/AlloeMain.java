@@ -2086,7 +2086,7 @@ public class AlloeMain extends javax.swing.JFrame {
         
     }
     
-    private class PatternGeneratorListener implements PatternBuilderListener {
+    private class PatternGeneratorListener implements PatternSetListener {
         private String getRelationship() { return ((PatternBuilder)patternGeneratorProgressMonitor.getProcess()).getRelationship(); }
         
         /** Called whenever progress is made
@@ -2181,8 +2181,8 @@ public class AlloeMain extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                PatternBuilder pb =  new PatternBuilder(corpus, (TermPairSet)o,
-                        (String)patternBuilderMetric.getSelectedItem(), name);
+                PatternBuilder pb =  new PatternSetBuilder(corpus, (TermPairSet)o,
+                        /*(String)patternBuilderMetric.getSelectedItem(),*/ name);
                 patternBuilderProcess.put(name,pb);
                 if(pbListener == null)
                     pbListener = new PatternGeneratorListener();

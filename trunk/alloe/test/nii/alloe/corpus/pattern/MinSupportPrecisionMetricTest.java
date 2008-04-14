@@ -35,7 +35,7 @@ public class MinSupportPrecisionMetricTest extends TestCase {
         try {
             System.out.println("scorePattern");
             
-            Pattern pattern = new Pattern("theorem,  first law of thermodynamics,  2,  heat,  ideal gas law,  internal 1,  irreversible thermodynamics and statistical_mechanics  heat engine,  kinetic theory                                                                              process,  partition function,  pressure,  reversible process,  second law of thermodynamics,  spontaneous");
+            Pattern pattern = new Pattern("1 (* known as 2");
             Corpus corpus = Corpus.openCorpus(new File("/home/john/wpshie/corpus.idx"));
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/syns.atps"));
             TermPairSet termPairs = (TermPairSet)ois.readObject();

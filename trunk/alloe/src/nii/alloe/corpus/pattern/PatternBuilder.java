@@ -4,11 +4,7 @@ import nii.alloe.corpus.EachTermPairAction;
 import nii.alloe.corpus.TermPairSet;
 import java.util.*;
 import java.io.*;
-import nii.alloe.tools.process.AlloeProcess;
-import nii.alloe.tools.process.AlloeProgressListener;
-import nii.alloe.tools.process.CannotPauseException;
-import nii.alloe.tools.process.Output;
-import nii.alloe.tools.process.PauseSignal;
+import nii.alloe.tools.process.*;
 import nii.alloe.tools.struct.ConcurrentLinkedList;
 import nii.alloe.tools.struct.MultiSet;
 
@@ -38,26 +34,22 @@ import nii.alloe.tools.struct.MultiSet;
  *
  * @author John McCrae, National Institute of Informatics
  */
-public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
+public class PatternBuilder extends AlloeProcessAdapter {
     
-    private transient PriorityQueue<Pattern> patternQueue;
+    transient PriorityQueue<Pattern> patternQueue;
     /** Same as return value of buildPatterns */
     public PatternSet patternScores;
-    private ConcurrentLinkedList<Pattern> usedPatterns;
-    private int maxIterations;
-    private Corpus corpus;
-    private TermPairSet termPairSet;
-    private int iterations;
-    private String relationship;
-    private String patternMetricName;
-    private String basePatternResume;
-    private transient MultiSet<Pattern> patternCounter;
-    private transient PatternMetric pm;
-    private transient int state;
-    private transient Thread theThread;
-    private static final int STATE_OK = 0;
-    private static final int STATE_STOPPING = 1;
-    private static final int STATE_BASE = 2;
+    ConcurrentLinkedList<Pattern> usedPatterns;
+    int maxIterations;
+    Corpus corpus;
+    TermPairSet termPairSet;
+    int iterations;
+    String relationship;
+    String patternMetricName;
+    String basePatternResume;
+    transient MultiSet<Pattern> patternCounter;
+    transient PatternMetric pm;
+    static final int STATE_BASE = 3;
     
     /** Creates a new instance of PatternBuilder
      * @param corpus The corpus
@@ -123,13 +115,21 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             else
                 fireNewProgressChange((double)iterations / (double)maxIterations);
         }
+        if(getMaxPatterns() > 0) {
+            Iterator<Pattern> psIter = patternScores.keySet().iterator();
+            while(psIter.hasNext()) {
+                Pattern p2  = psIter.next();
+                if(!patternCounter.contains(p2))
+                    psIter.remove();
+            }
+        }
         if(state == STATE_OK)
             fireFinished();
         //corpus.clearTermsInCorpusCache();
     }
     
     
-    private void buildBasePatterns() {
+    protected void buildBasePatterns() {
         patternQueue = new PriorityQueue<Pattern>(100,
                 new Comparator<Pattern>() {
             public int compare(Pattern p1, Pattern p2) {
@@ -151,7 +151,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     
     
     
-    private Pattern unify(Pattern pattern1, Pattern pattern2) {
+    protected Pattern unify(Pattern pattern1, Pattern pattern2) {
         if(!pattern1.isAlignableWith(pattern2)) {
             return null;
         } else {
@@ -175,7 +175,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         }
     }
     
-    private void addPattern(Pattern p, String f1, String f2) {
+    void addPattern(Pattern p, String f1, String f2) {
         if(patternScores.get(p) != null)
             return;
         if(p.isTrivial())
@@ -210,7 +210,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         firePatternGenerated(p,patternScores.get(p));
     }
     
-    private class BaseBuilder implements EachTermPairAction {
+    class BaseBuilder implements EachTermPairAction {
         public void doAction(String term1, String term2) {
             if(isIgnoreReflexives() && term1.equals(term2))
                 return;
@@ -264,94 +264,37 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     }
     
     
-    private transient LinkedList<AlloeProgressListener> listeners;
-    
-    // AlloeProcess functions
-    /** Register a progress listener */
-    public void addProgressListener(AlloeProgressListener apl) {
-        if(listeners == null)
-            listeners = new LinkedList<AlloeProgressListener>();
-        listeners.add(apl);
-    }
-    
-    
-    private void fireNewProgressChange(double newProgress) {
-        Iterator<AlloeProgressListener> apliter = listeners.iterator();
-        while(apliter.hasNext()) {
-            apliter.next().progressChange(newProgress);
-        }
-    }
-    
-    private void fireFinished() {
-        Iterator<AlloeProgressListener> apliter = listeners.iterator();
-        while(apliter.hasNext()) {
-            apliter.next().finished();
-        }
-    }
-    
-    private void firePatternGenerated(Pattern p, double score) {
-        Iterator<AlloeProgressListener> apliter = listeners.iterator();
+    void firePatternGenerated(Pattern p, double d) {
+        Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
         while(apliter.hasNext()) {
             AlloeProgressListener apl = apliter.next();
-            if(apl instanceof PatternBuilderListener) {
-                ((PatternBuilderListener)apl).patternGenerated(p,score);
-            }
-        }
-    }
-    
-    private void firePatternDropped(Pattern p) {
-        Iterator<AlloeProgressListener> apliter = listeners.iterator();
-        while(apliter.hasNext()) {
-            AlloeProgressListener apl = apliter.next();
-            if(apl instanceof PatternBuilderListener) {
-                ((PatternBuilderListener)apl).patternDropped(p);
-            }
-        }
-    }
-    
-    private void fireClearPatterns() {
-        Iterator<AlloeProgressListener> apliter = listeners.iterator();
-        while(apliter.hasNext()) {
-            AlloeProgressListener apl = apliter.next();
-            if(apl instanceof PatternBuilderListener) {
-                ((PatternBuilderListener)apl).clearPatterns();
+            if(apl instanceof PatternSetListener) {
+                ((PatternSetListener)apl).patternGenerated(p,d);
             }
         }
     }
     
     
-    /** Start process. It is expected that this function should start the progress
-     * in a new thread */
-    public void start() {
-        theThread = new Thread(this);
-        theThread.start();
-    }
-    
-    /** Pause the process. The assumption is that this will work by changing a variable
-     * in the running thread and then wait for this thread to finish by use of join().
-     * It is assumed that the this object is Serializable, otherwise it's your problem
-     * to assure the object is ok when resume() is called.
-     *
-     * @throws CannotPauseException If the process is not in a state where it can be resumed
-     */
-    public void pause() throws CannotPauseException {
-        state = STATE_STOPPING;
-        try {
-            theThread.join();
-        } catch(InterruptedException x) {
-            throw new CannotPauseException("The thread was interrupted!");
+    void firePatternDropped(Pattern p) {
+        Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
+        while(apliter.hasNext()) {
+            AlloeProgressListener apl = apliter.next();
+            if(apl instanceof PatternSetListener) {
+                ((PatternSetListener)apl).patternDropped(p);
+            }
         }
-        
     }
     
-    /** Resume the process.
-     * @see #pause()
-     */
-    public void resume() {
-        state = STATE_OK;
-        theThread = new Thread(this);
-        theThread.start();
+    void fireClearPatterns() {
+        Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
+        while(apliter.hasNext()) {
+            AlloeProgressListener apl = apliter.next();
+            if(apl instanceof PatternSetListener) {
+                ((PatternSetListener)apl).clearPatterns();
+            }
+        }
     }
+    
     
     public String getStateMessage() {
         if(state == STATE_BASE)
@@ -360,7 +303,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
             return "Generating Patterns: ";
     }
     
-    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         state = STATE_OK;
         pm = PatternMetricFactory.getPatternMetric(patternMetricName, corpus, termPairSet);
@@ -403,7 +346,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     /**
      * Holds value of property generateBaseOnly.
      */
-    private boolean generateBaseOnly = false;
+    boolean generateBaseOnly = false;
     
     /**
      * Getter for property generateBaseOnly.
@@ -424,7 +367,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     /**
      * Holds value of property scoreFilter.
      */
-    private double scoreFilter = 0;
+    double scoreFilter = 0;
     
     /**
      * Getter for property scoreFilter.
@@ -447,7 +390,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     /**
      * Holds value of property maxPatterns.
      */
-    private int maxPatterns = -1;
+    int maxPatterns = -1;
     
     /**
      * Getter for property maxPatterns.
@@ -523,7 +466,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
         }
     }
     
-    private void writeObject(ObjectOutputStream oos) throws IOException {
+    void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
         oos.writeObject(new PriorityQueue(patternQueue));
     }
@@ -539,7 +482,7 @@ public class PatternBuilder implements AlloeProcess, Serializable, Runnable {
     /**
      * Holds value of property ignoreReflexives.
      */
-    private boolean ignoreReflexives;
+    boolean ignoreReflexives;
     
     /**
      * Getter for property ignoreReflexives.
