@@ -180,7 +180,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(limitIteartionsCheck)
                     .addComponent(maxIterations, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Filtering"));
@@ -210,7 +210,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         scoreLabel.setText("Score greater than:");
         scoreLabel.setEnabled(false);
 
-        score.setModel(new SpinnerNumberModel((double)0.0,(double)0.0,(double)1.0,(double)0.0005));
+        score.setModel(new SpinnerNumberModel((double)0.0,(double)0.0,(double)1000000,(double)0.0005));
         score.setEnabled(false);
         score.setEditor(new JSpinner.NumberEditor(score,"0.0000"));
         score.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -286,13 +286,13 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addComponent(filterLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(filter, 0, 142, Short.MAX_VALUE)
-                        .addGap(49, 49, 49)
+                        .addComponent(filter, 0, 185, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(applySupervisedFiltering))
                     .addComponent(supervisedLabel)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(supervizedSize)
-                        .addGap(24, 24, 24)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 132, Short.MAX_VALUE)
                         .addComponent(supervisedSize, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -314,18 +314,20 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                         .addComponent(sizeLabel))
                     .addComponent(size, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(applySupervisedFiltering, javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(supervisedLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(supervizedSize)
-                            .addComponent(supervisedSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(supervizedSize))
+                    .addComponent(supervisedSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(filterLabel)
+                        .addComponent(filter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(filterLabel)
-                            .addComponent(filter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(applySupervisedFiltering)))
                 .addContainerGap())
         );
 
@@ -344,41 +346,43 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(closeButton, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(closeButton, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(closeButton)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void applySupervisedFilteringActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applySupervisedFilteringActionPerformed
         if(sizeFilter.isSelected()) {
             patternSet.limitToTop((Integer)size.getValue());
+        } else if(scoreFilter.isSelected()) {
+            patternSet.limitToScore((Double)score.getValue());
         } else {
             JOptionPane.showMessageDialog(this, "Stop being so lazy and implement this stuff!");
         }
     }//GEN-LAST:event_applySupervisedFilteringActionPerformed
-
+    
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         this.setVisible(false);
     }//GEN-LAST:event_closeButtonActionPerformed
-
+    
     private void sizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sizeStateChanged
         if(patternBuilder != null)
             patternBuilder.setMaxPatterns(((Integer)size.getValue()).intValue());
     }//GEN-LAST:event_sizeStateChanged
-
+    
     private void sizeFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sizeFilterActionPerformed
         scoreLabel.setEnabled(false);
         score.setEnabled(false);
@@ -389,33 +393,37 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
             patternBuilder.setScoreFilter(0);
         }
     }//GEN-LAST:event_sizeFilterActionPerformed
-
+    
     private void scoreStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_scoreStateChanged
         patternBuilder.setScoreFilter(((Double)score.getValue()).doubleValue());
     }//GEN-LAST:event_scoreStateChanged
-
+    
     private void scoreFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scoreFilterActionPerformed
         scoreLabel.setEnabled(true);
         score.setEnabled(true);
         sizeLabel.setEnabled(false);
         size.setEnabled(false);
-        patternBuilder.setMaxPatterns(0);
-        patternBuilder.setScoreFilter(((Double)score.getValue()).doubleValue());
+        if(patternBuilder != null) {
+            patternBuilder.setMaxPatterns(0);
+            patternBuilder.setScoreFilter(((Double)score.getValue()).doubleValue());
+        }
     }//GEN-LAST:event_scoreFilterActionPerformed
-
+    
     private void noFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noFilterActionPerformed
         scoreLabel.setEnabled(false);
         score.setEnabled(false);
         sizeLabel.setEnabled(false);
         size.setEnabled(false);
-        patternBuilder.setMaxPatterns(0);
-        patternBuilder.setScoreFilter(0);
+        if(patternBuilder != null) {
+            patternBuilder.setMaxPatterns(0);
+            patternBuilder.setScoreFilter(0);
+        }
     }//GEN-LAST:event_noFilterActionPerformed
-
+    
     private void maxIterationsStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_maxIterationsStateChanged
         patternBuilder.setMaxIterations(((Integer)maxIterations.getValue()).intValue());
     }//GEN-LAST:event_maxIterationsStateChanged
-
+    
     private void limitIteartionsCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limitIteartionsCheckActionPerformed
         maxIterations.setEnabled(limitIteartionsCheck.isSelected());
         if(!limitIteartionsCheck.isSelected())
@@ -423,7 +431,7 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         else
             patternBuilder.setMaxIterations(((Integer)maxIterations.getValue()).intValue());
     }//GEN-LAST:event_limitIteartionsCheckActionPerformed
-
+    
     private void openBasePatternsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openBasePatternsActionPerformed
         if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
@@ -532,14 +540,14 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
         basePatternLabel.setEnabled(patternBuilder != null && useBase.isSelected());
         generateAll.setEnabled(patternBuilder != null);
         ignoreReflexives.setEnabled(patternBuilder != null);
-        noFilter.setEnabled(patternBuilder != null);
+        noFilter.setEnabled((patternBuilder != null || patternSet != null));
         openBasePatterns.setEnabled(patternBuilder != null && useBase.isSelected());
-        score.setEnabled(patternBuilder != null && scoreFilter.isSelected());
-        scoreFilter.setEnabled(patternBuilder != null);
-        scoreLabel.setEnabled(patternBuilder != null && scoreFilter.isSelected());
-        size.setEnabled(patternBuilder != null && sizeFilter.isSelected());
-        sizeFilter.setEnabled(patternBuilder != null);
-        sizeLabel.setEnabled(patternBuilder != null && sizeFilter.isSelected());
+        score.setEnabled((patternBuilder != null || patternSet != null) && scoreFilter.isSelected());
+        scoreFilter.setEnabled((patternBuilder != null || patternSet != null));
+        scoreLabel.setEnabled((patternBuilder != null || patternSet != null) && scoreFilter.isSelected());
+        size.setEnabled((patternBuilder != null || patternSet != null) && sizeFilter.isSelected());
+        sizeFilter.setEnabled((patternBuilder != null || patternSet != null));
+        sizeLabel.setEnabled((patternBuilder != null || patternSet != null) && sizeFilter.isSelected());
         useBase.setEnabled(patternBuilder != null);
         limitIteartionsCheck.setEnabled(patternBuilder != null);
         maxIterations.setEnabled(patternBuilder != null && limitIteartionsCheck.isSelected());
@@ -568,13 +576,13 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     
     public void setPatternSet(PatternSet patternSet) {
         this.patternSet = patternSet;
-        noFilter.setEnabled(patternSet != null);
-        scoreFilter.setEnabled(patternSet != null);
-        scoreLabel.setEnabled(patternSet != null && scoreFilter.isSelected());
-        score.setEnabled(patternSet != null && scoreFilter.isSelected());
-        sizeFilter.setEnabled(patternSet != null);
-        sizeLabel.setEnabled(patternSet != null && sizeFilter.isSelected());
-        size.setEnabled(patternSet != null && sizeFilter.isSelected());
+        noFilter.setEnabled((patternBuilder != null || patternSet != null));
+        scoreFilter.setEnabled((patternBuilder != null || patternSet != null));
+        scoreLabel.setEnabled((patternBuilder != null || patternSet != null) && scoreFilter.isSelected());
+        score.setEnabled((patternBuilder != null || patternSet != null) && scoreFilter.isSelected());
+        sizeFilter.setEnabled((patternBuilder != null || patternSet != null));
+        sizeLabel.setEnabled((patternBuilder != null || patternSet != null) && sizeFilter.isSelected());
+        size.setEnabled((patternBuilder != null || patternSet != null) && sizeFilter.isSelected());
         applySupervisedFiltering.setEnabled(patternSet != null);
     }
     

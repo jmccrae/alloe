@@ -33,12 +33,15 @@ public class MultiSet<E extends Comparable> extends TreeSet<E> {
 
 class StandardComparator<E extends Comparable> implements Comparator<E> {
     public int compare(E o1, E o2) {
-        if(o1 == o2)
+        if(o1.equals(o2))
             return 0;
-        if(o1.compareTo(o2) > 0)
-            return 1;
-        else
+        int i = o1.compareTo(o2);
+        if(i != 0)
+            return i;
+        if(o1.hashCode() < o2.hashCode())
             return -1;
+        assert(o1.hashCode() > o2.hashCode());
+        return 1;
     }   
 }
 
@@ -49,12 +52,15 @@ class DerivedComparator<E> implements Comparator<E> {
     }
 
     public int compare(E o1, E o2) {
-        if(o1 == o2)
+        if(o1.equals(o2))
             return 0;
-        else if(base.compare(o1,o2) > 0)
-            return 1;
-        else
+        int i = base.compare(o1,o2);
+        if(i != 0)
+            return i;
+        if(o1.hashCode() < o2.hashCode())
             return -1;
+        assert(o1.hashCode() > o2.hashCode());
+        return 1;
     }
 
 }

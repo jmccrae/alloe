@@ -178,6 +178,25 @@ public class Corpus {
         }
     }
     
+    /** Get the number of hits for an iterator returned from getContexts*() functions. This
+     * is much faster than iterating through the iterator 
+     * @param iterator An iterator returned from one of the functions in this class
+     * @see #getContextsForPattern(Pattern)
+     * @see #getContextsForTermInPattern(Pattern,String,String)
+     * @see #getContextsForTermPrepared(String,String,Object)
+     * @see #getContextsForTermPrepared(String,String,Object,boolean)
+     * @see #getContextsForTerms(String,String)
+     * @see #getPreparedQuery(Object)
+     * @throws IllegalArgumentException Iterator was not turned by an appropriate function
+     */
+    public int getHitsFromIterator(Iterator<Hit> iterator) {
+        if(iterator instanceof HitsIterator) {
+            return ((HitsIterator)iterator).hits.size();
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+    
     /** Call this if you want to check every term pair with a pattern. This first
      * initializes the query and then call {@link #getContextsForTermPrepared}.
      * @return The prepared query data
