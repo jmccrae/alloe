@@ -431,7 +431,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
         if(patternScores == null)
             patternScores = patternSet;
         else {
-            patternScores.putAll(patternScores);
+            patternScores.putAll(patternSet);
         }
         if(patternQueue == null) {
             patternQueue = new PriorityQueue<Pattern>(100,

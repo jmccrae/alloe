@@ -15,18 +15,18 @@ public class PatternSetBuilder extends PatternBuilder {
     TreeMap<String, Integer> negCounts;
     
     /** Creates a new instance of PatternSetBuilder */
-    public PatternSetBuilder(Corpus corpus, TermPairSet termPairSet, String relationship) {
+    public PatternSetBuilder(Corpus corpus, TermPairSet termPairSet, String relationship, int maxPatterns) {
         super(corpus,termPairSet,PatternMetricFactory.PSEUDO_FM,relationship);
         positives = new TreeMap<Pattern,TermPairSet>();
         negatives = new TreeMap<Pattern,TermPairSet>();
         patternCounter = new MultiSet<Pattern>();
+        setMaxPatterns(maxPatterns);
     }
     
   
     private static final String glue = " => ";
     
     void addPattern(Pattern pattern, String f1, String f2) {
-        System.out.print(pattern.toString());
         if(patternScores.get(pattern) != null)
             return;
         if(pattern.isTrivial())
@@ -36,6 +36,8 @@ public class PatternSetBuilder extends PatternBuilder {
         Iterator<Corpus.Hit> contexts = corpus.getContextsForPattern(pattern);
         if(contexts == null)
             return;
+        int fp = negCounts != null ? negCounts.size() : 0;
+        System.out.print(pattern.toString());
         LOOP : while(contexts.hasNext()) {
             Corpus.Hit context = contexts.next();
             String text = context.getText();
@@ -46,10 +48,21 @@ public class PatternSetBuilder extends PatternBuilder {
                         if(termPairSet.contains(terms[i],terms[j])) {
                             patternPositives.add(terms[i],terms[j]);
                         } else {
-                            patternNegatives.add(terms[i],terms[j]);
+                            if(patternNegatives.add(terms[i],terms[j]) &&
+                                    !negCounts.containsKey(terms[i] + glue + terms[j])) {
+                                fp++;
+                            }
                         }
                     }
                 }
+            }
+            // Check for hopeless causes, we check that if this pattern were appended to the
+            // set and found every term pair, it would still have too many false positives to
+            // improve the overall F-Measure
+            if(negCounts != null &&
+                    currentFM > 1.0 / (1.0 + ((double)fp / (double)(2 * termPairSet.size())))) {
+                System.out.println("... hopeless");
+                return;
             }
         }
         double patternScore = 2.0 * ((double)patternPositives.size() / (double)(patternPositives.size() + patternNegatives.size() + termPairSet.size()));
@@ -118,12 +131,13 @@ public class PatternSetBuilder extends PatternBuilder {
         }
     }
     
-    static Integer one = new Integer(1);
+    /** The current score of the pattern set */
+    public double currentFM = 0;
     
     Pattern findBestReplacement(TermPairSet patternPositives, TermPairSet patternNegatives) {
         double bestImprov = 0;
         Pattern bestPattern = null;
-        double baseFM = 2.0 * ((double)posCounts.size() / (double)(posCounts.size() + negCounts.size() + termPairSet.size()));
+        currentFM = 2.0 * ((double)posCounts.size() / (double)(posCounts.size() + negCounts.size() + termPairSet.size()));
         int posGain = 0;
         int negGain = 0;
         for(String[] terms : patternPositives) {
@@ -140,7 +154,7 @@ public class PatternSetBuilder extends PatternBuilder {
             int posGain2 = posGain;
             
             for(String[] terms : patternPositives2) {
-                if(posCounts.get(terms[0] + glue + terms[1]).equals(one)) {
+                if(posCounts.get(terms[0] + glue + terms[1]) == 1) {
                     posGain2--;
                 }
             }
@@ -149,14 +163,14 @@ public class PatternSetBuilder extends PatternBuilder {
             TermPairSet patternNegatives2 = negatives.get(p2);
             
             for(String[] terms : patternNegatives2) {
-                if(negCounts.get(terms[0] + glue + terms[1]).equals(one)) {
+                if(negCounts.get(terms[0] + glue + terms[1]) == 1) {
                     negGain2--;
                 }
             }
             double newFM = 2.0 * (((double)posCounts.size() + posGain2) / (double)
             (posCounts.size() + posGain2 + negCounts.size() + negGain2 + termPairSet.size()));
-            if(newFM - baseFM > bestImprov) {
-                bestImprov = newFM - baseFM;
+            if(newFM - currentFM > bestImprov) {
+                bestImprov = newFM - currentFM;
                 bestPattern = p2;
             }
         }

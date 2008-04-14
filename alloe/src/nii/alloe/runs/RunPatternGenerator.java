@@ -43,7 +43,7 @@ public class RunPatternGenerator {
             TermPairSet tps = (TermPairSet)ois.readObject();
             ois.close();
             file = args[3];
-            pb = new PatternBuilder(c,tps,PatternMetricFactory.PSEUDO_FM,args[2]);
+            pb = new PatternBuilder(c,tps,PatternMetricFactory.MIN_SUP_PREC,args[2]);
             pb.setIgnoreReflexives(true);
             pb.addProgressListener(new AlloeProgressListener() {
                 public void progressChange(double newProgress) {
