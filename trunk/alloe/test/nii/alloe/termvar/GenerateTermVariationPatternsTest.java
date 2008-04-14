@@ -11,6 +11,7 @@ import junit.framework.*;
 import nii.alloe.corpus.*;
 import java.util.*;
 import java.io.*;
+import nii.alloe.tools.strings.*;
 
 /**
  *
@@ -37,11 +38,20 @@ public class GenerateTermVariationPatternsTest extends TestCase {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/syns-short.atps"));
             TermPairSet tps = (TermPairSet)ois.readObject();
             ois.close();
-            GenerateTermVariationPatterns instance = new GenerateTermVariationPatterns(tps);
+            /*GenerateTermVariationPatterns instance = new GenerateTermVariationPatterns(tps);
             
             Collection<List<MatchCharPair>> result = instance.getTermVariationPatterns();
             for(Object o : result) {
                 System.out.println(o.toString());
+            }*/
+            for(String[] terms : tps) {
+                Vector<String[]> res = FindMatchings.findMatchingsAsStrings(new StringList(terms[0]),new StringList(terms[1]));
+                System.out.println(terms[0] + " => " + terms[1]);
+                for(String[] r : res) {
+                    System.out.println(r[0]);
+                    System.out.println(r[1]);
+                    System.out.println();
+                }
             }
         } catch(Exception x) {
             x.printStackTrace();

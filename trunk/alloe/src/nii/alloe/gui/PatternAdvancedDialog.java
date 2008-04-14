@@ -606,5 +606,20 @@ public class PatternAdvancedDialog extends javax.swing.JDialog {
     public void setDataSet(DataSet dataSet) {
         this.dataSet = dataSet;
     }
+    /**
+     * Getter for property patternSetSize.
+     * @return Value of property patternSetSize.
+     */
+    public int getPatternSetSize() {
+        return ((Integer)size.getValue()).intValue();
+    }
+
+    /**
+     * Setter for property patternSetSize.
+     * @param patternSetSize New value of property patternSetSize.
+     */
+    public void setPatternSetSize(int patternSetSize) {
+        size.setValue((Integer)patternSetSize);
+    }
     
 }
