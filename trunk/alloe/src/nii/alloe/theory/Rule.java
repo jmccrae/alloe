@@ -26,6 +26,7 @@ public class Rule implements Comparable<Rule> {
     /** Scores which can be attached to the rule. 
      * @see ConsistProblem */
     public Integer score, maxScore;
+    RuleSymbol ruleSymbols;
     
     private Rule() { arguments = new TreeMap<Argument,Argument>(); }
     
@@ -46,6 +47,7 @@ public class Rule implements Comparable<Rule> {
             args[1].setAssignment(model.jByID(id));
             terms.add(args);
         }
+	ruleSymbol = model.getRuleSymbols();
         
         addArguments();
     }
@@ -56,7 +58,8 @@ public class Rule implements Comparable<Rule> {
         premiseCount = rule.premiseCount;
         relations = (Vector<String>)rule.relations.clone();
         terms = new Vector<Argument[]>();
-        
+	ruleSymbols = rule.ruleSymbols;
+
         for(int i = 0; i < length(); i++) {
             terms.add(rule.cloneArgPair(rule.terms.get(i)));
             arguments.put(terms.get(i)[0], terms.get(i)[0]);
@@ -73,17 +76,21 @@ public class Rule implements Comparable<Rule> {
     /**
      * Loads a rule from a line of text. Each term is of the form r(n,m) where n
      * and m are integers and r is a defined relation. The rule then has the form
-     * <code> term? [ ; term ] * -> term? [ ; term ]*</code>. The relation name
+     * <code> term? [ ; term ] * -&gt; term? [ ; term ]*</code>. The relation name
      * should be a defined relation or 'e' (representing the equivalence relation) or
      * 'in_set' where 'set' is a defined set.
      * @return The new Rule object based on the line
      */
-    static public Rule loadRule(String rule) throws IllegalArgumentException {
+    static public Rule loadRule(String rule, RuleSymbol ruleSymbols) throws IllegalArgumentException {
         Rule r = new Rule();
+	r.ruleSymbols = ruleSymbols;
         r.loadFromString(rule);
         return r;
     }
     
+    // NB for r(2,3) group 1 captures (2,3), group 2 captures 2
+    private static String argumentRegex = "\\d+(|\\(\\s*\\)|\\((\\s*\\d+\\s*,)*\\s*\\d\\s*))";
+
     private void loadFromString(String rule) throws IllegalArgumentException {
         String []pc = rule.split("->",-1);
         if(pc.length != 2) {
@@ -113,8 +120,13 @@ public class Rule implements Comparable<Rule> {
         relations = new Vector<String>(premiseCount + conclusionCount);
         terms = new Vector<Argument[]>(premiseCount + conclusionCount);
         
-        Pattern pat1 = Pattern.compile("\\s*(\\w+)\\s*\\(\\s*(\\d+\\(?\\)?)\\s*,\\s*(\\d+\\(?\\)?)\\s*\\)\\s*");
-        Pattern pat2 = Pattern.compile("\\s*(in_\\d+)\\s*\\(\\s*(\\d+\\(?\\)?)\\s*\\)\\s*");
+        Pattern pat1 = Pattern.compile("\\s*(\\w+)\\s*\\(\\s*(" + 
+				       argumentRegex +
+				       ")\\s*,\\s*(" + 
+				       argumentRegex +")\\s*\\)\\s*");
+        Pattern pat2 = Pattern.compile("\\s*(\\w+)\\s*\\(\\s*(" +
+				       argumentRegex +
+				       ")\\s*\\)\\s*");
         
         for(int i = 0; i < premiseCount + conclusionCount; i++) {
             Matcher m1 = pat1.matcher(ss[i]);
@@ -125,7 +137,7 @@ public class Rule implements Comparable<Rule> {
                 relations.add(m1.group(1));
                 Argument []term = new Argument[2];
                 term[0] = makeArgument(m1.group(2));
-                term[1] = makeArgument(m1.group(3));
+                term[1] = makeArgument(m1.group(5));
                 terms.add(term);
             } else if(m2.matches()) {
                 relations.add(m2.group(1));
@@ -804,7 +816,7 @@ public class Rule implements Comparable<Rule> {
         }
         
         /** Set the assignment
-         * @throws IlleglalStateException if the argument already has an assignment */
+         * @throws IllegalStateException if the argument already has an assignment */
         public void setAssignment(int assign) {
             if(hasAssignment()) {
                 throw new IllegalStateException("Tried to set already assigned argument");
@@ -830,5 +842,68 @@ public class Rule implements Comparable<Rule> {
         public int getId() {
             return id;
         }
+    }
+
+    /** Represents a constant value */
+    public class ConstantArgument extends Argument {
+	ConstantArgument(int val) {
+	    id = -1;
+	    assignment = val;
+	}
+	    
+	public void unsetAssignmnet() {
+	    throw new UnsupportedOperationException();
+	}
+
+	public String toString() {
+	    return "\"" + ruleSymbols.getConstant(assignment) + "\"";
+	}
+    }
+
+    /** Represents a skolemized function */
+    public class FunctionalArgument extends Argument {
+	Argument[] functionArgs;
+	FunctionalArgument(int id, Argument[] functionArgs) {
+	    this.id = id;
+	    this.functionArgs = functionArgs;
+	    assignment = -1;
+	}
+	
+	public boolean hasAssigment() {
+	    for(Argument a : functionArgs) {
+		if(!a.hasAssignment())
+		    return false;
+	    }
+	    return true;
+	}
+	
+	public int getAssignment() {
+	    int r = ruleSymbols.getRange().get(id);
+	    for(int i = 0; i < functionalArgs.length; i++) {
+		if(!functionalArgs[i].hasAssignment())
+		    throw new IllegalStateException();
+		r += functionalArgs[i].getAssignment() *
+		    (int)Math.pow(ruleSymbols.getModelSize(),functionalArgs.length - i - 1);
+	    }
+	    return r;
+	}	    
+
+	public boolean setAssignment() {
+	    throw new UnsupportedOperationException();
+	}
+
+	public void unsetAssignment() {
+	    throw new UnsupportedOperationException();
+	}
+	
+	public String toString() {
+	    String assigns = "";
+	    for(int i = 0; i < functionalArgs.length; i++) {
+		assigns = assigns + functionalArgs.toString();
+		if(i != functionalArgs.length - 1)
+		    assigns = assigns + ",";
+	    }
+	    return id + "(" + assigns + ")";
+	}
     }
 }
