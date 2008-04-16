@@ -1751,8 +1751,9 @@ public class AlloeMain extends javax.swing.JFrame {
     }//GEN-LAST:event_modelRelationshipActionPerformed
     
     private void initProbModelBuilder() {
-        HashMap<String,Classifier> classifs = new HashMap<String,Classifier>(logic.relationNames.keySet().size());
-        HashMap<String,String> dataSetToLogicName = new HashMap<String,String>(logic.relationNames.keySet().size());
+        Collection<String> logicNames = logic.getRelations();
+        HashMap<String,Classifier> classifs = new HashMap<String,Classifier>(logicNames.size());
+        HashMap<String,String> dataSetToLogicName = new HashMap<String,String>(logicNames.size());
         for(int i = 0; i < logicConnectionTable.getModel().getRowCount(); i++) {
             classifs.put(logicConnectionTable.getModel().getValueAt(i,1).toString(),
                     classifierSet.get(logicConnectionTable.getModel().getValueAt(i,2).toString()));
@@ -1847,7 +1848,7 @@ public class AlloeMain extends javax.swing.JFrame {
         }
         clCol.setCellEditor(new DefaultCellEditor(clCombo));
         
-        Iterator<String> relIter = logic.relationNames.keySet().iterator();
+        Iterator<String> relIter = logic.getRelations().iterator();
         DefaultTableModel dtm = (DefaultTableModel)logicConnectionTable.getModel();
         while(dtm.getRowCount() > 0)
             dtm.removeRow(0);

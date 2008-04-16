@@ -68,8 +68,10 @@ public class WPSHIEJoint {
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path+"terms"));
         TermList allTerms = (TermList)ois.readObject();
         ois.close();
-        probModel = new Model(allTerms.size());
-        probModel.addBasicGraphs(new Logic(new File("logics/sh.logic")));
+        Logic shLogic = new Logic(new File("logics/sh.logic"));
+        shLogic.ruleSymbols.setModelSize(allTerms.size());
+        probModel = new Model(shLogic);
+        probModel.addBasicGraphs(shLogic);
         for(int n = 0; n < 2; n++) {
             System.out.println(names[n]);
             ois = new ObjectInputStream(new FileInputStream(path+names[n] + ".afv"));
@@ -103,14 +105,18 @@ public class WPSHIEJoint {
                 i++;
             }
         }
+        Logic hypLogic = new Logic(new File("logics/hyp.logic"));
+        hypLogic.ruleSymbols.setModelSize(allTerms.size());
         TreeMap<String,Graph> graphs = new TreeMap<String,Graph>();
         graphs.put("e",probModel.getGraphByName("e"));
         graphs.put("r1",probModel.getGraphByName("r1"));
-        probModelHyp = new Model(graphs,allTerms.size());
+        probModelHyp = new Model(graphs,hypLogic);
+        Logic synLogic = new Logic(new File("logics/syn.logic"));
+        synLogic.ruleSymbols.setModelSize(allTerms.size());
         graphs = new TreeMap<String,Graph>();
         graphs.put("e",probModel.getGraphByName("e"));
         graphs.put("r1",probModel.getGraphByName("r2"));
-        probModelSyn = new Model(graphs,allTerms.size());
+        probModelSyn = new Model(graphs,synLogic);
     }
     
     private static void buildTrueModels() throws Exception  {
@@ -118,8 +124,10 @@ public class WPSHIEJoint {
         TermList terms = (TermList)ois.readObject();
         ois = new ObjectInputStream(new FileInputStream(path+"syns.atps"));
         TermPairSet synPairs = (TermPairSet)ois.readObject();
-        trueModel = new Model(terms.size());
-        trueModel.addBasicGraphs(new Logic(new File("logics/sh.logic")));
+        Logic shLogic = new Logic(new File("logics/sh.logic"));
+        shLogic.ruleSymbols.setModelSize(terms.size());
+        trueModel = new Model(shLogic);
+        trueModel.addBasicGraphs(shLogic);
         trueModel.addSpecificGraph("r2");
         trueModel.setGraphAs("r2",synPairs,terms);
         ois = new ObjectInputStream(new FileInputStream(path+"hyps.atps"));
@@ -129,11 +137,15 @@ public class WPSHIEJoint {
         TreeMap<String,Graph> graphs = new TreeMap<String,Graph>();
         graphs.put("e",trueModel.getGraphByName("e"));
         graphs.put("r1",trueModel.getGraphByName("r1"));
-        trueModelHyp = new Model(graphs,terms.size());
+        Logic hypLogic = new Logic(new File("logics/hyp.logic"));
+        hypLogic.ruleSymbols.setModelSize(terms.size());
+        trueModelHyp = new Model(graphs,hypLogic);
         graphs = new TreeMap<String,Graph>();
         graphs.put("e",trueModel.getGraphByName("e"));
         graphs.put("r1",trueModel.getGraphByName("r2"));
-        trueModelSyn = new Model(graphs,terms.size());
+        Logic synLogic = new Logic(new File("logics/syn.logic"));
+        synLogic.ruleSymbols.setModelSize(terms.size());
+        trueModelSyn = new Model(graphs,synLogic);
     }
     
     private static void compareModels(Model actual, Model soln) {
@@ -160,9 +172,9 @@ public class WPSHIEJoint {
         TreeMap<String,Graph> graphs = new TreeMap<String,Graph>();
         graphs.put("e",gs.soln.getGraphByName("e"));
         graphs.put("r1",gs.soln.getGraphByName("r1"));
-        compareModels(trueModelHyp, new Model(graphs,trueModelHyp.n));
+        compareModels(trueModelHyp, new Model(graphs,trueModelHyp.logic));
         graphs.put("r1",gs.soln.getGraphByName("r2"));
-        compareModels(trueModelSyn, new Model(graphs,trueModelSyn.n));
+        compareModels(trueModelSyn, new Model(graphs,trueModelSyn.logic));
         compareModels(trueModel,gs.soln);
     }
 }

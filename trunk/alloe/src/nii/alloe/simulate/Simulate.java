@@ -20,6 +20,7 @@ public class Simulate {
     public Model trueModel;
     public Model probModel;
     public double sparsePercent;
+    public TreeMap<String,Double> relationDensity;
     
     public Simulate(String logicFile, double prec, double recall, int n) throws IOException {
         l = new Logic(new File(logicFile));
@@ -27,12 +28,17 @@ public class Simulate {
         r = recall;
         this.n = n;
         sparsePercent = 1;
+        relationDensity = new TreeMap<String,Double>();
+        for(String s : l.getRelations()) {
+            relationDensity.put(s,-1.0);
+        }
     }
     
     
     public void createModels() {
         GrowingSolver gs;
         //do {
+        l.ruleSymbols.setModelSize(n);
             trueModel = makeGraphs(l);
             //l.consistCheck(trueModel, new MakeConsistent());
             Model gsModel = trueModel.createProbabilityCopy(.73,.27);
@@ -46,15 +52,15 @@ public class Simulate {
     
     
     private Model makeGraphs(Logic l) {
-        Iterator<String> i = l.relationDensity.keySet().iterator();
+        Iterator<String> i = relationDensity.keySet().iterator();
         TreeMap<String, Graph> tig = new TreeMap<String, Graph>();
-        Model m = new Model(n);
+        Model m = new Model(l);
         while(i.hasNext()) {
             String idx = i.next();
             
             SpecificGraph g = m.addSpecificGraph(idx);
             g.makeRandom(Math.pow((double)n,
-                    l.relationDensity.get(idx).doubleValue()));
+                    relationDensity.get(idx).doubleValue()));
             //if(l.useLocking.contains(idx)) {
             //    g.enableLocking();
             //}
@@ -68,12 +74,12 @@ public class Simulate {
     }
     
     private Model makeProbGraphs(Model spec) {
-        Iterator<String> i = l.relationDensity.keySet().iterator();
+        Iterator<String> i = relationDensity.keySet().iterator();
         Model rval = new Model(spec);
         while(i.hasNext()) {
             String idx = i.next();
             ProbabilityGraph p = rval.addProbabilityGraph(idx);
-            createData(p, spec.graphs.get(idx),l.relationNames.get(idx));
+            createData(p, spec.graphs.get(idx),idx);
         }
         
         rval.addBasicGraphs(l);

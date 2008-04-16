@@ -40,9 +40,9 @@ public class MarginSimulation {
     public static double[] jointImprovement(double prec, double recall, int n, double linkDensity, double sparsity) {
         try {
             Simulate s = new Simulate("logics/sh.logic",prec,recall,n);
-            Iterator<String> relIter = s.l.relationDensity.keySet().iterator();
+            Iterator<String> relIter = s.relationDensity.keySet().iterator();
             while(relIter.hasNext()) {
-                s.l.relationDensity.put(relIter.next(),linkDensity);
+                s.relationDensity.put(relIter.next(),linkDensity);
             }
             s.sparsePercent = sparsity;
             s.createModels();
@@ -50,14 +50,21 @@ public class MarginSimulation {
             double []rval = new double[18];
             int []tempRes = new int[3];
             
+            Logic shLogic = new Logic(new File("logics/sh.logic"));
+            shLogic.setModelSize(n);
+            Logic hypLogic = new Logic(new File("logics/hypernym.logic"));
+            hypLogic.setModelSize(n);
+            Logic synLogic = new Logic(new File("logics/synonym.logic"));
+            synLogic.setModelSize(n);
+            
             TreeMap<String,Graph> graphs = new TreeMap<String,Graph>();
             graphs.put("e",s.probModel.getGraphByName("e"));
             graphs.put("r1",s.probModel.getGraphByName("r2"));
-            Model synOnlyProbModel = new Model(graphs,n);
+            Model synOnlyProbModel = new Model(graphs,synLogic);
             graphs = new TreeMap<String,Graph>();
             graphs.put("e",s.trueModel.getGraphByName("e"));
             graphs.put("r1",s.trueModel.getGraphByName("r2"));
-            Model synOnlyTrueModel = new Model(graphs,n);
+            Model synOnlyTrueModel = new Model(graphs,synLogic);
             tempRes = synOnlyProbModel.computeComparison(synOnlyTrueModel);
             rval[0] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[1]);
             rval[1] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[2]);
@@ -65,11 +72,11 @@ public class MarginSimulation {
             graphs = new TreeMap<String,Graph>();
             graphs.put("e",s.probModel.getGraphByName("e"));
             graphs.put("r1",s.probModel.getGraphByName("r1"));
-            Model hypOnlyProbModel = new Model(graphs,n);
+            Model hypOnlyProbModel = new Model(graphs,hypLogic);
             graphs = new TreeMap<String,Graph>();
             graphs.put("e",s.trueModel.getGraphByName("e"));
             graphs.put("r1",s.trueModel.getGraphByName("r1"));
-            Model hypOnlyTrueModel = new Model(graphs,n);
+            Model hypOnlyTrueModel = new Model(graphs,hypLogic);
             tempRes = hypOnlyProbModel.computeComparison(hypOnlyTrueModel);
             rval[3] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[1]);
             rval[4] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[2]);
@@ -82,7 +89,7 @@ public class MarginSimulation {
             graphs = new TreeMap<String,Graph>();
             graphs.put("e",shSolvedModel.getGraphByName("e"));
             graphs.put("r1",shSolvedModel.getGraphByName("r2"));
-            Model shSynSolved = new Model(graphs,n);
+            Model shSynSolved = new Model(graphs,shLogic);
             tempRes = shSynSolved.computeComparison(synOnlyTrueModel);
             rval[6] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[1]);
             rval[7] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[2]);
@@ -91,7 +98,7 @@ public class MarginSimulation {
             graphs = new TreeMap<String,Graph>();
             graphs.put("e",shSolvedModel.getGraphByName("e"));
             graphs.put("r1",shSolvedModel.getGraphByName("r1"));
-            Model shHypSolved = new Model(graphs,n);
+            Model shHypSolved = new Model(graphs,shLogic);
             tempRes = shHypSolved.computeComparison(hypOnlyTrueModel);
             rval[9] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[1]);
             rval[10] = (double)tempRes[0] / (double)(tempRes[0] + tempRes[2]);

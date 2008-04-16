@@ -205,15 +205,16 @@ public class Constructor {
         private TreeSet<Integer> nodeOrder;
         private int []linkCount;
         public void init(Model specModel) {
-            linkCount = new int[specModel.n];
+            int n = specModel.getFullModelSize();
+            linkCount = new int[n];
             Iterator<String> graphIter = specModel.graphNameIterator();
             while(graphIter.hasNext()) {
                 Graph g = specModel.getGraphByName(graphIter.next());
-                Iterator<Integer> linkIter = g.iterator(specModel.n);
+                Iterator<Integer> linkIter = g.iterator(n);
                 while(linkIter.hasNext()) {
                     int link = linkIter.next();
-                    linkCount[link % specModel.n]++;
-                    linkCount[link / specModel.n]++;
+                    linkCount[link % n]++;
+                    linkCount[link / n]++;
                 }
             }
             if(nodeStrategy == ADD_NODES_LEAST_LINKS) {
@@ -229,7 +230,7 @@ public class Constructor {
                     }
                 });
             }
-            for(int i = 0; i < specModel.n; i++) {
+            for(int i = 0; i < n; i++) {
                 nodeOrder.add(i);
             }
         }
@@ -242,14 +243,15 @@ public class Constructor {
         double[] centrality;
         TreeSet<Integer> nodeOrder;
         public void init(Model model) {
-            centrality = new double[model.n];
-            double []newCentrality = new double[model.n];
-            for(int i = 0; i < model.n; i++) {
-                newCentrality[i] = 1 / (double)model.n;
+            int n  = model.getFullModelSize();
+            centrality = new double[n];
+            double []newCentrality = new double[n];
+            for(int i = 0; i < n; i++) {
+                newCentrality[i] = 1 / (double)n;
             }
             do {
-                System.arraycopy(newCentrality,0,centrality,0,model.n);
-                newCentrality = new double[model.n];
+                System.arraycopy(newCentrality,0,centrality,0,n);
+                newCentrality = new double[n];
                 Iterator<Integer> linkIter = model.iterator();
                 double sum = 0.0;
                 while(linkIter.hasNext()) {
@@ -259,13 +261,13 @@ public class Constructor {
                 }
                 if(sum == 0.0)
                     return;
-                for(int i = 0; i < model.n; i++) {
+                for(int i = 0; i < n; i++) {
                     newCentrality[i] = newCentrality[i] / sum;
                 }
                 
             } while(diffGreater(centrality,newCentrality,0.0001));
             
-            System.arraycopy(newCentrality,0,centrality,0,model.n);
+            System.arraycopy(newCentrality,0,centrality,0,n);
             if(nodeStrategy == ADD_NODES_LEAST_CENTRAL) {
                 nodeOrder = new TreeSet<Integer>(new Comparator<Integer>() {
                     public int compare(Integer i1, Integer i2) {
@@ -279,7 +281,7 @@ public class Constructor {
                     }
                 });
             }
-            for(int i = 0; i < model.n; i++) {
+            for(int i = 0; i < n; i++) {
                 nodeOrder.add(i);
             }
         }

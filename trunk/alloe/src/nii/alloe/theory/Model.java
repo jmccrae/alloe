@@ -19,13 +19,13 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      */
     public final Collection<Integer> elems;
     /**
+     * The Logic
+     */
+    public final Logic logic;
+    /**
      * A map used to order the graphs, this is used for creating IDs
      */
     private final Vector<String> relationIdx;
-    /**
-     * The number of elements used in this model
-     */
-    public int n;
     
     private boolean hasCompulsory;
     private int compulsoryCount;
@@ -33,26 +33,26 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     /**
      * Create an empty model on the elements {1,...,n}
      */
-    public Model(int n) {
+    public Model(Logic logic) {
         elems = new LinkedList<Integer>();
-        for(int i = 0; i < n; i++) {
+        this.logic = logic;
+        for(int i = 0; i < getFullModelSize(); i++) {
             elems.add(i);
         }
-        this.n = n;
         graphs = new TreeMap<String, Graph>();
         relationIdx = new Vector<String>();
     }
     
     /**
-     * Create a model with the specified graphs on the elements {1,...,n}
+     * Create a model with the specified graphs on the elements {1,...,n} DELETE this soon!!!
      */
-    public Model(TreeMap<String, Graph> graphs, int n)  {
+    public Model(TreeMap<String, Graph> graphs, Logic logic)  {
         this.graphs = graphs;
+        this.logic = logic;
         elems = new LinkedList<Integer>();
-        for(int i = 0; i < n; i++) {
+        for(int i = 0; i < getFullModelSize(); i++) {
             elems.add(i);
         }
-        this.n = n;
         relationIdx = new Vector<String>();
         
         Iterator<String> reliter = graphs.keySet().iterator();
@@ -66,23 +66,26 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      */
     public Model(Model m) {
         this.relationIdx = (Vector<String>)m.relationIdx.clone();
-        this.n = m.n;
+        this.logic = m.logic;
         this.elems = m.elems;
         graphs = new TreeMap<String,Graph>();
     }
     
-    private Model() {
-        this.graphs = new TreeMap<String,Graph>();
-        this.elems = new TreeSet<Integer>();
-        relationIdx = new Vector<String>();
+    
+    public int getModelSize() {
+        return logic.ruleSymbols.modelSize;
+    }
+    
+    public int getFullModelSize() {
+        return logic.ruleSymbols.fullModelSize;
     }
     
     /**
      * Create a model that is a copy of this but contains only the specified links
      */
     public Model subModel(Collection<Integer> rels) {
-        Model rval = new Model();
-        rval.n = n;
+        Model rval = new Model(logic);
+        rval.elems.clear();
         Iterator<String> iter = relationIdx.iterator();
         while(iter.hasNext()) {
             String relID = iter.next();
@@ -90,7 +93,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             if(g instanceof EquivalenceGraph || g instanceof MembershipGraph) {
                 rval.graphs.put(relID,g);
             } else if(g instanceof SpecificGraph || g instanceof ProbabilityGraph) {
-                rval.graphs.put(relID,new SpecificGraph(n,relID));
+                rval.graphs.put(relID,new SpecificGraph(getModelSize(),relID));
             } else {
                 try {
                     Class c = g.getClass();
@@ -125,11 +128,11 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             
             if(pg instanceof ProbabilityGraph) {
                 SpecificGraph g = rval.addSpecificGraph(str);
-                Iterator<Integer> i1 = pg.iterator(this.n);
+                Iterator<Integer> i1 = pg.iterator(getFullModelSize());
                 while(i1.hasNext()) {
                     int i2 = i1.next();
-                    int i = i2 / n;
-                    int j = i2 % n;
+                    int i = i2 / getFullModelSize();
+                    int j = i2 % getFullModelSize();
                     if(pg.isConnected(i,j)) {
                         g.add(i,j);
                     }
@@ -156,11 +159,11 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             if(pg instanceof SpecificGraph) {
                 ProbabilityGraph g = rval.addProbabilityGraph(str);
                 g.setBaseVal(negProb);
-                Iterator<Integer> i1 = pg.iterator(this.n);
+                Iterator<Integer> i1 = pg.iterator(getFullModelSize());
                 while(i1.hasNext()) {
                     int i2 = i1.next();
-                    int i = i2 / n;
-                    int j = i2 % n;
+                    int i = i2 / getFullModelSize();
+                    int j = i2 % getFullModelSize();
                     if(pg.isConnected(i,j)) {
                         g.setPosVal(i,j,posProb);
                     }
@@ -227,10 +230,10 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      */
     public void setGraphAs(String name, TermPairSet termPairs, TermList termList) {
         Graph g = getGraphByName(name);
-        Iterator<Integer> iter = g.iterator(n);
+        Iterator<Integer> iter = g.iterator(getFullModelSize());
         while(iter.hasNext()) {
             Integer i = iter.next();
-            g.remove(i / n, i % n);
+            g.remove(i / getFullModelSize(), i % getFullModelSize());
         }
         
         termPairs.forEachPair(new SetGraphAction(g,termList));
@@ -248,11 +251,11 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             
             if(!(pg instanceof EquivalenceGraph) && !(pg instanceof MembershipGraph)) {
                 SpecificGraph g = rval.addSpecificGraph(str);
-                Iterator<Integer> i1 = g.iterator(this.n);
+                Iterator<Integer> i1 = g.iterator(getFullModelSize());
                 while(i1.hasNext()) {
                     int i2 = i1.next();
-                    int i = i2 / n;
-                    int j = i2 % n;
+                    int i = i2 / getFullModelSize();
+                    int j = i2 % getFullModelSize();
                     if(pg.isConnected(i,j) && !pg.mutable(i,j)) {
                         g.add(i,j);
                     }
@@ -288,7 +291,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     public SpecificGraph addSpecificGraph(String name) {
         if(relationIdx.indexOf(name) == -1)
             relationIdx.add(name);
-        SpecificGraph rval = new SpecificGraph(n,name);
+        SpecificGraph rval = new SpecificGraph(getFullModelSize(),name);
         graphs.put(name,rval);
         return rval;
     }
@@ -299,7 +302,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     public ProbabilityGraph addProbabilityGraph(String name) {
         if(relationIdx.indexOf(name) == -1)
             relationIdx.add(name);
-        ProbabilityGraph rval = new ProbabilityGraph(n);
+        ProbabilityGraph rval = new ProbabilityGraph(getFullModelSize());
         graphs.put(name, rval);
         return rval;
     }
@@ -366,6 +369,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
         if(i < 0 || j < 0) {
             throw new IllegalArgumentException("Cannot return ID of functional or unassigned argument!");
         }
+        int n = getFullModelSize();
         return relationIdx.indexOf(relation) * n * n + i * n + j;
     }
     
@@ -382,13 +386,14 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      * ID -> Graph Name
      */
     public String relationByID(int id) {
-        return relationIdx.get(id / n / n);
+        return relationIdx.get(id / getFullModelSize() / getFullModelSize());
     }
     
     /**
      * ID -> left assignment
      */
     public int iByID(int id) {
+        int n = getFullModelSize();
         return (id % (n*n)) / n;
     }
     
@@ -396,6 +401,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      * ID -> right assignment
      */
     public int jByID(int id) {
+        int n = getFullModelSize();
         return (id % n);
     }
     
@@ -403,6 +409,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      * ID -> left assignment
      */
     public int iByID(Integer id) {
+        int n = getFullModelSize();
         return (id % (n*n)) / n;
     }
     
@@ -410,6 +417,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      * ID -> right assignment
      */
     public int jByID(Integer id) {
+        int n = getFullModelSize();
         return (id % n);
     }
     
@@ -576,19 +584,20 @@ public class Model extends AbstractSet<Integer> implements Serializable {
             Vector<Iterator<Integer>> v = new Vector<Iterator<Integer>>(graphs.size());
             graphID = new Vector<Integer>(graphs.size());
             for(Map.Entry<String,Graph> entries : graphs.entrySet()) {
-                v.add(entries.getValue().iterator(n));
+                v.add(entries.getValue().iterator(getFullModelSize()));
                 graphID.add(relationIdx.indexOf(entries.getKey()));
             }
             return v.iterator();
         }
         
         public Integer returnVal(Integer i, int graphNumber) {
+            int n = getFullModelSize();
             return i + n * n * graphID.get(graphNumber);
         }
     }
     
     private void readObject(java.io.ObjectInputStream ios) throws java.io.IOException, ClassNotFoundException {
         ios.defaultReadObject();
-        ProbabilityGraph.n = n;
+        ProbabilityGraph.n = getFullModelSize();
     }
 }

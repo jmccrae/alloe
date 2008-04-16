@@ -127,7 +127,7 @@ public class ProbModelBuilder implements AlloeProcess, Serializable, Runnable {
         final double relationTotal = classifs.keySet().size();
         relationCount = 0;
         Vector<String> termToNum = new Vector<String>(dataSet.termSet);
-        model = new Model(dataSet.termSet.size());
+        model = new Model(logic);
         model.addBasicGraphs(logic);
         while(relationIter.hasNext() && state == STATE_OK) {
             relationCount++;

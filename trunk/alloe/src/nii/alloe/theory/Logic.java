@@ -13,17 +13,19 @@ public class Logic {
     /** The set of rules that constitute this logic */
     public LinkedList<Rule> rules;
     /** Names of relations used in the rules */
-    public TreeMap<String,String> relationNames;
+    //public TreeMap<String,String> relationNames;
     /** For each relation the expected density.
      * If the value is  x and we have n elements we would expect to find n ^ x links
      * in a randomly generated graphs (although this may not be held for example
      * symmetric graphs have at least n links). It is clear we have x <= 2.
      */
-    public TreeMap<String,Double> relationDensity;
+    //public TreeMap<String,Double> relationDensity;
     /** Any elements named in the logic */
-    public Vector<String> namedElements;
+    //public Vector<String> namedElements;
     /** The sets (if any) defined in the logic */
-    public TreeMap<String,TreeSet<Integer> > sets;
+    public TreeMap<String,TreeSet> sets;
+    /** The mappings fro constants and functions */
+    public RuleSymbol ruleSymbols = new RuleSymbol();
     
     /** Load a logic from a file. <br>
      * Syntax of file: <br>
@@ -49,19 +51,15 @@ public class Logic {
     
     private void loadFile(Reader reader) throws IllegalArgumentException, IOException {
         BufferedReader in = new BufferedReader(reader);
-        relationNames = new TreeMap<String,String>();
-        relationDensity = new TreeMap<String,Double>();
-        namedElements = new Vector<String>();
-        sets = new TreeMap<String,TreeSet<Integer> >();
+        //relationNames = new TreeMap<String,String>();
+        sets = new TreeMap<String,TreeSet>();
         String str;
         rules = new LinkedList<Rule>();
         while((str = in.readLine()) != null) {
             if(str.matches(".*->.*")) {
-                Rule r = Rule.loadRule(str);
+                Rule r = Rule.loadRule(str,ruleSymbols);
                 rules.addLast(r);
                 System.out.println(r.toString());
-            } else if(str.matches(".*=.*")) {
-                readRelationDefinition(str);
             } else if(str.matches(".*<-.*")) {
                 readSetDefinition(str);
             } else if (!str.matches("^\\s*$") && !str.matches("^#.*")) {
@@ -69,27 +67,7 @@ public class Logic {
             }
         }
     }
-    
-    private void readRelationDefinition(String str) {
-        String []splits = str.split("=");
-        if(splits.length != 2) {
-            throw new IllegalArgumentException("Incorrect definition of relation name:" + str);
-        }
-        Matcher m = Pattern.compile("\\s*(\\w+)\\s*").matcher(splits[0]);
-        if(!m.matches()) {
-            throw new IllegalArgumentException("Incorrect relation name:" + splits[0]);
-        }
-        Matcher m2 = Pattern.compile("\\s*\\\"(.*)\\\"\\s*([-\\.0-9]*)\\s*").matcher(splits[1]);
-        
-        if(!m2.matches()) {
-            throw new IllegalArgumentException("Incorrect relation name:" + splits[1]);
-        }
-        relationNames.put(m.group(1),
-                m2.group(1).replaceAll("\\s",""));
-        relationDensity.put(m.group(1),
-                Double.valueOf(Double.parseDouble(m2.group(2))));
-    }
-    
+     
     private void readSetDefinition(String str) {
         String []splits = str.split("<-");
         if(splits.length != 2) {
@@ -101,23 +79,35 @@ public class Logic {
         }
         
         String []elements = splits[1].split(",");
-        TreeSet<Integer> set = new TreeSet<Integer>();
+        TreeSet set = new TreeSet();
         for(int i = 0; i < elements.length; i++) {
-            Matcher m2 = Pattern.compile("\\s*\"(.*)\"\\s*").matcher(elements[i]);
+            Matcher m2 = Pattern.compile("\\s*\"(.*)\"\\s*|\\s*(\\d+)\\s*\\(\\s*\\)\\s*").matcher(elements[i]);
             if(!m2.matches()) {
                 throw new IllegalArgumentException("Incorrect element name in set: " + elements[i]);
             }
-            String elementName = m2.group(1);
-            int idx = namedElements.indexOf(elementName);
-            if(idx >= 0) {
-                set.add(idx);
+            if(m2.group(1) != null) {
+                ruleSymbols.addConstant(m2.group(1));
+                set.add(m2.group(1));
             } else {
-                namedElements.add(elementName);
-                set.add(namedElements.size() - 1);
+                set.add(Integer.parseInt(m2.group(2)));
             }
         }
         
         sets.put(m.group(1), set);
+    }
+    
+    public Collection<String> getRelations() {
+        TreeSet<String> rval = new TreeSet<String>();
+        for(Rule r : rules) {
+            for(String s : r.relations) {
+                rval.add(s);
+            }
+        }
+        return rval;
+    }
+    
+    public void setModelSize(int n) {
+        ruleSymbols.setModelSize(n);
     }
     
     public interface CheckerCondition {
@@ -243,29 +233,30 @@ public class Logic {
             boolean ihasAssign = rule.terms.get(argument)[0].hasAssignment();
             boolean jhasAssign = rule.terms.get(argument)[1].hasAssignment();
             if(!ihasAssign || !jhasAssign) {
-                Iterator<Integer> i1 = g.iterator(m.n);
+                int n = m.getFullModelSize();
+                Iterator<Integer> i1 = g.iterator(n);
                 int assign = -1;
                 while(i1.hasNext()) {
                     try {
                         assign = i1.next();
                     } catch(ConcurrentModificationException x) {
-                        if(g.isConnected(assign / m.n, assign % m.n)) {
-                            i1 = g.iterator(m.n);
+                        if(g.isConnected(assign / n, assign % n)) {
+                            i1 = g.iterator(n);
                             while(assign != i1.next());
                             if(i1.hasNext())
                                 assign = i1.next();
                             else
                                 return rval;
                         } else { // FAIL: just start all over again
-                            i1 = g.iterator(m.n);
+                            i1 = g.iterator(n);
                             if(i1.hasNext())
                                 assign = i1.next();
                             else
                                 return rval;
                         }
                     }
-                    if(checker.check(argument,rule,g,assign / m.n, assign % m.n)) {
-                        if(rule.tryAssign(argument, assign / m.n, assign % m.n)) {
+                    if(checker.check(argument,rule,g,assign / n, assign % n)) {
+                        if(rule.tryAssign(argument, assign / n, assign % n)) {
                             rval = consistCheck(m,rule,argument +1, inconsist, checker) && rval;
                             if(!ihasAssign)
                                 rule.terms.get(argument)[0].unsetAssignment();
@@ -351,23 +342,29 @@ public class Logic {
     /** This function can also be used to save the logic */
     public String toString() {
         String rval = "";
-        Iterator<Map.Entry<String,String>> relIter = relationNames.entrySet().iterator();
+/*        Iterator<Map.Entry<String,String>> relIter = relationNames.entrySet().iterator();
         while(relIter.hasNext()) {
             Map.Entry<String,String> entry = relIter.next();
             rval = rval + entry.getKey() + " = \"" + entry.getValue() + "\" " +
                     relationDensity.get(entry.getKey()) + "\n";
-        }
+        }*/
         Iterator<Rule> ruleIter = rules.iterator();
         while(ruleIter.hasNext()) {
             rval = rval + ruleIter.next().toString() + "\n";
         }
-        Iterator<Map.Entry<String,TreeSet<Integer>>> setiter = sets.entrySet().iterator();
+        Iterator<Map.Entry<String,TreeSet>> setiter = sets.entrySet().iterator();
         while(setiter.hasNext()) {
-            Map.Entry<String,TreeSet<Integer>> entry = setiter.next();
+            Map.Entry<String,TreeSet> entry = setiter.next();
             rval = rval + entry.getKey() + " <- ";
-            Iterator<Integer> siter = entry.getValue().iterator();
+            Iterator siter = entry.getValue().iterator();
             while(siter.hasNext()) {
-                rval = rval + "\"" + namedElements.get(siter.next()) + "\"";
+                Object o = siter.next();
+                if(o instanceof String) {
+                    rval = rval + "\"" + o.toString() + "\"";
+                } else {
+                    assert(o instanceof Integer);
+                    rval = rval + o.toString() + "()";
+                }
                 if(siter.hasNext())
                     rval = rval + ", ";
             }
