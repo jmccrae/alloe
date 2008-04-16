@@ -840,7 +840,8 @@ class CorpusSave implements Serializable {
     int docsSketched;
     HashMap<String, Integer> sketchSize;
     HashSet<String> sketchComplete;
-    
+    static final long serialVersionUID = 3520181165581067933L;
+
     CorpusSave(Corpus corpus) {
         terms = corpus.terms;
         trueContextNumber = corpus.trueContextNumber;

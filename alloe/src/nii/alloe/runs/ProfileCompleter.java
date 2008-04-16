@@ -31,7 +31,7 @@ public class ProfileCompleter {
         int i = 0;
         
         for(Double d = -2.0; d <= 0.0; d += 0.1) {
-            simulate.l.relationDensity.put("r1", d);
+            simulate.relationDensity.put("r1", d);
             simulate.createModels();
             ConsistProblem prob = new ConsistProblem(simulate.l, simulate.probModel);
             times[i++] = prob.profileComplete();

@@ -109,9 +109,9 @@ public class Simulations2 {
         try {
             for(double d = -1.5; d < -0.2; d += 0.01) {
                 Simulate s = new Simulate(logicFile,.8,.8,100);
-                Iterator<String> relIter = s.l.relationDensity.keySet().iterator();
+                Iterator<String> relIter = s.relationDensity.keySet().iterator();
                 while(relIter.hasNext()) {
-                    s.l.relationDensity.put(relIter.next(),d);
+                    s.relationDensity.put(relIter.next(),d);
                 }
                 s.sparsePercent = 1;
                 s.createModels();

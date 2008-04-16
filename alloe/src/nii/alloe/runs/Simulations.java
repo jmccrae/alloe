@@ -60,9 +60,9 @@ public class Simulations {
     public static double[] doRun(double prec, double recall, int n, String logicFile, double linkDensity, double sparsity) {
         try {
             Simulate s = new Simulate(logicFile,prec,recall,n);
-            Iterator<String> relIter = s.l.relationDensity.keySet().iterator();
+            Iterator<String> relIter = s.relationDensity.keySet().iterator();
             while(relIter.hasNext()) {
-                s.l.relationDensity.put(relIter.next(),linkDensity);
+                s.relationDensity.put(relIter.next(),linkDensity);
             }
             s.sparsePercent = sparsity;
             s.createModels();
