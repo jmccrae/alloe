@@ -37,7 +37,8 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
     }
     
     SparseMatrix matrix;
-    
+    Vector<Double> solnRows = null;
+
     /** Create a new instance. Please use this constructor if you plan to start the solver
      * as a process */
     public ConsistSolver(SparseMatrix matrix) {
@@ -74,9 +75,20 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
      */
     public void solve(SparseMatrix matrix) {
         this.matrix = matrix;
+	this.solnRows = null;
         solve();
     }
     
+    /**
+     * Solves a problem matrix (with a soln row)
+     * @see ResFreeSolver
+     */
+    public void solve(SparseMatrix matrix, Vector<Double> solnRows) {
+	this.matrix = matrix;
+	this.solnRows = solnRows;
+	solve();
+    }
+
     private void solve() {
         partSoln = new TreeSet<Integer>();
         cost = Double.MAX_VALUE;
@@ -95,7 +107,7 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
     }
     
     private void solve2(SparseMatrix m) {
-        simplex.simplexSolve(m.createCopy());
+        simplex.simplexSolve(m.createCopy(),solnRows);
         if(simplex.success && simplex.cost + partCost > cost) {
             progress += Math.pow(2,-iterationDepth);
             fireNewProgressChange(progress);

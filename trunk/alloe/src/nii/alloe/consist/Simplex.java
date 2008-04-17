@@ -48,8 +48,23 @@ public class Simplex {
     private LinkedList<Pivot> pivots;
     
     /**
-     * Find the optimal linear solution of a matrix m using simplex solve */
-    public void simplexSolve(SparseMatrix m) {
+     * Find the optimal linear solution 
+     * Mx &gt;= 1
+     * @see #simplexSolve(SparseMatrix,Vector)
+     */
+    public void simplexSolve(SparseMatrix M) {
+	simplexSolve(M,null);
+    }
+
+    /**
+     * Find the optimal linear solution to
+     * Mx &gt;= -b
+     * @param m The matrix, must contain a column of costs, (col index 0)
+     * @param b As above, may be null in which case it defaults to -1
+     * @throws ArrayIndexOutOfBoundsException <code>m.size() != b.size() + 1</code>
+     * @throws IllegalArgumentException The matrix has no cost column
+     */
+    public void simplexSolve(SparseMatrix m, Vector<Double> b) {
         if(m.cols.isEmpty()) {
             soln = new TreeMap<Integer,Double>();
             cost = 0;
@@ -63,16 +78,18 @@ public class Simplex {
         random = new Random();
         pivots = new LinkedList<Pivot>();
         
-        Iterator<Integer> citer = m.cols.keySet().iterator();
-        Integer i = citer.next();
-        if(i != 0) {
+
+        if(!m.cols.containsKey(0)) {
             throw new IllegalArgumentException("Matrix does not contain cost col!");
         }
-        while(citer.hasNext()) {
-            i = citer.next();
-            m.setElem(solnRow, i, -1);
+        for(int i : m.cols.keySet()) {
+	    if(b == null) 
+		m.setElem(solnRow, i, -1);
+	    else
+		m.setElem(solnRow, i, b.get(i-1));
         }
         Iterator<Integer> riter = m.rows.keySet().iterator();
+        Integer i;
         while(riter.hasNext()) {
             i = riter.next();
             if(!i.equals(solnRow))
