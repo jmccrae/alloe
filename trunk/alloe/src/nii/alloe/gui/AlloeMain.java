@@ -2187,7 +2187,14 @@ public class AlloeMain extends javax.swing.JFrame {
                 NumberFormat df = new DecimalFormat("0.00000000");
                 row[1] = df.format(score);
                 dtm.addRow(row);
-                totalPatternsLabel.setText("Total Patterns: " + patternBuilderProcess.get(getRelationship()).patternScores.size());
+                if(patternBuilderProcess.get(getRelationship()) instanceof PatternSetBuilder) {
+                    totalPatternsLabel.setText("Pattern Set Score: " + 
+                            df.format(((PatternSetBuilder)patternBuilderProcess.get(
+                            getRelationship())).getSetScore()));
+                } else {
+                    totalPatternsLabel.setText("Total Patterns: " + 
+                            patternBuilderProcess.get(getRelationship()).patternScores.size());
+                }
             }
         }
         
