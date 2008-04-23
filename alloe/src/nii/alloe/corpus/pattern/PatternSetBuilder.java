@@ -1,4 +1,5 @@
 package nii.alloe.corpus.pattern;
+
 import nii.alloe.corpus.*;
 import nii.alloe.tools.struct.*;
 import java.util.*;
@@ -8,196 +9,295 @@ import java.util.*;
  * @author John McCrae, National Institute of Informatics
  */
 public class PatternSetBuilder extends PatternBuilder {
-    
-    TreeMap<Pattern,TermPairSet> positives;
-    TreeMap<Pattern,TermPairSet> negatives;
+
+    TreeMap<Pattern, TermPairSet> positives;
+    TreeMap<Pattern, TermPairSet> negatives;
     TreeMap<String, Integer> posCounts;
     TreeMap<String, Integer> negCounts;
-    
+    Map<Pattern, Integer> posLoss;
+    Map<Pattern, Integer> negLoss;
+    Map<Pattern, Integer> posBothLoss;
+    Map<Pattern, Integer> negBothLoss;
+    int posGain;
+    int negGain;
+
     /** Creates a new instance of PatternSetBuilder */
     public PatternSetBuilder(Corpus corpus, TermPairSet termPairSet, String relationship, int maxPatterns) {
-        super(corpus,termPairSet,PatternMetricFactory.PSEUDO_FM,relationship);
-        positives = new TreeMap<Pattern,TermPairSet>();
-        negatives = new TreeMap<Pattern,TermPairSet>();
+        super(corpus, termPairSet, PatternMetricFactory.PSEUDO_FM, relationship);
+        positives = new TreeMap<Pattern, TermPairSet>();
+        negatives = new TreeMap<Pattern, TermPairSet>();
         patternCounter = new MultiSet<Pattern>();
         setMaxPatterns(maxPatterns);
+        posLoss = new TreeMap<Pattern, Integer>();
+        negLoss = new TreeMap<Pattern, Integer>();
     }
-    
-  
     private static final String glue = " => ";
-    
+    double sketchAmount;
+    TermPairSet patternPositives;
+    TermPairSet patternNegatives;
+    Iterator<Corpus.Hit> contexts;
+
     void addPattern(Pattern pattern, String f1, String f2) {
-        if(patternScores.get(pattern) != null)
+        if (patternScores.get(pattern) != null) {
             return;
-        if(pattern.isTrivial())
+        }
+        if (pattern.isTrivial()) {
             return;
-        TermPairSet patternPositives = new TermPairSet();
-        TermPairSet patternNegatives = new TermPairSet();
-        Iterator<Corpus.Hit> contexts = corpus.getContextsForPattern(pattern);
-        if(contexts == null)
+        }
+
+        calculateEnoughPositivesNegatives(pattern);
+
+        double patternScore;
+        if (patternCounter.size() < getMaxPatterns()) {
+            System.out.println("");
+            finishCalculatingPositivesNegatives(pattern);
+            patternScore = 2.0 * ((double) patternPositives.size() / (double) (patternPositives.size() + patternNegatives.size() + termPairSet.size()));
+            patternScores.put(pattern, patternScore);
+            patternQueue.add(pattern);
+            patternCounter.add(pattern);
+            positives.put(pattern, patternPositives);
+            negatives.put(pattern, patternNegatives);
+            firePatternGenerated(pattern, patternScore);
+        } else {
+            if (posCounts == null) {
+                initCounts();
+            }
+            Pattern bestPattern = findBestReplacement();
+            if (bestPattern != null) {
+                System.out.println("... replacing " + bestPattern.toString());
+                finishCalculatingPositivesNegatives(pattern);
+                patternScore = 2.0 * ((double) patternPositives.size() / (double) (patternPositives.size() + patternNegatives.size() + termPairSet.size()));
+                boolean b = patternCounter.remove(bestPattern);
+                firePatternDropped(bestPattern);
+                updateCounts(pattern, bestPattern, patternPositives, patternNegatives);
+                patternScores.put(pattern, patternScore);
+                patternQueue.add(pattern);
+                patternCounter.add(pattern);
+                positives.put(pattern, patternPositives);
+                negatives.put(pattern, patternNegatives);
+                firePatternGenerated(pattern, patternScore);
+            } else {
+                System.out.println("... no good");
+                patternScore = 2.0 * ((double) patternPositives.size() / sketchAmount / (double) ((patternPositives.size() + patternNegatives.size()) / sketchAmount + termPairSet.size()));
+                patternScores.put(pattern, patternScore);
+                patternQueue.add(pattern);
+            }
+        }
+    }
+
+    /** Calculate positives and negatives up to the maximum number of sketches
+     */
+    void calculateEnoughPositivesNegatives(Pattern pattern) {
+        patternPositives = new TermPairSet();
+        patternNegatives = new TermPairSet();
+        posBothLoss = new HashMap<Pattern, Integer>(patternCounter.size());
+        negBothLoss = new HashMap<Pattern, Integer>(patternCounter.size());
+        for (Pattern p : patternCounter) {
+            posBothLoss.put(p, 0);
+            negBothLoss.put(p, 0);
+        }
+        posGain = negGain = 0;
+        contexts = corpus.getContextsForPattern(pattern);
+        if (contexts == null) {
             return;
-        int fp = negCounts != null ? negCounts.size() : 0;
+        }
+        sketchAmount = 1.0;
+        int contextsSeen = 0;
         System.out.print(pattern.toString());
-        LOOP : while(contexts.hasNext()) {
+        while (contexts.hasNext()) {
             Corpus.Hit context = contexts.next();
             String text = context.getText();
             String[] terms = context.getTerms();
-            for(int i = 0; i < terms.length; i++) {
-                for(int j = 0; j < terms.length; j++) {
-                    if(pattern.matches(text, terms[i],terms[j])) {
-                        if(termPairSet.contains(terms[i],terms[j])) {
-                            patternPositives.add(terms[i],terms[j]);
+            for (int i = 0; i < terms.length; i++) {
+                for (int j = 0; j < terms.length; j++) {
+                    if (pattern.matches(text, terms[i], terms[j])) {
+                        if (termPairSet.contains(terms[i], terms[j])) {
+                            patternPositives.add(terms[i], terms[j]);
+                            if (posCounts != null &&
+                                    !posCounts.containsKey(terms[i] + glue + terms[j])) {
+                                posGain++;
+                            } else if (posCounts != null) {
+                                for (Pattern p : patternCounter) {
+                                    if (positives.get(p).contains(terms)) {
+                                        posBothLoss.put(p, posBothLoss.get(p) + 1);
+                                    }
+                                }
+                            }
                         } else {
-                            if(patternNegatives.add(terms[i],terms[j]) &&
+                            patternNegatives.add(terms[i], terms[j]);
+                            if (negCounts != null &&
                                     !negCounts.containsKey(terms[i] + glue + terms[j])) {
-                                fp++;
+                                negGain++;
+                            } else if (negCounts != null) {
+                                for (Pattern p : patternCounter) {
+                                    if (negatives.get(p).contains(terms)) {
+                                        negBothLoss.put(p, negBothLoss.get(p) + 1);
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-            // Check for hopeless causes, we check that if this pattern were appended to the
-            // set and found every term pair, it would still have too many false positives to
-            // improve the overall F-Measure
-            if(negCounts != null &&
-                    currentFM > 1.0 / (1.0 + ((double)fp / (double)(2 * termPairSet.size())))) {
-                System.out.println("... hopeless");
-                return;
+            if (contextsSeen == getSketchSize()) {
+                sketchAmount = (double) corpus.getHitsFromIterator(contexts) / (double) contextsSeen;
+                break;
             }
+            contextsSeen++;
         }
-        double patternScore = 2.0 * ((double)patternPositives.size() / (double)(patternPositives.size() + patternNegatives.size() + termPairSet.size()));
-        if(patternCounter.size() < getMaxPatterns()) {
-            System.out.println("");
-            patternScores.put(pattern,patternScore);
-            patternQueue.add(pattern);
-            patternCounter.add(pattern);
-            positives.put(pattern,patternPositives);
-            negatives.put(pattern,patternNegatives);
-            firePatternGenerated(pattern,patternScore);
-        } else {
-            if(posCounts == null) {
-                initCounts();
-            }
-            Pattern bestPattern = findBestReplacement(patternPositives, patternNegatives);
-            if(bestPattern != null) {
-                System.out.println("... replacing " + bestPattern.toString());
-                boolean b = patternCounter.remove(bestPattern);
-                firePatternDropped(bestPattern);
-                updateCounts(bestPattern, patternPositives, patternNegatives);
-                patternScores.put(pattern,patternScore);
-                patternQueue.add(pattern);
-                patternCounter.add(pattern);
-                positives.put(pattern,patternPositives);
-                negatives.put(pattern,patternNegatives);
-                firePatternGenerated(pattern,patternScore);
-            } else {
-                System.out.println("... no good");
-                patternScores.put(pattern,patternScore);
-                patternQueue.add(pattern);
+    }
+
+    /** Complete the calculation of positives and negatives */
+    void finishCalculatingPositivesNegatives(Pattern pattern) {
+        while (contexts.hasNext()) {
+            Corpus.Hit context = contexts.next();
+            String text = context.getText();
+            String[] terms = context.getTerms();
+            for (int i = 0; i < terms.length; i++) {
+                for (int j = 0; j < terms.length; j++) {
+                    if (pattern.matches(text, terms[i], terms[j])) {
+                        if (termPairSet.contains(terms[i], terms[j])) {
+                            patternPositives.add(terms[i], terms[j]);
+                        } else {
+                            patternNegatives.add(terms[i], terms[j]);
+                        }
+                    }
+                }
             }
         }
     }
-    
-    void updateCounts(Pattern bestPattern, TermPairSet patternPositives, TermPairSet patternNegatives) {
+
+    void updateCounts(Pattern pattern, Pattern bestPattern, TermPairSet patternPositives, TermPairSet patternNegatives) {
         TermPairSet bestPositives = positives.get(bestPattern);
-        for(String[] terms : bestPositives) {
+        for (String[] terms : bestPositives) {
             int i = posCounts.get(terms[0] + glue + terms[1]);
-            if(i == 1)
-                posCounts.remove(terms[0]+ glue + terms[1]);
-            else
-                posCounts.put(terms[0] + glue + terms[1],i-1);
-        }
-        for(String[] terms : patternPositives) {
-            if(posCounts.containsKey(terms[0] + glue + terms[1])) {
-                posCounts.put(terms[0] + glue + terms[1], posCounts.get(terms[0] + glue + terms[1])+1);
+            if (i == 1) {
+                posCounts.remove(terms[0] + glue + terms[1]);
+            } else if (i == 2) {
+                posCounts.put(terms[0] + glue + terms[1], 1);
+                for (Pattern p : patternCounter) {
+                    if (positives.get(p).contains(terms)) {
+                        posLoss.put(p, posLoss.get(p) + 1);
+                    }
+                }
             } else {
-                posCounts.put(terms[0] + glue + terms[1],1);
+                posCounts.put(terms[0] + glue + terms[1], i - 1);
+            }
+        }
+        posLoss.put(pattern, 0);
+        for (String[] terms : patternPositives) {
+            if (posCounts.containsKey(terms[0] + glue + terms[1])) {
+                posCounts.put(terms[0] + glue + terms[1], posCounts.get(terms[0] + glue + terms[1]) + 1);
+            } else {
+                posCounts.put(terms[0] + glue + terms[1], 1);
+                posLoss.put(pattern, posLoss.get(pattern) + 1);
             }
         }
         TermPairSet bestNegatives = negatives.get(bestPattern);
-        for(String[] terms : bestNegatives) {
+        for (String[] terms : bestNegatives) {
             int i = negCounts.get(terms[0] + glue + terms[1]);
-            if(i == 1)
-                negCounts.remove(terms[0]+ glue + terms[1]);
-            else
-                negCounts.put(terms[0] + glue + terms[1],i-1);
-        }
-        for(String[] terms : patternNegatives) {
-            if(negCounts.containsKey(terms[0] + glue + terms[1])) {
-                negCounts.put(terms[0] + glue + terms[1], negCounts.get(terms[0] + glue + terms[1])+1);
+            if (i == 1) {
+                negCounts.remove(terms[0] + glue + terms[1]);
+            } else if (i == 2) {
+                negCounts.put(terms[0] + glue + terms[1], 1);
+                for (Pattern p : patternCounter) {
+                    if (negatives.get(p).contains(terms)) {
+                        negLoss.put(p, negLoss.get(p) + 1);
+                    }
+                }
             } else {
-                negCounts.put(terms[0] + glue + terms[1],1);
+                negCounts.put(terms[0] + glue + terms[1], i - 1);
+            }
+        }
+        negLoss.put(pattern, 0);
+        for (String[] terms : patternNegatives) {
+            if (negCounts.containsKey(terms[0] + glue + terms[1])) {
+                negCounts.put(terms[0] + glue + terms[1], negCounts.get(terms[0] + glue + terms[1]) + 1);
+            } else {
+                negCounts.put(terms[0] + glue + terms[1], 1);
+                negLoss.put(pattern, negLoss.get(pattern) + 1);
             }
         }
     }
-    
     /** The current score of the pattern set */
     public double currentFM = 0;
-    
-    Pattern findBestReplacement(TermPairSet patternPositives, TermPairSet patternNegatives) {
+
+    Pattern findBestReplacement() {
         double bestImprov = 0;
         Pattern bestPattern = null;
-        currentFM = 2.0 * ((double)posCounts.size() / (double)(posCounts.size() + negCounts.size() + termPairSet.size()));
-        int posGain = 0;
-        int negGain = 0;
-        for(String[] terms : patternPositives) {
-            if(posCounts.get(terms[0] + glue + terms[1]) == null)
-                posGain++;
-        }
-        for(String[] terms : patternNegatives) {
-            if(negCounts.get(terms[0] + glue + terms[1]) == null) {
-                negGain++;
-            }
-        }
-        for(Pattern p2 : patternCounter) {
-            TermPairSet patternPositives2 = positives.get(p2);
-            int posGain2 = posGain;
-            
-            for(String[] terms : patternPositives2) {
-                if(posCounts.get(terms[0] + glue + terms[1]) == 1) {
-                    posGain2--;
-                }
-            }
-            patternPositives2 = null;
-            int negGain2 = negGain;
-            TermPairSet patternNegatives2 = negatives.get(p2);
-            
-            for(String[] terms : patternNegatives2) {
-                if(negCounts.get(terms[0] + glue + terms[1]) == 1) {
-                    negGain2--;
-                }
-            }
-            double newFM = 2.0 * (((double)posCounts.size() + posGain2) / (double)
-            (posCounts.size() + posGain2 + negCounts.size() + negGain2 + termPairSet.size()));
-            if(newFM - currentFM > bestImprov) {
+        currentFM = 2.0 * ((double) posCounts.size() / (double) (posCounts.size() + negCounts.size() + termPairSet.size()));
+        for (Pattern p2 : patternCounter) {
+            double posGain2 = (double) posGain / sketchAmount - (double) posLoss.get(p2) + (double) posBothLoss.get(p2) / sketchAmount;
+            double negGain2 = (double) negGain / sketchAmount - (double) negLoss.get(p2) + (double) negBothLoss.get(p2) / sketchAmount;
+            double newFM = 2.0 * (((double) posCounts.size() + posGain2) / (double) (posCounts.size() + posGain2 + negCounts.size() + negGain2 + termPairSet.size()));
+            if (newFM - currentFM > bestImprov) {
                 bestImprov = newFM - currentFM;
                 bestPattern = p2;
             }
         }
         return bestPattern;
     }
-    
+
     void initCounts() {
-        posCounts = new TreeMap<String,Integer>();
-        for(TermPairSet pos : positives.values()) {
-            for(String[] terms : pos) {
-                if(posCounts.containsKey(terms[0] + glue + terms[1])) {
-                    posCounts.put(terms[0] + glue + terms[1], posCounts.get(terms[0] + glue + terms[1])+1);
+        HashMap<String, Pattern> termPairToPattern = new HashMap<String, Pattern>();
+        posCounts = new TreeMap<String, Integer>();
+        for (Map.Entry<Pattern, TermPairSet> entry : positives.entrySet()) {
+            TermPairSet pos = entry.getValue();
+            for (String[] terms : pos) {
+                if (posCounts.containsKey(terms[0] + glue + terms[1])) {
+                    posCounts.put(terms[0] + glue + terms[1], posCounts.get(terms[0] + glue + terms[1]) + 1);
+                    termPairToPattern.remove(terms[0] + glue + terms[1]);
                 } else {
-                    posCounts.put(terms[0] + glue + terms[1],1);
+                    posCounts.put(terms[0] + glue + terms[1], 1);
+                    termPairToPattern.put(terms[0] + glue + terms[1],
+                            entry.getKey());
                 }
             }
+            posLoss.put(entry.getKey(), 0);
         }
-        negCounts = new TreeMap<String,Integer>();
-        for(TermPairSet neg : negatives.values()) {
-            for(String[] terms : neg) {
-                if(negCounts.containsKey(terms[0] + glue + terms[1])) {
-                    negCounts.put(terms[0] + glue + terms[1], negCounts.get(terms[0] + glue + terms[1])+1);
+        negCounts = new TreeMap<String, Integer>();
+        for (Map.Entry<Pattern, TermPairSet> entry : negatives.entrySet()) {
+            TermPairSet neg = entry.getValue();
+            for (String[] terms : neg) {
+                if (negCounts.containsKey(terms[0] + glue + terms[1])) {
+                    negCounts.put(terms[0] + glue + terms[1], negCounts.get(terms[0] + glue + terms[1]) + 1);
+                    termPairToPattern.remove(terms[0] + glue + terms[1]);
                 } else {
-                    negCounts.put(terms[0] + glue + terms[1],1);
+                    negCounts.put(terms[0] + glue + terms[1], 1);
+                    termPairToPattern.put(terms[0] + glue + terms[1],
+                            entry.getKey());
                 }
+            }
+            negLoss.put(entry.getKey(), 0);
+        }
+
+
+
+        for (Map.Entry<String, Integer> entry : posCounts.entrySet()) {
+            if (entry.getValue() == 1) {
+                Pattern p = termPairToPattern.get(entry.getKey());
+                posLoss.put(p, posLoss.get(p) + 1);
+            }
+        }
+
+        for (Map.Entry<String, Integer> entry : negCounts.entrySet()) {
+            if (entry.getValue() == 1) {
+                Pattern p = termPairToPattern.get(entry.getKey());
+                negLoss.put(p, negLoss.get(p) + 1);
             }
         }
     }
+    private int sketchSize = 1000;
+
+    public int getSketchSize() {
+        return sketchSize;
+    }
+
+    public void setSketchSize(int sketchSize) {
+        this.sketchSize = sketchSize;
+    }
     
+    public double getSetScore() {
+        return currentFM;
+    }
 }

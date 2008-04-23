@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+<Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="solverRadioGroup">
     </Component>
@@ -126,7 +126,7 @@
                                       <Component id="textFileLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="indexLocationLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <EmptySpace pref="161" max="32767" attributes="0"/>
+                                  <EmptySpace pref="224" max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                       <Component id="setIndexButton" max="32767" attributes="1"/>
                                       <Component id="openCorpusTextFile" alignment="0" max="32767" attributes="1"/>
@@ -137,14 +137,14 @@
                                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="contextSizeSpinner" min="-2" pref="52" max="-2" attributes="0"/>
-                                  <EmptySpace pref="35" max="32767" attributes="0"/>
+                                  <EmptySpace pref="108" max="32767" attributes="0"/>
                                   <Component id="useSketchingCheck" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
                                   <Component id="maxSketchLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="sketchSizeSpinner" min="-2" pref="57" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="indexerProgressMonitor" alignment="0" pref="456" max="32767" attributes="0"/>
+                              <Component id="indexerProgressMonitor" alignment="0" pref="462" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -298,7 +298,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="corpusDisplayScroll" alignment="0" pref="456" max="32767" attributes="0"/>
+                              <Component id="corpusDisplayScroll" alignment="0" pref="462" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="openIndexedCorpus" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="129" max="-2" attributes="0"/>
@@ -318,7 +318,7 @@
                               <Component id="corpusTotalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="corpusDisplayScroll" pref="257" max="32767" attributes="0"/>
+                          <Component id="corpusDisplayScroll" pref="264" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -386,7 +386,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="jPanel6" pref="487" max="32767" attributes="0"/>
+                              <Component id="jPanel6" max="32767" attributes="0"/>
                               <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -424,13 +424,13 @@
                               <Group type="102" attributes="0">
                                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="patternGeneratorRelationship" pref="372" max="32767" attributes="0"/>
+                                  <Component id="patternGeneratorRelationship" pref="389" max="32767" attributes="0"/>
                               </Group>
                               <Component id="patternGeneratorProgressMonitor" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="metricLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="patternBuilderMetric" pref="309" max="32767" attributes="0"/>
+                                  <Component id="patternBuilderMetric" pref="327" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="patternAdvanced" min="-2" max="-2" attributes="0"/>
                               </Group>
@@ -441,7 +441,7 @@
                                   </Group>
                                   <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
                                   <Component id="bestPatternSet" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="54" max="32767" attributes="0"/>
+                                  <EmptySpace pref="109" max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                       <Component id="bestPatternSetSize" alignment="0" max="32767" attributes="1"/>
                                       <Component id="openTermPairSet" alignment="0" max="32767" attributes="1"/>
@@ -618,11 +618,11 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="jScrollPane1" alignment="0" pref="446" max="32767" attributes="0"/>
+                              <Component id="jScrollPane1" alignment="0" pref="450" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="patternViewerRelationshipLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="patternViewerRelationship" pref="353" max="32767" attributes="0"/>
+                                  <Component id="patternViewerRelationship" pref="384" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="openPatternSet" min="-2" max="-2" attributes="0"/>
@@ -650,7 +650,7 @@
                               <Component id="totalPatternsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" pref="224" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="233" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -786,13 +786,13 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="featureVectorRelationship" pref="309" max="32767" attributes="0"/>
+                                  <Component id="featureVectorRelationship" pref="335" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="isTrainingCheck" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="featureVectorTermPairLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="130" max="32767" attributes="0"/>
+                                  <EmptySpace pref="181" max="32767" attributes="0"/>
                                   <Component id="featureOpenTermPairs" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
                                   <Component id="useLazyMatching" min="-2" max="-2" attributes="0"/>
@@ -943,11 +943,11 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="jScrollPane2" alignment="0" pref="477" max="32767" attributes="0"/>
+                              <Component id="jScrollPane2" alignment="0" pref="462" max="32767" attributes="0"/>
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="classifier" pref="140" max="32767" attributes="0"/>
+                                  <Component id="classifier" pref="177" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -955,7 +955,7 @@
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="startTrainingButton" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="97" max="32767" attributes="0"/>
+                                  <EmptySpace pref="151" max="32767" attributes="0"/>
                                   <Component id="openClassifierButton" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="saveClassifierButton" min="-2" max="-2" attributes="0"/>
@@ -975,7 +975,7 @@
                               <Component id="classifier" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane2" pref="271" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="278" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="saveClassifierButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1068,7 +1068,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jPanel10" alignment="0" pref="514" max="32767" attributes="0"/>
+                  <Component id="jPanel10" alignment="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -1094,11 +1094,11 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jScrollPane3" pref="494" max="32767" attributes="0"/>
+                                  <Component id="jScrollPane3" pref="482" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jScrollPane4" pref="494" max="32767" attributes="0"/>
+                                  <Component id="jScrollPane4" pref="482" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" attributes="0">
@@ -1117,13 +1117,13 @@
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" alignment="1" attributes="0">
                                           <Component id="modelLinksLabel" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="325" max="32767" attributes="0"/>
+                                          <EmptySpace pref="351" max="32767" attributes="0"/>
                                           <Component id="visualizeModel" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="modelRelationShipLabel" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="modelRelationship" pref="401" max="32767" attributes="0"/>
+                                          <Component id="modelRelationship" pref="416" max="32767" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="1" attributes="0">
                                           <Component id="probModelBuilderMonitor" min="-2" max="-2" attributes="0"/>
@@ -1155,7 +1155,7 @@
                               <Component id="processLogicButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane3" pref="152" max="32767" attributes="0"/>
+                          <Component id="jScrollPane3" pref="162" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="probModelBuilderMonitor" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -1342,7 +1342,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel14" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel15" max="32767" attributes="0"/>
+                      <Component id="jPanel15" pref="247" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -1401,7 +1401,7 @@
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <EmptySpace pref="256" max="32767" attributes="0"/>
+                          <EmptySpace pref="286" max="32767" attributes="0"/>
                           <Component id="openProblemMatrix" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="saveProblemMatrix" min="-2" max="-2" attributes="0"/>
@@ -1419,7 +1419,7 @@
                                   <Component id="pmElemsLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace pref="39" max="32767" attributes="0"/>
+                          <EmptySpace pref="34" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1506,10 +1506,10 @@
                           <Component id="solverRemovedLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="solverScoreLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="166" max="32767" attributes="0"/>
+                          <EmptySpace pref="225" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="29" max="32767" attributes="0"/>
                           <Component id="solverMonitor" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -1573,14 +1573,14 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="standardTermSetLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="281" max="32767" attributes="0"/>
+                                  <EmptySpace pref="310" max="32767" attributes="0"/>
                                   <Component id="standardOpenTermSet" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="standardRelationship" min="-2" pref="118" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="standardTermPairLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="110" max="32767" attributes="0"/>
+                                  <EmptySpace pref="161" max="32767" attributes="0"/>
                                   <Component id="standardOpenTermPairs" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
@@ -1591,7 +1591,7 @@
                                       <Component id="recallPreLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="fMeasurePreLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <EmptySpace pref="44" max="32767" attributes="0"/>
+                                  <EmptySpace pref="123" max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="fMeasurePostLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="recallPostLabel" alignment="0" min="-2" max="-2" attributes="0"/>

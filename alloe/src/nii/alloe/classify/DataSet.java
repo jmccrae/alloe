@@ -148,7 +148,7 @@ public class DataSet implements Serializable {
     public Model buildTrueModel(Logic logic) {
         Iterator<String> relationIter = instances.keySet().iterator();
         Vector<String> termToNum = new Vector<String>(termSet);
-        Model rval = new Model(termSet.size());
+        Model rval = new Model(logic);
         rval.addBasicGraphs(logic);
         while(relationIter.hasNext()) {
             String relation = relationIter.next();
