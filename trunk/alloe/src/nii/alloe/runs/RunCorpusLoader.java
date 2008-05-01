@@ -7,39 +7,44 @@ package nii.alloe.runs;
 
 import nii.alloe.corpus.*;
 import java.io.*;
+import nii.alloe.tools.process.*;
 
 /**
  *
  * @author John McCrae
  */
-public class RunCorpusLoader {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
+public class RunCorpusLoader extends TerminalProcess {
+    public RunCorpusLoader(String []args) {
+        super(args);
+        name = "corpus";
+    }
+    public static void main(String []args) {
+        new RunCorpusLoader(args);
+    }
+    
+    protected void start(String[]args) {
+        Class clasz = CorpusLoader.class;
+        Class[] constructorParams = { TermList.class, CorpusFile.class, File.class };
+        String[] constructorNames = { "terms", "corpus", "index" };
         try {
-            if(args.length != 4 && args.length != 5) {
-                System.err.println("Usage: command corpusSource termFile indexDir contextSize [sketchSize]");
-                System.exit(-1);
-            }
-            CorpusFile cf;
-            if(args[0].matches(".*\\.zip")) {
-                cf = new ZipCorpusFile(args[0]);
-            } else {
-                cf = new TextCorpusFile(args[0]);
-            }
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(args[1]));
-            TermList terms = (TermList)ois.readObject();
-            ois.close();
-            CorpusLoader cl = new CorpusLoader(terms, cf, new File(args[2]));
-            cl.setContextSize(Integer.parseInt(args[3]));
-            if(args.length == 5)
-                cl.setMaxSketchSize(Integer.parseInt(args[4]));
-            cl.run();
-        } catch(Exception x) {
+            registerLoader(CorpusFile.class, this.getClass().getMethod("loadCorpusFile", String.class));
+        } catch(NoSuchMethodException x) {
             x.printStackTrace();
+            return;
+        }
+        try {
+            autoInit(args, clasz, constructorParams, constructorNames);
+        } catch(nii.alloe.tools.getopts.GetOptsException x) {
+            System.err.println(x.getMessage());
             System.exit(-1);
         }
-    }   
+    }
+    
+    public static CorpusFile loadCorpusFile(String fileName) throws IOException {
+        if(fileName.matches(".*\\.zip")) {
+            return new ZipCorpusFile(fileName);
+        } else {
+            return new TextCorpusFile(fileName);
+        }
+    }
 }

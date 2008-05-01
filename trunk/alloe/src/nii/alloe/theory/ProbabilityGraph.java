@@ -165,6 +165,14 @@ public class ProbabilityGraph implements Graph, Serializable {
         pm_neg.put(i*n+j,ng);
     }
     
+    public double getBaseValPos() {
+        return baseValPos;
+    }
+    
+    public double getBaseValNeg() {
+        return baseValNeg;
+    }
+    
     public void setBaseVal(double prob) {
         if(prob > 0 && prob < 1) {
             setBaseVal(Math.log(prob), Math.log(1-prob));

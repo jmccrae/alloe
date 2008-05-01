@@ -30,17 +30,17 @@ public class GetOpts {
     public void addArgumentAuto(String name, Class clasz, boolean necessary) {
         if(clasz.equals(String.class)) {
             addStringArgument(name,necessary);
-        } else if(clasz.equals(Integer.class)) {
+        } else if(clasz.equals(Integer.class) || clasz.equals(int.class)) {
             addIntegerArgument(name,necessary);
-        } else if(clasz.equals(Boolean.class)) {
+        } else if(clasz.equals(Boolean.class) || clasz.equals(boolean.class)) {
             addBooleanArgument(name);
-        } else if(clasz.equals(Double.class)) {
+        } else if(clasz.equals(Double.class) || clasz.equals(double.class)) {
             addDoubleArgument(name,necessary);
-        } else if(clasz.equals(Long.class)) {
+        } else if(clasz.equals(Long.class) || clasz.equals(long.class)) {
             addLongArgument(name,necessary);
-        } else if(clasz.equals(Character.class)) {
+        } else if(clasz.equals(Character.class) || clasz.equals(char.class)) {
             addCharArgument(name,necessary);
-        } else if(clasz.equals(Float.class)) {
+        } else if(clasz.equals(Float.class) || clasz.equals(float.class)) {
             addFloatArgument(name,necessary);
         } else if(Serializable.class.isAssignableFrom(clasz)) {
             addSerializableArgument(name,clasz,necessary);
@@ -187,8 +187,17 @@ public class GetOpts {
     }
     
     /** Call this function to parse all command line arguments.
+     * Command line arguments can be of the following forms
+     * <ul><li><code>-arg val
+     * <li>--arg val
+     * <li>-arg=val
+     * <li>--arg=val
+     * </code></ul>
+     * @param args The list of arguments, in the same form as passed to <code>void main(String[])</code>
+     * @return Any unparsed arguments
      * @throws GetOptsException If the format is not correct, or some error occurred loading an argument */
-    public void getOpts(String[] args) throws GetOptsException {
+    public String[] getOpts(String[] args) throws GetOptsException {
+        Vector<String> unparsed = new Vector<String>();
         isReady = false;
         HashSet<String> loadedArguments = new HashSet<String>(necessaryArguments);
         for(Argument arg : arguments.values()) {
@@ -231,12 +240,13 @@ public class GetOpts {
                 loadedArguments.remove(matcher.group(1));
                 continue;
             }
-            throw new GetOptsException("Unrecognised parameter: " + args[i] + "\n" + getUsage());
+            unparsed.add(args[i]);
         }
         if(!loadedArguments.isEmpty()) {
             throw new GetOptsException("The following parameters were not specified:" + Strings.join(",",loadedArguments) + "\n");
         }
         isReady = true;
+        return unparsed.toArray(new String[0]);
     }
     
     private String getUsage() {
@@ -280,10 +290,12 @@ class DirectArgument implements Argument {
     final static int ARG_CHAR = 3;
     final static int ARG_DOUBLE = 4;
     final static int ARG_FLOAT = 5;
-    int argType;
+    final int argType;
     Object object;
     
     DirectArgument(int argType) {
+        if(argType < 0 || argType > 5)
+            throw new IllegalArgumentException("Invalid argType!");
         this.argType = argType;
     }
     
@@ -331,7 +343,7 @@ class DirectArgument implements Argument {
 }
 
 class SerializableArgument implements Argument {
-    Class clasz;
+    final Class clasz;
     Object object;
     
     SerializableArgument(Class clasz) {
@@ -363,7 +375,7 @@ class SerializableArgument implements Argument {
 }
 
 class LoadableArgument implements Argument {
-    Method method;
+    final Method method;
     Object object;
     
     LoadableArgument(Method method) {

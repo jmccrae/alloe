@@ -103,7 +103,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
                 Pattern unification = unify(pattern, unifier);
                 if(unification == null)
                     continue;
-                unification.makeMostDominant();
+                unification = unification.getMostDominant();
                 if(unification != null && patternScores.get(unification) == null) {
                     addPattern(unification, pattern.toString(), unifier.toString());
                 }
@@ -155,7 +155,6 @@ public class PatternBuilder extends AlloeProcessAdapter {
         if(!pattern1.isAlignableWith(pattern2)) {
             return null;
         } else {
-            Pattern rpattern = new Pattern();
             String pat = "";
             String[] patternSplit1 = pattern1.getAlignmentWith(pattern2);
             String[] patternSplit2 = pattern2.getAlignmentWith(pattern1);
@@ -170,7 +169,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
                     pat = pat.concat(" ");
                 }
             }
-            rpattern.setVal(pat);
+            Pattern rpattern = new Pattern(pat);
             return rpattern.isTrivial() ? null : rpattern;
         }
     }

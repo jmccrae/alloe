@@ -59,7 +59,6 @@ public class Logic {
             if(str.matches(".*->.*")) {
                 Rule r = Rule.loadRule(str,ruleSymbols);
                 rules.addLast(r);
-                System.out.println(r.toString());
             } else if(str.matches(".*<-.*")) {
                 readSetDefinition(str);
             } else if (!str.matches("^\\s*$") && !str.matches("^#.*")) {
