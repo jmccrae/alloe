@@ -57,18 +57,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
         }
         
         fireNewProgressChange((double) i / (double) patterns.size());
-        corpus.initTermsInCorpusCache();
         
-        int trueTerms=0, allTerms=0;
-        Iterator<Corpus.TermPair> termIter = corpus.getTermsInCorpus();
-        Corpus.TermPair tp;
-        while (termIter.hasNext()) {
-            tp = termIter.next();
-            if(termPairs.contains(tp.term1.toLowerCase(),tp.term2.toLowerCase()))
-                trueTerms++;
-            allTerms++;
-        }
-        System.out.println(trueTerms + "/" + allTerms);
         
         Iterator<Pattern> patIter = patterns.keySet().iterator();
         for (int j = 0; j < i; j++) {
@@ -91,7 +80,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                             if(inst == null) {
                                 instances.put(terms[j] + glue + terms[k], inst = new SparseInstance(1.0, new double[patterns.size() + 1]));
                             }
-                            inst.setValue(i,inst.value(i) + 1.0 / (double)corpusSize);
+                            inst.setValue(i,inst.value(i) + 1.0); // (double)corpusSize);
                         }
                     }
                 }

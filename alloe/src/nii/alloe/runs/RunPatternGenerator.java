@@ -36,14 +36,13 @@ public class RunPatternGenerator {
                 System.err.println("Invalid arguments\n corpusFile termPairFile relationship outputFile");
                 System.exit(-1);
             }
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(args[0]));
-            Corpus c = (Corpus)ois.readObject();
-            ois.close();
-            ois = new ObjectInputStream(new FileInputStream(args[1]));
+            Corpus c = Corpus.openCorpus(new File(args[0]));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(args[1]));
             TermPairSet tps = (TermPairSet)ois.readObject();
             ois.close();
             file = args[3];
-            pb = new PatternBuilder(c,tps,PatternMetricFactory.MIN_SUP_PREC,args[2]);
+            //pb = new PatternBuilder(c,tps,PatternMetricFactory.MIN_SUP_PREC,args[2]);
+            pb = new PatternSetBuilder(c,tps,args[2],350);
             pb.setIgnoreReflexives(true);
             pb.addProgressListener(new AlloeProgressListener() {
                 public void progressChange(double newProgress) {

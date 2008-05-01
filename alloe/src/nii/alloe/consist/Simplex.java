@@ -83,6 +83,8 @@ public class Simplex {
             throw new IllegalArgumentException("Matrix does not contain cost col!");
         }
         for(int i : m.cols.keySet()) {
+            if(i == 0)
+                continue;
 	    if(b == null) 
 		m.setElem(solnRow, i, -1);
 	    else

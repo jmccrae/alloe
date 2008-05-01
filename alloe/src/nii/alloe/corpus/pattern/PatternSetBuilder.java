@@ -3,6 +3,7 @@ package nii.alloe.corpus.pattern;
 import nii.alloe.corpus.*;
 import nii.alloe.tools.struct.*;
 import java.util.*;
+import java.io.*;
 
 /**
  *
@@ -31,6 +32,7 @@ public class PatternSetBuilder extends PatternBuilder {
         posLoss = new TreeMap<Pattern, Integer>();
         negLoss = new TreeMap<Pattern, Integer>();
     }
+
     private static final String glue = " => ";
     double sketchAmount;
     TermPairSet patternPositives;
@@ -44,12 +46,17 @@ public class PatternSetBuilder extends PatternBuilder {
         if (pattern.isTrivial()) {
             return;
         }
-
+        if(state != this.STATE_BASE && getSalience(pattern) > 0.75) {
+            patternScores.put(pattern,0.0);
+            patternQueue.add(pattern);
+            return;
+        }
+        
         calculateEnoughPositivesNegatives(pattern);
 
         double patternScore;
         if (patternCounter.size() < getMaxPatterns()) {
-            System.out.println("");
+            //System.out.println("");
             finishCalculatingPositivesNegatives(pattern);
             patternScore = 2.0 * ((double) patternPositives.size() / (double) (patternPositives.size() + patternNegatives.size() + termPairSet.size()));
             patternScores.put(pattern, patternScore);
@@ -64,7 +71,7 @@ public class PatternSetBuilder extends PatternBuilder {
             }
             Pattern bestPattern = findBestReplacement();
             if (bestPattern != null) {
-                System.out.println("... replacing " + bestPattern.toString());
+                //System.out.println("... replacing " + bestPattern.toString());
                 finishCalculatingPositivesNegatives(pattern);
                 patternScore = 2.0 * ((double) patternPositives.size() / (double) (patternPositives.size() + patternNegatives.size() + termPairSet.size()));
                 boolean b = patternCounter.remove(bestPattern);
@@ -77,7 +84,7 @@ public class PatternSetBuilder extends PatternBuilder {
                 negatives.put(pattern, patternNegatives);
                 firePatternGenerated(pattern, patternScore);
             } else {
-                System.out.println("... no good");
+                //System.out.println("... no good");
                 patternScore = 2.0 * ((double) patternPositives.size() / sketchAmount / (double) ((patternPositives.size() + patternNegatives.size()) / sketchAmount + termPairSet.size()));
                 patternScores.put(pattern, patternScore);
                 patternQueue.add(pattern);
@@ -103,14 +110,14 @@ public class PatternSetBuilder extends PatternBuilder {
         }
         sketchAmount = 1.0;
         int contextsSeen = 0;
-        System.out.print(pattern.toString());
+        //System.out.print(pattern.toString());
         while (contexts.hasNext()) {
             Corpus.Hit context = contexts.next();
             String text = context.getText();
             String[] terms = context.getTerms();
             for (int i = 0; i < terms.length; i++) {
                 for (int j = 0; j < terms.length; j++) {
-                    if (pattern.matches(text, terms[i], terms[j])) {
+                    if (pattern.matches(text, terms[i], terms[j],true)) {
                         if (termPairSet.contains(terms[i], terms[j])) {
                             patternPositives.add(terms[i], terms[j]);
                             if (posCounts != null &&
@@ -155,7 +162,7 @@ public class PatternSetBuilder extends PatternBuilder {
             String[] terms = context.getTerms();
             for (int i = 0; i < terms.length; i++) {
                 for (int j = 0; j < terms.length; j++) {
-                    if (pattern.matches(text, terms[i], terms[j])) {
+                    if (pattern.matches(text, terms[i], terms[j],true)) {
                         if (termPairSet.contains(terms[i], terms[j])) {
                             patternPositives.add(terms[i], terms[j]);
                         } else {
@@ -299,5 +306,36 @@ public class PatternSetBuilder extends PatternBuilder {
     
     public double getSetScore() {
         return currentFM;
+    }
+    
+    private HashMap<String,Double> saliences;
+    
+    double getSalience(Pattern p) {
+        int count = 0;
+        if(saliences == null) {
+            saliences = new HashMap<String,Double>();
+            saliences.put("*", 1.0);
+            saliences.put(", ",1.0);
+            for(String stop : nii.alloe.corpus.analyzer.AlloeAnalyzer.STOP_WORDS) {
+                saliences.put(stop, 1.0);
+            }
+        }
+        String[] parts = p.split();
+        double rval = 0;
+        for(String part : parts) {
+            if(part.equals("1") || part.equals("2") ||
+                    part.equals(" "))
+                continue;
+            if(saliences.get(part) == null) {
+                double d = (double)corpus.getHitsForString(part) /
+                        (double)corpus.getTotalDocs();
+                saliences.put(part, d);
+                rval += d;
+            } else {
+                rval += saliences.get(part);
+            }
+            count++;
+        }
+        return rval / (double)count;
     }
 }

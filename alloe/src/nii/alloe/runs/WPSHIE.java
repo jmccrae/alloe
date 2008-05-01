@@ -19,23 +19,23 @@ public class WPSHIE {
     public WPSHIE() {
         terms = new TreeSet<String>();
         loadSyns();
-        loadHyps();
-        consolidateHyps();
+        //loadHyps();
+        //consolidateHyps();
         System.out.println("Number of Terms = " + terms.size());
         System.out.println("Number of Synonym Links = " +  syns.size());
-        System.out.println("Number of Hypernym Links = " + hyps.size());
+        //System.out.println("Number of Hypernym Links = " + hyps.size());
         
         try {
-            ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/terms"));
+            ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/bmc-terms"));
             TermList termsVec = new TermList(terms);
             oos2.writeObject(termsVec);
             oos2.close();
             
-            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/syns.atps"));
+            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/bmc-syns.atps"));
             oos2.writeObject(syns);
             oos2.close();
             
-            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/hyps.atps"));
+            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/bmc-hyps.atps"));
             oos2.writeObject(hyps);
             oos2.close();
             
@@ -59,7 +59,7 @@ public class WPSHIE {
     void loadSyns() {
         syns = new TermPairSet();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/syns"));
+            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/bmc-syns"));
             String s = in.readLine();
             while(s != null) {
                 if(!s.matches(".*\\w.*")) {
@@ -84,7 +84,7 @@ public class WPSHIE {
     void loadHyps() {
         hyps = new TermPairSet();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/hyps"));
+            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/bmc-hyps"));
             String s = in.readLine();
             while(s != null) {
                 String[] ss = s.split(" < " );

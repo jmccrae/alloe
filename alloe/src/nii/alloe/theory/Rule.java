@@ -49,6 +49,7 @@ public class Rule implements Comparable<Rule> {
         }
         ruleSymbols = model.logic.ruleSymbols;
         
+        arguments = new TreeMap<Argument,Argument>();
         addArguments();
     }
     
@@ -89,7 +90,7 @@ public class Rule implements Comparable<Rule> {
     }
     
     // NB for r(2,3) group 1 captures (2,3), group 2 captures 2
-    private static String argumentRegex = "\\d+(|\\(\\s*\\)|\\((\\s*\\d+\\s*,)*\\s*\\d\\s*))|\".*\"";
+    private static String argumentRegex = "\\d+(|\\(\\s*\\)|\\((\\s*\\d+\\s*,)*\\s*\\d\\s*\\)|\".*\")";
     
     private void loadFromString(String rule) throws IllegalArgumentException {
         String []pc = rule.split("->",-1);
@@ -792,7 +793,7 @@ public class Rule implements Comparable<Rule> {
         /** Copy constructor */
         public Argument(Argument arg) {
             this.id = arg.id;
-            this.setAssignment(arg.assignment);
+            this.assignment = arg.assignment;
         }
         
         /** Compares two arguments. if they both have assignments the value assigned

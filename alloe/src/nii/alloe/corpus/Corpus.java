@@ -197,6 +197,20 @@ public class Corpus {
         }
     }
     
+    /** Call this to find how often a particular string occurs in the corpus
+     * @param str The string to search for
+     */
+    public int getHitsForString(String str) {
+        try {
+            QueryParser qp = new QueryParser("contents", new AlloeAnalyzer());
+            Query q  = qp.parse(cleanQuery2(str));
+            return indexSearcher.search(q).length();
+        } catch(Exception x) {
+            x.printStackTrace();
+            return 0;
+        }
+    }
+    
     /** Call this if you want to check every term pair with a pattern. This first
      * initializes the query and then call {@link #getContextsForTermPrepared}.
      * @return The prepared query data

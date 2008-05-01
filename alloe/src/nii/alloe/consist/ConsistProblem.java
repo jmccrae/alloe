@@ -695,6 +695,8 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             if(limitToCompleteModel)
                 r.limitToModel(completeModel);
             r = Rule.simplify(r,probModel);
+            if(r.isRuleSatisfied(probModel))
+                return true;
             if(r != null && r.length() > 0) {
                 baseRules.add(r);
             }
