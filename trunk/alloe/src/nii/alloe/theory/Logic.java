@@ -91,8 +91,17 @@ public class Logic {
                 set.add(Integer.parseInt(m2.group(2)));
             }
         }
-        
+        addFirstOrderRules();
         sets.put(m.group(1), set);
+    }
+    
+    private void addFirstOrderRules() {
+        if(isFirstOrder()) {
+            for(String rel : getRelations()) {
+                rules.addLast(Rule.loadRule(rel + "(1,2); e(1,3) -> " + rel + "(3,2)", ruleSymbols));
+                rules.addLast(Rule.loadRule(rel + "(1,2); e(2,3) -> " + rel + "(1,3)", ruleSymbols));
+            }
+        }
     }
     
     public Collection<String> getRelations() {
@@ -107,6 +116,13 @@ public class Logic {
     
     public void setModelSize(int n) {
         ruleSymbols.setModelSize(n);
+    }
+    
+    /** Is this logic a first-order or prepositional logic.
+     * @return True if there is at least one functional argument
+     */
+    public boolean isFirstOrder() {
+        return !ruleSymbols.functions.isEmpty();
     }
     
     public interface CheckerCondition {

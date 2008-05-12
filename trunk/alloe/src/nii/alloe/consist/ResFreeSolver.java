@@ -110,12 +110,13 @@ public class ResFreeSolver extends AlloeProcessAdapter {
 	}
     }
 
-    ConsistSolver cs = new ConsistSolver();
+    ConsistSolver cs;
 
     /** Solve the matrix
      * @return The cost of the solution
      */
     double solveMatrix() {
+        cs = new ConsistSolver();
 	cs.solve(matrix,solnRow);
 	candidate = probModel.createSpecificCopy();
 	candidate.symmDiffAll(cs.soln);

@@ -12,4 +12,11 @@ public interface PatternMetric {
      * @see PatternMetricFactory
      */
     public String getName();
+    
+    /**
+     * Set the balance between precision and recall. Positive values favour precision, negative values favour recall
+     * Ideally 20 should be a very high value, 10 high, 5 moderate.
+     * 
+     */
+    public void setAlpha(double alpha);
 }

@@ -69,8 +69,10 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
                 System.err.println("Iteartion limit reached");
                 System.exit(-1);
             }
-            if(m == null)
+            if(m == null) {
+                state = STATE_OK;
                 break;
+            }
             m = m.createCopy();
             ConsistProblem.reduceMatrix(m);
             if(state != STATE_MATRIX)

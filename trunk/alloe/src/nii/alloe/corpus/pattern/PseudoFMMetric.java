@@ -18,6 +18,7 @@ public class PseudoFMMetric implements PatternMetric {
 
     Corpus corpus;
     TermPairSet termPairs;
+    private double alpha = 1;
 
     public PseudoFMMetric(Corpus corpus, TermPairSet termPairs) {
         this.corpus = corpus;
@@ -57,11 +58,15 @@ public class PseudoFMMetric implements PatternMetric {
             || Double.isNaN(pseudoRecall) || Double.isNaN(pseudoPrecision)) {
             return 0;
         } else {
-            return 2 * pseudoRecall * pseudoPrecision / (pseudoPrecision + pseudoRecall);
+            return (1+alpha) * pseudoRecall * pseudoPrecision / (pseudoPrecision + alpha * pseudoRecall);
         }
     }
 
     public String getName() {
         return PatternMetricFactory.PSEUDO_FM;
+    }
+    
+    public void setAlpha(double alpha) {
+        this.alpha = Math.pow(1.15,alpha);
     }
 }

@@ -35,7 +35,7 @@ public class DataSet implements Serializable {
     Map<String,Vector<String>> nonOccTerms;
     public TermList termSet;
     private FastVector classVec;
-    static final String glue = " => ";
+    static public final String glue = " => ";
     
     /** Create a new instance */
     public DataSet(TermList termList) {
@@ -84,8 +84,9 @@ public class DataSet implements Serializable {
      * @throws IllegalArgumentException if prepRelation has not been called for this relation
      */
     public void addInstance(Instance i, String relation, String term1, String term2) {
-        if(instances.get(relation) == null || !termSet.contains(term1) || !termSet.contains(term2))
+        if(instances.get(relation) == null || !termSet.contains(term1) || !termSet.contains(term2)) {
             throw new IllegalArgumentException();
+        }
         instances.get(relation).add(i);
         terms.get(relation).add(term1 + glue + term2);
     }

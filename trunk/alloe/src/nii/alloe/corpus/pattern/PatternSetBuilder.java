@@ -21,6 +21,7 @@ public class PatternSetBuilder extends PatternBuilder {
     Map<Pattern, Integer> negBothLoss;
     int posGain;
     int negGain;
+    private double alpha = 1;
 
     /** Creates a new instance of PatternSetBuilder */
     public PatternSetBuilder(Corpus corpus, TermPairSet termPairSet, String relationship, int maxPatterns) {
@@ -58,7 +59,7 @@ public class PatternSetBuilder extends PatternBuilder {
         if (patternCounter.size() < getMaxPatterns()) {
             //System.out.println("");
             finishCalculatingPositivesNegatives(pattern);
-            patternScore = 2.0 * ((double) patternPositives.size() / (double) (patternPositives.size() + patternNegatives.size() + termPairSet.size()));
+            patternScore = (1 + alpha) * ((double) patternPositives.size() / ((double)(patternPositives.size() + patternNegatives.size()) + (double)termPairSet.size() / alpha));
             patternScores.put(pattern, patternScore);
             patternQueue.add(pattern);
             patternCounter.add(pattern);
@@ -73,7 +74,7 @@ public class PatternSetBuilder extends PatternBuilder {
             if (bestPattern != null) {
                 //System.out.println("... replacing " + bestPattern.toString());
                 finishCalculatingPositivesNegatives(pattern);
-                patternScore = 2.0 * ((double) patternPositives.size() / (double) (patternPositives.size() + patternNegatives.size() + termPairSet.size()));
+                patternScore = (1 + alpha) * ((double) patternPositives.size() / ((double) (patternPositives.size() + patternNegatives.size()) + (double)termPairSet.size() / alpha));
                 boolean b = patternCounter.remove(bestPattern);
                 firePatternDropped(bestPattern);
                 updateCounts(pattern, bestPattern, patternPositives, patternNegatives);
@@ -85,7 +86,7 @@ public class PatternSetBuilder extends PatternBuilder {
                 firePatternGenerated(pattern, patternScore);
             } else {
                 //System.out.println("... no good");
-                patternScore = 2.0 * ((double) patternPositives.size() / sketchAmount / (double) ((patternPositives.size() + patternNegatives.size()) / sketchAmount + termPairSet.size()));
+                patternScore = (1 + alpha) * ((double) patternPositives.size() / sketchAmount / ((double) (patternPositives.size() + patternNegatives.size()) / sketchAmount + termPairSet.size() / alpha));
                 patternScores.put(pattern, patternScore);
                 patternQueue.add(pattern);
             }
@@ -232,11 +233,11 @@ public class PatternSetBuilder extends PatternBuilder {
     Pattern findBestReplacement() {
         double bestImprov = 0;
         Pattern bestPattern = null;
-        currentFM = 2.0 * ((double) posCounts.size() / (double) (posCounts.size() + negCounts.size() + termPairSet.size()));
+        currentFM = (1.0 + alpha) * ((double) posCounts.size() / ((double) (posCounts.size() + negCounts.size()) + (double)termPairSet.size() / alpha));
         for (Pattern p2 : patternCounter) {
             double posGain2 = (double) posGain / sketchAmount - (double) posLoss.get(p2) + (double) posBothLoss.get(p2) / sketchAmount;
             double negGain2 = (double) negGain / sketchAmount - (double) negLoss.get(p2) + (double) negBothLoss.get(p2) / sketchAmount;
-            double newFM = 2.0 * (((double) posCounts.size() + posGain2) / (double) (posCounts.size() + posGain2 + negCounts.size() + negGain2 + termPairSet.size()));
+            double newFM = (1.0 + alpha) * (((double) posCounts.size() + posGain2) / ((double) (posCounts.size() + posGain2 + negCounts.size() + negGain2) + (double)termPairSet.size() / alpha));
             if (newFM - currentFM > bestImprov) {
                 bestImprov = newFM - currentFM;
                 bestPattern = p2;
@@ -337,5 +338,9 @@ public class PatternSetBuilder extends PatternBuilder {
             count++;
         }
         return rval / (double)count;
+    }
+    
+    public void setAlpha(double alpha) {
+        this.alpha = Math.pow(1.15,alpha);
     }
 }
