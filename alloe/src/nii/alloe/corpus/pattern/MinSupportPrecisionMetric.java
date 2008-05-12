@@ -82,6 +82,10 @@ public class MinSupportPrecisionMetric implements PatternMetric {
         this.minSupport = minSupport;
     }
 
+    public void setAlpha(double alpha) {
+        minSupport = 2 + (int)Math.pow(1.15,-alpha);
+    }
+    
     /**
      * Holds value of property sketchSize.
      */

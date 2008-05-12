@@ -75,7 +75,7 @@ public class Corpus {
         while (termIter.hasNext()) {
             String term = termIter.next();
             
-            if (contents.matches(".*\\b" + term.toLowerCase() + "\\b.*")) {
+            if (contents.matches(".*\\b" + Strings.quoteMeta(term.toLowerCase()) + "\\b.*")) {
                 d.add(new Field("term", term.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
             }
         }

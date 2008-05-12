@@ -19,11 +19,11 @@ public class WPSHIE {
     public WPSHIE() {
         terms = new TreeSet<String>();
         loadSyns();
-        //loadHyps();
-        //consolidateHyps();
+        loadHyps();
+        consolidateHyps();
         System.out.println("Number of Terms = " + terms.size());
         System.out.println("Number of Synonym Links = " +  syns.size());
-        //System.out.println("Number of Hypernym Links = " + hyps.size());
+        System.out.println("Number of Hypernym Links = " + hyps.size());
         
         try {
             ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/bmc-terms"));
@@ -69,9 +69,9 @@ public class WPSHIE {
                 String[] ss = s.split(", ");
                 for(int i = 0; i < ss.length; i++) {
                     for(int j = 0; j < ss.length; j++) {
-                        syns.add(ss[i],ss[j]);
+                        syns.add(ss[i].toLowerCase(),ss[j].toLowerCase());
                     }
-                    terms.add(ss[i]);
+                    terms.add(ss[i].toLowerCase());
                 }
                 s = in.readLine();
             }
@@ -91,6 +91,7 @@ public class WPSHIE {
                 LinkedList<String> seen = new LinkedList<String>();
                 for(int i = 0; i < ss.length; i++) {
                     Iterator<String> seeniter = seen.iterator();
+                    ss[i] = ss[i].toLowerCase();
                     while(seeniter.hasNext()) {
                         hyps.add(ss[i],seeniter.next());
                     }

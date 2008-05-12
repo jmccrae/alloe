@@ -3,7 +3,6 @@
  *
  * Created on 09 January 2008, 16:57
  */
-
 package nii.alloe.gui;
 
 import javax.swing.*;
@@ -26,8 +25,8 @@ import weka.core.*;
  * @author  john
  */
 public class AlloeMain extends javax.swing.JFrame {
+
     private Corpus corpus;
-    
     private String corpusTextFile;
     private File corpusTermSetFile;
     private File corpusIndexFile;
@@ -44,7 +43,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private HashMap<String, PatternSet> patternSets;
     private HashMap<String, Boolean> lazyMatching;
     private DataSet dataSet;
-    private Map<String,Classifier> classifierSet;
+    private Map<String, Classifier> classifierSet;
     private Logic logic;
     private ProbModelBuilder probModelBuilder;
     private Model model;
@@ -57,7 +56,7 @@ public class AlloeMain extends javax.swing.JFrame {
     private Model solvedModel;
     private HashMap<String, String> standardModelTermPairs;
     private PatternAdvancedDialog patternAdvancedDialog;
-    
+
     /** Creates new form AlloeMain */
     public AlloeMain() {
         initComponents();
@@ -66,16 +65,16 @@ public class AlloeMain extends javax.swing.JFrame {
         fileChooser = new JFileChooser();
         //thisForAnon = this;
         corpusDisplayTableModel = new CorpusTableModel();
-        termSetFileName = new HashMap<String,File>();
-        fvTermSetFileName = new HashMap<String,File>();
-        patternBuilderProcess = new HashMap<String,PatternBuilder>();
-        featureVectorProcess = new HashMap<String,FeatureVectorFormer>();
-        patternSets = new HashMap<String,PatternSet>();
-        lazyMatching = new HashMap<String,Boolean>();
-        classifierSet = new HashMap<String,Classifier>();
-        standardModelTermPairs = new HashMap<String,String>();
+        termSetFileName = new HashMap<String, File>();
+        fvTermSetFileName = new HashMap<String, File>();
+        patternBuilderProcess = new HashMap<String, PatternBuilder>();
+        featureVectorProcess = new HashMap<String, FeatureVectorFormer>();
+        patternSets = new HashMap<String, PatternSet>();
+        lazyMatching = new HashMap<String, Boolean>();
+        classifierSet = new HashMap<String, Classifier>();
+        standardModelTermPairs = new HashMap<String, String>();
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -1392,24 +1391,25 @@ public class AlloeMain extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     private void bestPatternSetSizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_bestPatternSetSizeStateChanged
-        if(patternAdvancedDialog != null)
-            patternAdvancedDialog.setPatternSetSize((Integer)bestPatternSetSize.getValue());
+        if (patternAdvancedDialog != null) {
+            patternAdvancedDialog.setPatternSetSize((Integer) bestPatternSetSize.getValue());
+        }
         String name = patternGeneratorRelationship.getSelectedItem().toString();
-        if(patternBuilderProcess.get(name) != null)
-            patternBuilderProcess.get(name).setMaxPatterns((Integer)bestPatternSetSize.getValue());
+        if (patternBuilderProcess.get(name) != null) {
+            patternBuilderProcess.get(name).setMaxPatterns((Integer) bestPatternSetSize.getValue());
+        }
     }//GEN-LAST:event_bestPatternSetSizeStateChanged
 
     private void bestPatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bestPatternSetActionPerformed
-    metricLabel.setEnabled(false);
+        metricLabel.setEnabled(false);
         patternBuilderMetric.setEnabled(false);
         bestPatternSetSize.setEnabled(true);
         String name = patternGeneratorRelationship.getSelectedItem().toString();
-        if(patternBuilderProcess.get(name) != null && 
+        if (patternBuilderProcess.get(name) != null &&
                 !(patternBuilderProcess.get(name) instanceof PatternSetBuilder)) {
             initPatternBuilderProcess(name, true);
-            
+
         }
     }//GEN-LAST:event_bestPatternSetActionPerformed
 
@@ -1418,54 +1418,55 @@ public class AlloeMain extends javax.swing.JFrame {
         patternBuilderMetric.setEnabled(true);
         bestPatternSetSize.setEnabled(false);
         String name = patternGeneratorRelationship.getSelectedItem().toString();
-        if(patternBuilderProcess.get(name) != null && 
+        if (patternBuilderProcess.get(name) != null &&
                 patternBuilderProcess.get(name) instanceof PatternSetBuilder) {
             initPatternBuilderProcess(name, false);
         }
     }//GEN-LAST:event_allPatternsActionPerformed
-    
+
     private void sketchSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sketchSizeSpinnerStateChanged
-        if(corpusLoader != null) {
-            corpusLoader.setMaxSketchSize((Integer)sketchSizeSpinner.getValue());
+        if (corpusLoader != null) {
+            corpusLoader.setMaxSketchSize((Integer) sketchSizeSpinner.getValue());
         }
     }//GEN-LAST:event_sketchSizeSpinnerStateChanged
-    
+
     private void contextSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_contextSizeSpinnerStateChanged
-        if(corpusLoader != null) {
-            corpusLoader.setContextSize((Integer)contextSizeSpinner.getValue());
+        if (corpusLoader != null) {
+            corpusLoader.setContextSize((Integer) contextSizeSpinner.getValue());
         }
     }//GEN-LAST:event_contextSizeSpinnerStateChanged
-    
+
     private void useSketchingCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useSketchingCheckActionPerformed
         maxSketchLabel.setEnabled(useSketchingCheck.isSelected());
         sketchSizeSpinner.setEnabled(useSketchingCheck.isSelected());
-        if(corpusLoader != null) {
-            if(useSketchingCheck.isSelected()) {
-                corpusLoader.setMaxSketchSize((Integer)sketchSizeSpinner.getValue());
+        if (corpusLoader != null) {
+            if (useSketchingCheck.isSelected()) {
+                corpusLoader.setMaxSketchSize((Integer) sketchSizeSpinner.getValue());
             } else {
                 corpusLoader.setMaxSketchSize(-1);
             }
         }
     }//GEN-LAST:event_useSketchingCheckActionPerformed
-    
+
     private void useLazyMatchingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useLazyMatchingActionPerformed
         String pat = featureVectorPatternSet.getSelectedItem().toString();
-        if(featureVectorProcess.get(pat) != null) {
+        if (featureVectorProcess.get(pat) != null) {
             featureVectorProcess.get(pat).setLazyMatching(useLazyMatching.isSelected());
         }
-        lazyMatching.put(pat,useLazyMatching.isSelected());
+        lazyMatching.put(pat, useLazyMatching.isSelected());
     }//GEN-LAST:event_useLazyMatchingActionPerformed
-    
+
     private void patternAdvancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternAdvancedActionPerformed
-        if(patternAdvancedDialog == null)
-            patternAdvancedDialog = new PatternAdvancedDialog(this,true);
+        if (patternAdvancedDialog == null) {
+            patternAdvancedDialog = new PatternAdvancedDialog(this, true);
+        }
         patternAdvancedDialog.setPatternBuilder(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
         patternAdvancedDialog.setPatternSet(patternSets.get(patternViewerRelationship.getSelectedItem().toString()));
-        patternAdvancedDialog.setPatternSetSize((Integer)bestPatternSetSize.getValue());
+        patternAdvancedDialog.setPatternSetSize((Integer) bestPatternSetSize.getValue());
         patternAdvancedDialog.setVisible(true);
-        bestPatternSetSize.setValue((Integer)patternAdvancedDialog.getPatternSetSize());
+        bestPatternSetSize.setValue((Integer) patternAdvancedDialog.getPatternSetSize());
     }//GEN-LAST:event_patternAdvancedActionPerformed
-    
+
     private void useStandardSolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useStandardSolverActionPerformed
         pmRowsLabel.setEnabled(matrix != null);
         pmColsLabel.setEnabled(matrix != null);
@@ -1474,11 +1475,11 @@ public class AlloeMain extends javax.swing.JFrame {
         saveProblemMatrix.setEnabled(true);
         openProblemMatrix.setEnabled(false);
         prepareProblemMatrix();
-        if(matrix != null) {
+        if (matrix != null) {
             solverMonitor.setProcess(consistSolver);
         }
     }//GEN-LAST:event_useStandardSolverActionPerformed
-    
+
     private void useGrowingSolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useGrowingSolverActionPerformed
         pmRowsLabel.setEnabled(false);
         pmColsLabel.setEnabled(false);
@@ -1488,140 +1489,143 @@ public class AlloeMain extends javax.swing.JFrame {
         openProblemMatrix.setEnabled(false);
         prepareProblemMatrix();
     }//GEN-LAST:event_useGrowingSolverActionPerformed
-    
+
     private void onStandardModelLoad() {
         saveStandardModel.setEnabled(true);
-        if(model != null) {
+        if (model != null) {
             int[] comp = model.computeComparison(standardModel);
             Integer[][] conf = new Integer[2][2];
             conf[0][0] = comp[0];
             conf[0][1] = comp[1];
             conf[1][0] = comp[2];
-            String[] name = { "true", "false" };
+            String[] name = {"true", "false"};
             confusionMatrixPre.setModel(new DefaultTableModel(conf, name));
-            precisionPreLabel.setText("Precision: " + ((double)comp[0] / (double)(comp[0] + comp[1])));
+            precisionPreLabel.setText("Precision: " + ((double) comp[0] / (double) (comp[0] + comp[1])));
             precisionPreLabel.setEnabled(true);
-            recallPreLabel.setText("Recall: " + ((double)comp[0] / (double)(comp[0] + comp[2])));
+            recallPreLabel.setText("Recall: " + ((double) comp[0] / (double) (comp[0] + comp[2])));
             recallPreLabel.setEnabled(true);
-            fMeasurePreLabel.setText("F-Measure: " + ((double)(2 * comp[0]) / (double)(2 * comp[0] + comp[1] + comp[2])));
+            fMeasurePreLabel.setText("F-Measure: " + ((double) (2 * comp[0]) / (double) (2 * comp[0] + comp[1] + comp[2])));
             fMeasurePreLabel.setEnabled(true);
         }
-        if(solvedModel != null) {
+        if (solvedModel != null) {
             int[] comp = solvedModel.computeComparison(standardModel);
             Integer[][] conf = new Integer[2][2];
             conf[0][0] = comp[0];
             conf[0][1] = comp[1];
             conf[1][0] = comp[2];
-            String[] name = { "true", "false" };
+            String[] name = {"true", "false"};
             confusionMatrixPost.setModel(new DefaultTableModel(conf, name));
-            precisionPostLabel.setText("Precision: " + ((double)comp[0] / (double)(comp[0] + comp[1])));
+            precisionPostLabel.setText("Precision: " + ((double) comp[0] / (double) (comp[0] + comp[1])));
             precisionPostLabel.setEnabled(true);
-            recallPostLabel.setText("Recall: " + ((double)comp[0] / (double)(comp[0] + comp[2])));
+            recallPostLabel.setText("Recall: " + ((double) comp[0] / (double) (comp[0] + comp[2])));
             recallPostLabel.setEnabled(true);
-            fMeasurePostLabel.setText("F-Measure: " + ((double)(2 * comp[0]) / (double)(2 * comp[0] + comp[1] + comp[2])));
+            fMeasurePostLabel.setText("F-Measure: " + ((double) (2 * comp[0]) / (double) (2 * comp[0] + comp[1] + comp[2])));
             fMeasurePostLabel.setEnabled(true);
         }
     }
-    
+
     private void standardOpenTermPairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardOpenTermPairsActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
-                if(!(o instanceof TermPairSet)) {
+                if (!(o instanceof TermPairSet)) {
                     JOptionPane.showMessageDialog(this, "Invalid Format", "Could not open term pair set", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                TermPairSet tps = (TermPairSet)o;
+                TermPairSet tps = (TermPairSet) o;
                 standardModel.setGraphAs(standardRelationship.getSelectedItem().toString(),
                         tps, standardTermList);
                 standardModelTermPairs.put(standardRelationship.getSelectedItem().toString(), fileChooser.getSelectedFile().getName());
                 Iterator<String> smtpIter = standardModelTermPairs.values().iterator();
-                while(smtpIter.hasNext()) {
-                    if(smtpIter.next().equals(""))
+                while (smtpIter.hasNext()) {
+                    if (smtpIter.next().equals("")) {
                         return;
+                    }
                 }
                 onStandardModelLoad();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term pair set", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
+            } catch (ClassNotFoundException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term pair set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_standardOpenTermPairsActionPerformed
-    
+
     private void standardOpenTermSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_standardOpenTermSetActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
-                if(!(o instanceof TermList)) {
+                if (!(o instanceof TermList)) {
                     JOptionPane.showMessageDialog(this, "Invalid Format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                standardTermList = (TermList)o;
+                standardTermList = (TermList) o;
                 standardTermSetLabel.setText("Term Set: " + fileChooser.getSelectedFile().getName());
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
+            } catch (ClassNotFoundException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_standardOpenTermSetActionPerformed
-    
+
     private void saveStandardModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveStandardModelActionPerformed
 // TODO add your handling code here:
     }//GEN-LAST:event_saveStandardModelActionPerformed
-    
+
     private void openProblemMatrixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openProblemMatrixActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
-                if(!(o instanceof SparseMatrix)) {
+                if (!(o instanceof SparseMatrix)) {
                     JOptionPane.showMessageDialog(this, "Invalid format", "Could not open matrix", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                matrix = (SparseMatrix)o;
+                matrix = (SparseMatrix) o;
                 onLoadMatrix();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open matrix", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
+            } catch (ClassNotFoundException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open matrix", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_openProblemMatrixActionPerformed
-    
+
     private void saveProblemMatrixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProblemMatrixActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(matrix);
                 oos.close();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save matrix", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_saveProblemMatrixActionPerformed
-    
+
     private void onSolve() {
-        if(model == null)
+        if (model == null) {
             return;
-        TreeSet<Integer> soln;
+        }
+        TreeSet<Integer> soln, added, removed;
         double cost;
-        if(useStandardSolver.isSelected()) {
+        if (useStandardSolver.isSelected()) {
             soln = consistSolver.soln;
             cost = consistSolver.cost;
+            added = (TreeSet<Integer>) soln.clone();
+            removed = (TreeSet<Integer>) added.clone();
+            added.removeAll(model);
+            removed.retainAll(model);
         } else {
-            // TODO fix here
-            //soln = growingSolver.soln;
-            soln = null;
+            added = new TreeSet<Integer>(growingSolver.soln);
+            added.removeAll(model);
+            removed = new TreeSet<Integer>(model);
+            removed.removeAll(growingSolver.soln);
             cost = growingSolver.cost;
         }
-        TreeSet<Integer> added = (TreeSet<Integer>)soln.clone();
-        TreeSet<Integer> removed = (TreeSet<Integer>)added.clone();
-        added.removeAll(model);
-        removed.retainAll(model);
         solverAddedLabel.setText("Added: " + added.size() + "          ");
         solverAddedLabel.setEnabled(true);
         solverRemovedLabel.setText("Removed: " + removed.size() + "          ");
@@ -1632,17 +1636,17 @@ public class AlloeMain extends javax.swing.JFrame {
         solvedModel.addAll(added);
         solvedModel.removeAll(removed);
     }
-    
+
     private class SolverListener implements AlloeProgressListener {
+
         public void finished() {
             onSolve();
         }
-        
+
         public void progressChange(double newProgress) {
         }
-        
     }
-    
+
     private void onLoadMatrix() {
         pmRowsLabel.setText("Rows: " + matrix.getRowCount() + "          ");
         pmRowsLabel.setEnabled(true);
@@ -1651,121 +1655,121 @@ public class AlloeMain extends javax.swing.JFrame {
         pmElemsLabel.setText("Elements: " + matrix.getElemCount());
         pmElemsLabel.setEnabled(true);
         saveProblemMatrix.setEnabled(true);
-        if(useStandardSolver.isSelected()) {
+        if (useStandardSolver.isSelected()) {
             consistSolver = new ConsistSolver(matrix);
             consistSolver.addProgressListener(new SolverListener());
             solverMonitor.setProcess(consistSolver);
         }
     }
-    
+
     private class PMMonitorListener implements ProcessMonitorListener {
+
         public boolean onResume(ProcessMonitor pm) {
             return true;
         }
-        
+
         public boolean onStart(ProcessMonitor pm) {
             return true;
         }
-        
     }
-    
+
     private class PMListener implements AlloeProgressListener {
+
         public void finished() {
             matrix = consistProblem.mat;
             onLoadMatrix();
         }
-        
+
         public void progressChange(double newProgress) {
         }
     }
-    
-    
+
     private void prepareProblemMatrix() {
-        if(useStandardSolver.isSelected()) {
-            consistProblem = new ConsistProblem(logic,model);
+        if (useStandardSolver.isSelected()) {
+            consistProblem = new ConsistProblem(logic, model);
             consistProblem.addProgressListener(new PMListener());
             problemMatrixMonitor.setProcess(consistProblem);
-        } else if(logic != null) { // && useGrowingSolver.isSelected()
-            growingSolver = new GrowingSolver(logic,model);
+        } else if (logic != null) { // && useGrowingSolver.isSelected()
+            growingSolver = new GrowingSolver(logic, model);
             growingSolver.addProgressListener(new SolverListener());
             solverMonitor.setProcess(growingSolver);
         }
     }
-    
+
     private void saveModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveModelActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(model);
                 oos.close();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save model", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_saveModelActionPerformed
-    
+
     private void openModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openModelActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
-                if(!(o instanceof Model)) {
+                if (!(o instanceof Model)) {
                     JOptionPane.showMessageDialog(this, "Invalid format", "Could not open model", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                model = (Model)o;
+                model = (Model) o;
                 onModelLoad();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open model", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
+            } catch (ClassNotFoundException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open model", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_openModelActionPerformed
-    
+
     private void saveLogicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveLogicButtonActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 BufferedWriter bw = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()));
                 bw.write(logic.toString());
                 bw.close();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save logic file", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_saveLogicButtonActionPerformed
-    
+
     private void processLogicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processLogicButtonActionPerformed
         try {
             logic = new Logic(logicDescription.getText());
             onLoadLogic();
-        } catch(IllegalArgumentException x) {
+        } catch (IllegalArgumentException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open logic", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_processLogicButtonActionPerformed
-    
+
     private void modelRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modelRelationshipActionPerformed
         String graphName = modelRelationship.getSelectedItem().toString();
         Graph graph = model.getGraphByName(graphName);
         modelLinksLabel.setText("Model Links: " + graph.linkCount());
     }//GEN-LAST:event_modelRelationshipActionPerformed
-    
+
     private void initProbModelBuilder() {
         Collection<String> logicNames = logic.getRelations();
-        HashMap<String,Classifier> classifs = new HashMap<String,Classifier>(logicNames.size());
-        HashMap<String,String> dataSetToLogicName = new HashMap<String,String>(logicNames.size());
-        for(int i = 0; i < logicConnectionTable.getModel().getRowCount(); i++) {
-            classifs.put(logicConnectionTable.getModel().getValueAt(i,1).toString(),
-                    classifierSet.get(logicConnectionTable.getModel().getValueAt(i,2).toString()));
-            dataSetToLogicName.put(logicConnectionTable.getModel().getValueAt(i,1).toString(),
-                    logicConnectionTable.getModel().getValueAt(i,0).toString());
+        HashMap<String, Classifier> classifs = new HashMap<String, Classifier>(logicNames.size());
+        HashMap<String, String> dataSetToLogicName = new HashMap<String, String>(logicNames.size());
+        for (int i = 0; i < logicConnectionTable.getModel().getRowCount(); i++) {
+            classifs.put(logicConnectionTable.getModel().getValueAt(i, 1).toString(),
+                    classifierSet.get(logicConnectionTable.getModel().getValueAt(i, 2).toString()));
+            dataSetToLogicName.put(logicConnectionTable.getModel().getValueAt(i, 1).toString(),
+                    logicConnectionTable.getModel().getValueAt(i, 0).toString());
         }
         probModelBuilder.setClassifiers(classifs);
         probModelBuilder.setDataSetToLogicName(dataSetToLogicName);
     }
-    
+
     private void onModelLoad() {
-        if(logic != null) {
+        if (logic != null) {
             model.addCompulsorys(logic);
             prepareProblemMatrix();
         }
@@ -1779,16 +1783,16 @@ public class AlloeMain extends javax.swing.JFrame {
         modelLinksLabel.setEnabled(true);
         visualizeModel.setEnabled(true); // TODO change to is JGraph in classpath
         saveModel.setEnabled(true);
-        
+
         standardModel = model.createBlankSpecificCopy();
         // Prepare standard model
         Vector<String> rels = new Vector<String>();
         Iterator<String> graphNameIter = model.graphNameIterator();
-        while(graphNameIter.hasNext()) {
+        while (graphNameIter.hasNext()) {
             String s = graphNameIter.next();
-            if(model.getGraphByName(s) instanceof ProbabilityGraph) {
+            if (model.getGraphByName(s) instanceof ProbabilityGraph) {
                 rels.add(s);
-                standardModelTermPairs.put(s,"");
+                standardModelTermPairs.put(s, "");
             }
         }
         standardRelationship.setModel(new DefaultComboBoxModel(rels));
@@ -1796,63 +1800,66 @@ public class AlloeMain extends javax.swing.JFrame {
         standardOpenTermPairs.setEnabled(true);
         standardTermPairLabel.setEnabled(true);
     }
-    
+
     private class ModelProcessListener implements AlloeProgressListener {
+
         public void finished() {
             model = probModelBuilder.model;
             onModelLoad();
         }
-        
+
         public void progressChange(double newProgress) {
         }
     }
-    
+
     private class ModelPMListener implements ProcessMonitorListener {
+
         public boolean onStart(ProcessMonitor pm) {
             initProbModelBuilder();
             return true;
         }
-        
+
         public boolean onResume(ProcessMonitor pm) {
-            probModelBuilder = (ProbModelBuilder)pm.getProcess();
+            probModelBuilder = (ProbModelBuilder) pm.getProcess();
             return true;
         }
     }
-    
+
     private void isTrainingCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isTrainingCheckActionPerformed
         isTraining = isTrainingCheck.isSelected();
         String pat = featureVectorPatternSet.getSelectedItem().toString();
-        if(corpus != null && patternSets.get(pat) != null) {
-            initFeatureVectorProcess(pat,null);
+        if (corpus != null && patternSets.get(pat) != null) {
+            initFeatureVectorProcess(pat, null);
         }
     }//GEN-LAST:event_isTrainingCheckActionPerformed
-    
+
     private void prepareLogicConnections() {
         TableColumn fvCol = logicConnectionTable.getColumnModel().getColumn(1);
         JComboBox fvCombo = new JComboBox();
         Iterator<String> fviter = dataSet.instances.keySet().iterator();
         String defFV = "";
-        while(fviter.hasNext()) {
+        while (fviter.hasNext()) {
             defFV = fviter.next();
             fvCombo.addItem(defFV);
         }
         fvCol.setCellEditor(new DefaultCellEditor(fvCombo));
-        
+
         TableColumn clCol = logicConnectionTable.getColumnModel().getColumn(2);
         JComboBox clCombo = new JComboBox();
         Iterator<String> cliter = classifierSet.keySet().iterator();
         String defCl = "";
-        while(cliter.hasNext()) {
+        while (cliter.hasNext()) {
             defCl = cliter.next();
             clCombo.addItem(defCl);
         }
         clCol.setCellEditor(new DefaultCellEditor(clCombo));
-        
+
         Iterator<String> relIter = logic.getRelations().iterator();
-        DefaultTableModel dtm = (DefaultTableModel)logicConnectionTable.getModel();
-        while(dtm.getRowCount() > 0)
+        DefaultTableModel dtm = (DefaultTableModel) logicConnectionTable.getModel();
+        while (dtm.getRowCount() > 0) {
             dtm.removeRow(0);
-        while(relIter.hasNext()) {
+        }
+        while (relIter.hasNext()) {
             Object[] os = new Object[3];
             os[0] = relIter.next();
             os[1] = dataSet.instances.containsKey(os[0]) ? os[0] : defFV;
@@ -1860,84 +1867,86 @@ public class AlloeMain extends javax.swing.JFrame {
             dtm.addRow(os);
         }
     }
-    
+
     private void prepareProbModelBuilder() {
-        probModelBuilder = new ProbModelBuilder(logic,dataSet,null,null);
+        probModelBuilder = new ProbModelBuilder(logic, dataSet, null, null);
         probModelBuilder.addProgressListener(new ModelProcessListener());
         probModelBuilderMonitor.setProcess(probModelBuilder);
         initProbModelBuilder();
         probModelBuilderMonitor.addProcessMonitorListener(new ModelPMListener());
     }
-    
+
     private void onLoadLogic() {
-        if(dataSet != null && classifierSet != null) {
+        if (dataSet != null && classifierSet != null) {
             prepareLogicConnections();
         }
-        if(dataSet != null) {
+        if (dataSet != null) {
             prepareProbModelBuilder();
         }
         saveLogicButton.setEnabled(true);
         logicDescription.setText(logic.toString());
-        if(model != null)
+        if (model != null) {
             prepareProblemMatrix();
+        }
     }
-    
+
     private void openLogicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openLogicActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 logic = new Logic(fileChooser.getSelectedFile());
                 onLoadLogic();
-            } catch(IllegalArgumentException x) {
+            } catch (IllegalArgumentException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open logic file", JOptionPane.ERROR_MESSAGE);
                 return;
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open logic file", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
     }//GEN-LAST:event_openLogicActionPerformed
-    
+
     private void saveClassifierButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveClassifierButtonActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(classifierSet);
                 oos.close();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save classifier set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_saveClassifierButtonActionPerformed
-    
+
     private void openClassifierButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openClassifierButtonActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
-                if(!(o instanceof Map)) {
-                    JOptionPane.showMessageDialog(this,"Invalid Format", "Could not open classifier set",JOptionPane.ERROR_MESSAGE);
+                if (!(o instanceof Map)) {
+                    JOptionPane.showMessageDialog(this, "Invalid Format", "Could not open classifier set", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                classifierSet = (Map<String,Classifier>)o;
-            } catch(IOException x) {
+                classifierSet = (Map<String, Classifier>) o;
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open classifier set", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
+            } catch (ClassNotFoundException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open classifier set", JOptionPane.ERROR_MESSAGE);
             }
         }
         
     }//GEN-LAST:event_openClassifierButtonActionPerformed
-    
+
     private void startTrainingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startTrainingButtonActionPerformed
         try {
-            Iterator<Map.Entry<String,Instances>> ei = dataSet.instances.entrySet().iterator();
-            while(ei.hasNext()) {
-                Map.Entry<String,Instances> ei2 = ei.next();
+            Iterator<Map.Entry<String, Instances>> ei = dataSet.instances.entrySet().iterator();
+            while (ei.hasNext()) {
+                Map.Entry<String, Instances> ei2 = ei.next();
                 String relationship = ei2.getKey();
-                if(!dataSet.isTraining(relationship))
+                if (!dataSet.isTraining(relationship)) {
                     continue;
+                }
                 Instances instances = ei2.getValue();
-                instances.setClassIndex(instances.numAttributes()-1);
+                instances.setClassIndex(instances.numAttributes() - 1);
                 String[] opts = new String[1];
                 opts[0] = classifierParameters.getText();
                 String s = classifier.getSelectedItem().toString();
@@ -1947,173 +1956,176 @@ public class AlloeMain extends javax.swing.JFrame {
                 c.buildClassifier(instances);
                 wekaOutput.append(" ...OK!\n");
                 wekaOutput.append(c.toString());
-                classifierSet.put(relationship,c);
+                classifierSet.put(relationship, c);
             }
             saveClassifierButton.setEnabled(true);
-        } catch(Exception x) {
+        } catch (Exception x) {
             x.printStackTrace();
         }
     }//GEN-LAST:event_startTrainingButtonActionPerformed
-    
+
     private void classifierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classifierActionPerformed
-        if(classifier.getSelectedItem().toString().equals("Other")) {
-            String displayName = JOptionPane.showInputDialog(this,"Enter Display Name");
-            if(displayName == null)
+        if (classifier.getSelectedItem().toString().equals("Other")) {
+            String displayName = JOptionPane.showInputDialog(this, "Enter Display Name");
+            if (displayName == null) {
                 return;
+            }
             // TODO destroy duplication
             String className = "";
             boolean classOK = false;
-            while(className != null && !classOK) {
-                className = JOptionPane.showInputDialog(this,"Enter Class Name");
-                
-                if(className == null)
+            while (className != null && !classOK) {
+                className = JOptionPane.showInputDialog(this, "Enter Class Name");
+
+                if (className == null) {
                     return;
+                }
                 try {
                     classOK = weka.classifiers.Classifier.class.isAssignableFrom(Class.forName(className));
-                } catch(ClassNotFoundException x) {
+                } catch (ClassNotFoundException x) {
                     classOK = false;
                 }
-                
-                if(!classOK) {
-                    JOptionPane.showMessageDialog(this,"Please enter a class name. Example: \"weka.classifiers.bayes.NaiveBayes\"","Invalid classifier name or classifier not found", JOptionPane.ERROR_MESSAGE);
+
+                if (!classOK) {
+                    JOptionPane.showMessageDialog(this, "Please enter a class name. Example: \"weka.classifiers.bayes.NaiveBayes\"", "Invalid classifier name or classifier not found", JOptionPane.ERROR_MESSAGE);
                 }
             }
-            if(className != null) {
-                classifierNameToFullName.put(displayName,className);
-                DefaultComboBoxModel dcbm = (DefaultComboBoxModel)classifier.getModel();
-                dcbm.insertElementAt(displayName,dcbm.getIndexOf("Other"));
+            if (className != null) {
+                classifierNameToFullName.put(displayName, className);
+                DefaultComboBoxModel dcbm = (DefaultComboBoxModel) classifier.getModel();
+                dcbm.insertElementAt(displayName, dcbm.getIndexOf("Other"));
                 classifier.setSelectedItem(displayName);
             }
         }
         classifierParameters.setText("");
     }//GEN-LAST:event_classifierActionPerformed
-    
+
     private void saveDataSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveDataSetActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(dataSet);
                 oos.close();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save data set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_saveDataSetActionPerformed
-    
+
     private void onDataSetLoad() {
         featureVectorPatternSet.setModel(new DefaultComboBoxModel(dataSet.instances.keySet().toArray()));
         saveDataSet.setEnabled(true);
         standardTermSetLabel.setText("Term Set: <From Data Set>");
         standardTermList = dataSet.termSet;
     }
-    
+
     private void openDataSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openDataSetActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
-                if(!(o instanceof DataSet)) {
+                if (!(o instanceof DataSet)) {
                     JOptionPane.showMessageDialog(this, "Invalid Format", "Could not open data set", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                dataSet = (DataSet)o;
+                dataSet = (DataSet) o;
                 onDataSetLoad();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open data set", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
+            } catch (ClassNotFoundException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open data set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_openDataSetActionPerformed
-    
+
     private class FeatureVectorListener implements AlloeProgressListener {
+
         public void progressChange(double newProgress) {
-            
+
         }
-        
-        
+
         public void finished() {
             onDataSetLoad();
         }
     }
-    
+
     private class FVPMListener implements ProcessMonitorListener {
+
         public boolean onStart(ProcessMonitor pm) {
             return initFeatureVectorProcess(featureVectorPatternSet.getSelectedItem().toString(),
                     featureVectorRelationship.getText());
         }
-        
+
         public boolean onResume(ProcessMonitor pm) {
             return true;
         }
-        
     }
-    
+
     private boolean initFeatureVectorProcess(String pat, String rel) {
         try {
             TermPairSet tps;
-            if(!isTraining) {
-                if(rel == null)
+            if (!isTraining) {
+                if (rel == null) {
                     return false;
+                }
                 ObjectInputStream ios = new ObjectInputStream(new FileInputStream(fvTermSetFileName.get(rel)));
                 Object o = ios.readObject();
-                if(!(o instanceof TermPairSet)) {
+                if (!(o instanceof TermPairSet)) {
                     JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
-                tps = (TermPairSet)o;
+                tps = (TermPairSet) o;
             } else {
                 tps = null;
             }
-            FeatureVectorFormer fvf = new FeatureVectorFormer(rel,patternSets.get(pat),corpus,tps);
+            FeatureVectorFormer fvf = new FeatureVectorFormer(rel, patternSets.get(pat), corpus, tps);
             fvf.dataSet = dataSet;
-            featureVectorProcess.put(rel,fvf);
-            if(fvListener == null)
+            featureVectorProcess.put(rel, fvf);
+            if (fvListener == null) {
                 fvListener = new FeatureVectorListener();
+            }
             fvf.addProgressListener(fvListener);
             featureVectorFormerMonitor.setProcess(fvf);
-            dataSet.setTraining(rel,isTrainingCheck.isSelected());
+            dataSet.setTraining(rel, isTrainingCheck.isSelected());
             return true;
-        } catch(IOException x) {
+        } catch (IOException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
             return false;
-        } catch(ClassNotFoundException x) {
+        } catch (ClassNotFoundException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        
+
     }
-    
+
     private void featureOpenTermPairsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureOpenTermPairsActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             String pat = featureVectorPatternSet.getSelectedItem().toString();
             String rel = featureVectorRelationship.getText();
             fvTermSetFileName.put(rel,
                     fileChooser.getSelectedFile());
             featureVectorTermPairLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getName());
-            if(corpus != null && patternSets.get(pat) != null) {
-                initFeatureVectorProcess(pat,rel);
+            if (corpus != null && patternSets.get(pat) != null) {
+                initFeatureVectorProcess(pat, rel);
             }
         }
     }//GEN-LAST:event_featureOpenTermPairsActionPerformed
-    
+
     private void featureVectorPatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureVectorPatternSetActionPerformed
         featureVectorRelationship.setText(featureVectorPatternSet.getSelectedItem().toString());
     }//GEN-LAST:event_featureVectorPatternSetActionPerformed
-    
-    private HashMap<String,String> classifierNameToFullName;
-    
+    private HashMap<String, String> classifierNameToFullName;
+
     public Vector<String> getClassifierNames() {
         Vector<String> r = new Vector<String>(8);
-        classifierNameToFullName = new HashMap<String,String>(7);
-        classifierNameToFullName.put("Bayesian Network","weka.classifiers.bayes.BayesNet");
-        classifierNameToFullName.put("Decision Tree","weka.classifiers.trees.J48");
-        classifierNameToFullName.put("Rule Learner","weka.classifiers.rules.JRip");
-        classifierNameToFullName.put("Linear Regression","weka.classifiers.functions.LinearRegression");
-        classifierNameToFullName.put("Multilayer Perceptron","weka.classifiers.functions.MultilayerPerceptron");
-        classifierNameToFullName.put("Naive Bayes","weka.classifiers.bayes.NaiveBayes");
-        classifierNameToFullName.put("SVM","weka.classifiers.functions.SMO");
-        
+        classifierNameToFullName = new HashMap<String, String>(7);
+        classifierNameToFullName.put("Bayesian Network", "weka.classifiers.bayes.BayesNet");
+        classifierNameToFullName.put("Decision Tree", "weka.classifiers.trees.J48");
+        classifierNameToFullName.put("Rule Learner", "weka.classifiers.rules.JRip");
+        classifierNameToFullName.put("Linear Regression", "weka.classifiers.functions.LinearRegression");
+        classifierNameToFullName.put("Multilayer Perceptron", "weka.classifiers.functions.MultilayerPerceptron");
+        classifierNameToFullName.put("Naive Bayes", "weka.classifiers.bayes.NaiveBayes");
+        classifierNameToFullName.put("SVM", "weka.classifiers.functions.SMO");
+
         r.add("SVM");
         r.add("Naive Bayes");
         r.add("Bayesian Network");
@@ -2122,217 +2134,231 @@ public class AlloeMain extends javax.swing.JFrame {
         r.add("Rule Learner");
         r.add("Decision Tree");
         r.add("Other");
-        
+
         return r;
     }
-    
-    
+
     private void patternViewerRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternViewerRelationshipActionPerformed
-        onPatternSetLoad(patternViewerRelationship.getSelectedItem().toString(),false);
+        onPatternSetLoad(patternViewerRelationship.getSelectedItem().toString(), false);
     }//GEN-LAST:event_patternViewerRelationshipActionPerformed
-    
-    private void onPatternSetLoad(String relationship) { onPatternSetLoad(relationship,true); }
+
+    private void onPatternSetLoad(String relationship) {
+        onPatternSetLoad(relationship, true);
+    }
+
     private void onPatternSetLoad(String relationship, boolean select) {
-        DefaultComboBoxModel dcbm = (DefaultComboBoxModel)patternViewerRelationship.getModel();
-        if(dcbm.getIndexOf(relationship) == -1) {
+        DefaultComboBoxModel dcbm = (DefaultComboBoxModel) patternViewerRelationship.getModel();
+        if (dcbm.getIndexOf(relationship) == -1) {
             dcbm.addElement(relationship);
         }
-        dcbm = (DefaultComboBoxModel)featureVectorPatternSet.getModel();
-        if(dcbm.getIndexOf(relationship) == -1) {
+        dcbm = (DefaultComboBoxModel) featureVectorPatternSet.getModel();
+        if (dcbm.getIndexOf(relationship) == -1) {
             dcbm.addElement(relationship);
         }
-        if(select)
+        if (select) {
             patternViewerRelationship.setSelectedItem(relationship);
+        }
         patternViewerRelationship.setEnabled(true);
         patternViewerRelationshipLabel.setEnabled(true);
         savePatternSet.setEnabled(true);
         PatternSet ps = patternSets.get(relationship);
-        if(ps == null)
+        if (ps == null) {
             return;
-        
+        }
+
         totalPatternsLabel.setText("Total Patterns: " + ps.size());
-        
-        DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
+
+        DefaultTableModel dtm = (DefaultTableModel) patternTable.getModel();
         Object[][] o = new Object[ps.size()][2];
         DecimalFormat df = new DecimalFormat("0.00000000");
-        Iterator<Map.Entry<Pattern,Double>> iter = ps.entrySet().iterator();
+        Iterator<Map.Entry<Pattern, Double>> iter = ps.entrySet().iterator();
         int i = 0;
-        while(iter.hasNext()) {
-            Map.Entry<Pattern,Double> e = iter.next();
+        while (iter.hasNext()) {
+            Map.Entry<Pattern, Double> e = iter.next();
             o[i][0] = e.getKey().toString();
             o[i++][1] = df.format(e.getValue().doubleValue());
         }
-        String [] s = { "Pattern", "Score" };
-        dtm.setDataVector(o,s);
-        
+        String[] s = {"Pattern", "Score"};
+        dtm.setDataVector(o, s);
+
     }
-    
+
     private class PatternGeneratorListener implements PatternSetListener {
-        private String getRelationship() { return ((PatternBuilder)patternGeneratorProgressMonitor.getProcess()).getRelationship(); }
-        
+
+        private String getRelationship() {
+            return ((PatternBuilder) patternGeneratorProgressMonitor.getProcess()).getRelationship();
+        }
+
         /** Called whenever progress is made
          * @param newProgress The new progress percentage (as double between 0 and 1) */
-        public void progressChange(double newProgress) {}
-        
+        public void progressChange(double newProgress) {
+        }
+
         /** Called when the process finishes */
         public void finished() {
             patternSets.put(getRelationship(), patternBuilderProcess.get(getRelationship()).patternScores);
-            onPatternSetLoad(getRelationship()); }
-        
+            onPatternSetLoad(getRelationship());
+        }
+
         public void patternGenerated(Pattern p, double score) {
-            if(patternViewerRelationship.getSelectedItem().toString().equals(getRelationship())) {
-                DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
+            if (patternViewerRelationship.getSelectedItem().toString().equals(getRelationship())) {
+                DefaultTableModel dtm = (DefaultTableModel) patternTable.getModel();
                 Object[] row = new Object[2];
                 row[0] = p.toString();
                 NumberFormat df = new DecimalFormat("0.00000000");
                 row[1] = df.format(score);
                 dtm.addRow(row);
-                if(patternBuilderProcess.get(getRelationship()) instanceof PatternSetBuilder) {
-                    totalPatternsLabel.setText("Pattern Set Score: " + 
-                            df.format(((PatternSetBuilder)patternBuilderProcess.get(
+                if (patternBuilderProcess.get(getRelationship()) instanceof PatternSetBuilder) {
+                    totalPatternsLabel.setText("Pattern Set Score: " +
+                            df.format(((PatternSetBuilder) patternBuilderProcess.get(
                             getRelationship())).getSetScore()));
                 } else {
-                    totalPatternsLabel.setText("Total Patterns: " + 
+                    totalPatternsLabel.setText("Total Patterns: " +
                             patternBuilderProcess.get(getRelationship()).patternScores.size());
                 }
             }
         }
-        
+
         public void patternDropped(Pattern p) {
-            if(patternViewerRelationship.getSelectedItem().toString().equals(getRelationship())) {
-                DefaultTableModel dtm = (DefaultTableModel)patternTable.getModel();
+            if (patternViewerRelationship.getSelectedItem().toString().equals(getRelationship())) {
+                DefaultTableModel dtm = (DefaultTableModel) patternTable.getModel();
                 int i;
-                for(i = 0; i < dtm.getRowCount(); i++) {
-                    if(dtm.getValueAt(i,0).equals(p.toString()))
+                for (i = 0; i < dtm.getRowCount(); i++) {
+                    if (dtm.getValueAt(i, 0).equals(p.toString())) {
                         break;
+                    }
                 }
-                if(dtm.getRowCount() == i)
+                if (dtm.getRowCount() == i) {
                     throw new IllegalArgumentException("Asked to drop pattern not in table!");
+                }
                 dtm.removeRow(i);
             }
         }
-        
+
         public void clearPatterns() {
-            String []s = { "Pattern", "Score" };
-            patternTable.setModel(new DefaultTableModel(s,0));
+            String[] s = {"Pattern", "Score"};
+            patternTable.setModel(new DefaultTableModel(s, 0));
         }
     }
-    
+
     private void savePatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePatternSetActionPerformed
-        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileChooser.getSelectedFile()));
                 oos.writeObject(patternSets.get(patternViewerRelationship.getSelectedItem().toString()));
                 oos.close();
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not save pattern set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_savePatternSetActionPerformed
-    
+
     private void openPatternSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openPatternSetActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileChooser.getSelectedFile()));
                 Object o = ois.readObject();
-                if(!(o instanceof PatternSet)) {
+                if (!(o instanceof PatternSet)) {
                     JOptionPane.showMessageDialog(this, "Invalid format", "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                PatternSet ps = (PatternSet)o;
-                if(ps.getRelationship() == null) {
+                PatternSet ps = (PatternSet) o;
+                if (ps.getRelationship() == null) {
                     throw new NullPointerException();
                 }
-                patternSets.put(ps.getRelationship(),ps);
+                patternSets.put(ps.getRelationship(), ps);
                 onPatternSetLoad(ps.getRelationship());
-            } catch(IOException x) {
+            } catch (IOException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
+            } catch (ClassNotFoundException x) {
                 JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open pattern set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_openPatternSetActionPerformed
-    
+
     private void patternBuilderMetricActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternBuilderMetricActionPerformed
         PatternBuilder pb = patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString());
-        if(pb != null) {
+        if (pb != null) {
             pb.setPatternMetric(patternBuilderMetric.getSelectedItem().toString());
         }
     }//GEN-LAST:event_patternBuilderMetricActionPerformed
-    
+
     private void initPatternBuilderProcess(String name, boolean set) {
         //if(!patternBuilderProcess.containsKey(name)) {
-            try {
-                ObjectInputStream ios = new ObjectInputStream(new FileInputStream(termSetFileName.get(name)));
-                Object o = ios.readObject();
-                if(!(o instanceof TermPairSet)) {
-                    JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                PatternBuilder pb;
-                if(set) {
-                    pb =  new PatternSetBuilder(corpus, (TermPairSet)o, name, (Integer)bestPatternSetSize.getValue());
-                } else
-                    pb = new PatternBuilder(corpus, (TermPairSet)o,
-                        (String)patternBuilderMetric.getSelectedItem(), name);
-                patternBuilderProcess.put(name,pb);
-                if(pbListener == null)
-                    pbListener = new PatternGeneratorListener();
-                pb.addProgressListener(pbListener);
-                patternGeneratorProgressMonitor.setProcess(pb);
-            } catch(IOException x) {
-                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
-            } catch(ClassNotFoundException x) {
-                JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+        try {
+            ObjectInputStream ios = new ObjectInputStream(new FileInputStream(termSetFileName.get(name)));
+            Object o = ios.readObject();
+            if (!(o instanceof TermPairSet)) {
+                JOptionPane.showMessageDialog(this, "Invalid format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        //}
+            PatternBuilder pb;
+            if (set) {
+                pb = new PatternSetBuilder(corpus, (TermPairSet) o, name, (Integer) bestPatternSetSize.getValue());
+            } else {
+                pb = new PatternBuilder(corpus, (TermPairSet) o,
+                        (String) patternBuilderMetric.getSelectedItem(), name);
+            }
+            patternBuilderProcess.put(name, pb);
+            if (pbListener == null) {
+                pbListener = new PatternGeneratorListener();
+            }
+            pb.addProgressListener(pbListener);
+            patternGeneratorProgressMonitor.setProcess(pb);
+        } catch (IOException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+        } catch (ClassNotFoundException x) {
+            JOptionPane.showMessageDialog(this, x.getMessage(), "Could not open term set", JOptionPane.ERROR_MESSAGE);
+        }
+    //}
     }
-    
+
     private void openTermPairSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openTermPairSetActionPerformed
-        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             termSetFileName.put(patternGeneratorRelationship.getSelectedItem().toString(),
                     fileChooser.getSelectedFile());
             termPairSetLabel.setText("Term Pair Set: " + fileChooser.getSelectedFile().getName());
-            if(corpus != null) {
+            if (corpus != null) {
                 initPatternBuilderProcess(patternGeneratorRelationship.getSelectedItem().toString(),
                         bestPatternSet.isSelected());
             }
         }
     }//GEN-LAST:event_openTermPairSetActionPerformed
-    
+
     private void patternGeneratorRelationshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patternGeneratorRelationshipActionPerformed
-        if(patternGeneratorRelationship.getSelectedItem().equals("New...")) {
+        if (patternGeneratorRelationship.getSelectedItem().equals("New...")) {
             String name = JOptionPane.showInputDialog(this, "New Relation", "");
-            if(name == null) {
+            if (name == null) {
                 patternGeneratorRelationship.setSelectedIndex(0);
                 return;
             }
-            ((DefaultComboBoxModel)patternGeneratorRelationship.getModel()).insertElementAt(name,0);
-            ((DefaultComboBoxModel)patternViewerRelationship.getModel()).insertElementAt(name,0);
-            ((DefaultComboBoxModel)featureVectorPatternSet.getModel()).insertElementAt(name,0);
-            if(patternGeneratorRelationship.getItemAt(1).equals("")) {
+            ((DefaultComboBoxModel) patternGeneratorRelationship.getModel()).insertElementAt(name, 0);
+            ((DefaultComboBoxModel) patternViewerRelationship.getModel()).insertElementAt(name, 0);
+            ((DefaultComboBoxModel) featureVectorPatternSet.getModel()).insertElementAt(name, 0);
+            if (patternGeneratorRelationship.getItemAt(1).equals("")) {
                 patternGeneratorRelationship.removeItemAt(1);
             }
-            
+
             patternGeneratorRelationship.setSelectedItem(name);
             patternViewerRelationship.setSelectedItem(name);
         }
-        
+
         termPairSetLabel.setEnabled(true);
         File f = termSetFileName.get(patternGeneratorRelationship.getSelectedItem().toString());
         termPairSetLabel.setText("Term Pair Set: " + (f == null ? "" : f.getName()));
         openTermPairSet.setEnabled(true);
-        PatternBuilder pb = (PatternBuilder)patternGeneratorProgressMonitor.getProcess();
-        if(pb == null || !pb.isRunning())
+        PatternBuilder pb = (PatternBuilder) patternGeneratorProgressMonitor.getProcess();
+        if (pb == null || !pb.isRunning()) {
             patternGeneratorProgressMonitor.setProcess(patternBuilderProcess.get(patternGeneratorRelationship.getSelectedItem().toString()));
+        }
         
     }//GEN-LAST:event_patternGeneratorRelationshipActionPerformed
-    
+
     private void setIndexButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setIndexButtonActionPerformed
         int oldFMS = fileChooser.getFileSelectionMode();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
-        if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
             fileChooser.setFileSelectionMode(oldFMS);
             fileChooser.setAcceptAllFileFilterUsed(true);
             return;
@@ -2341,88 +2367,99 @@ public class AlloeMain extends javax.swing.JFrame {
         fileChooser.setAcceptAllFileFilterUsed(true);
         corpusIndexFile = fileChooser.getSelectedFile();
         indexLocationLabel.setText("Index Location: " + fileChooser.getSelectedFile().getName());
-        if(corpusTextFile != null && corpusTermSetFile != null &&
+        if (corpusTextFile != null && corpusTermSetFile != null &&
                 corpusIndexFile != null) {
             prepareCorpusLoader();
         }
     }//GEN-LAST:event_setIndexButtonActionPerformed
-    
+
     private void prepareCorpusLoader() {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(corpusTermSetFile));
             Object o = ois.readObject();
-            if(!(o instanceof TermList)) {
+            if (!(o instanceof TermList)) {
                 JOptionPane.showMessageDialog(this, "Invalid File Format", "Could not open term set", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             CorpusFile corpusFile;
-            if(corpusTextFile.matches(".*\\.zip")) {
+            if (corpusTextFile.matches(".*\\.zip")) {
                 corpusFile = new ZipCorpusFile(corpusTextFile);
             } else {
                 corpusFile = new TextCorpusFile(corpusTextFile);
             }
-            corpusLoader = new CorpusLoader((TermList)o, corpusFile, corpusIndexFile);
-            corpusLoader.setContextSize((Integer)contextSizeSpinner.getValue());
-            corpusLoader.setMaxSketchSize((Integer)sketchSizeSpinner.getValue());
+            corpusLoader = new CorpusLoader((TermList) o, corpusFile, corpusIndexFile);
+            corpusLoader.setContextSize((Integer) contextSizeSpinner.getValue());
+            corpusLoader.setMaxSketchSize((Integer) sketchSizeSpinner.getValue());
             indexerProgressMonitor.setProcess(corpusLoader);
-            if(clProgListener == null)
+            if (clProgListener == null) {
                 clProgListener = new CorpusLoaderProgressListener();
+            }
             corpusLoader.addProgressListener(clProgListener);
-            
-        } catch(IOException x) {
+
+        } catch (IOException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not initialize indexer", JOptionPane.ERROR_MESSAGE);
-        } catch(ClassNotFoundException x) {
+        } catch (ClassNotFoundException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not initialize indexer", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
     private class CorpusTableModel extends AbstractTableModel {
-        public int getColumnCount() { return 2; }
-        public int getRowCount() { return corpus == null ? 0 : corpus.terms.size(); }
+
+        public int getColumnCount() {
+            return 2;
+        }
+
+        public int getRowCount() {
+            return corpus == null ? 0 : corpus.terms.size();
+        }
+
         public Object getValueAt(int i, int j) {
-            if(j == 0) {
+            if (j == 0) {
                 return corpus.terms.get(i);
-            } else if(j == 1) {
+            } else if (j == 1) {
                 return corpus.getHitsForTerm(corpus.terms.get(i));
             } else {
                 assert false;
                 return null;
             }
         }
+
         public String getColumnName(int j) {
-            if(j == 0) {
+            if (j == 0) {
                 return "Term";
-            } else if(j == 1) {
+            } else if (j == 1) {
                 return "Frequency";
             } else {
                 assert false;
                 return null;
             }
         }
-        
+
         public Class getColumnClass(int j) {
-            if(j == 0)
+            if (j == 0) {
                 return String.class;
-            if(j == 1)
+            }
+            if (j == 1) {
                 return Integer.class;
-            else
+            } else {
                 return null;
+            }
         }
     }
-    
+
     private void onCorpusLoad() {
         corpusTotalLabel.setText("Total Contexts: " + corpus.getTotalDocs());
         corpusDisplayTableModel.fireTableDataChanged();
         corpusDisplay.revalidate();
         dataSet = new DataSet(corpus.terms);
     }
-    
+
     private void openIndexedCorpusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openIndexedCorpusActionPerformed
         try {
             int oldFMS = fileChooser.getFileSelectionMode();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setAcceptAllFileFilterUsed(false);
-            if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
                 fileChooser.setFileSelectionMode(oldFMS);
                 fileChooser.setAcceptAllFileFilterUsed(true);
                 return;
@@ -2431,56 +2468,60 @@ public class AlloeMain extends javax.swing.JFrame {
             fileChooser.setAcceptAllFileFilterUsed(true);
             corpus = Corpus.openCorpus(fileChooser.getSelectedFile());
             onCorpusLoad();
-        } catch(IOException x) {
+        } catch (IOException x) {
             JOptionPane.showMessageDialog(this, x.getMessage(), "Could not load corpus", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_openIndexedCorpusActionPerformed
-    
+
     private class CorpusLoaderProgressListener implements AlloeProgressListener {
+
         public void finished() {
             //corpus = corpusLoader.corpus;
             AlloeProcess p = indexerProgressMonitor.getProcess();
             assert p instanceof CorpusLoader;
-            corpus = ((CorpusLoader)p).corpus;
+            corpus = ((CorpusLoader) p).corpus;
             onCorpusLoad();
         }
+
         public void progressChange(double newProgress) {
         }
     }
-    
+
     private void openCorpusTermSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTermSetActionPerformed
-        if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+        if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
+        }
         corpusTermSetFile = fileChooser.getSelectedFile();
         termSetLabel.setText("Term Set: " + fileChooser.getSelectedFile().getName());
-        if(corpusTextFile != null && corpusTermSetFile != null &&
+        if (corpusTextFile != null && corpusTermSetFile != null &&
                 corpusIndexFile != null) {
             prepareCorpusLoader();
         }
     }//GEN-LAST:event_openCorpusTermSetActionPerformed
-    
+
     private void openCorpusTextFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCorpusTextFileActionPerformed
-        if(fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+        if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
+        }
         corpusTextFile = fileChooser.getSelectedFile().getAbsolutePath();
         textFileLabel.setText("Text File: " + fileChooser.getSelectedFile().getName());
-        if(corpusTextFile != null && corpusTermSetFile != null &&
+        if (corpusTextFile != null && corpusTermSetFile != null &&
                 corpusIndexFile != null) {
             prepareCorpusLoader();
         }
     }//GEN-LAST:event_openCorpusTextFileActionPerformed
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             public void run() {
                 new AlloeMain().setVisible(true);
             }
         });
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton allPatterns;
     private javax.swing.JRadioButton bestPatternSet;
@@ -2601,23 +2642,23 @@ public class AlloeMain extends javax.swing.JFrame {
     private javax.swing.JButton visualizeModel;
     private javax.swing.JTextArea wekaOutput;
     // End of variables declaration//GEN-END:variables
-    
     /**
      * Holds value of property corpusDisplayTableModel.
      */
     private CorpusTableModel corpusDisplayTableModel;
-    
+
     /**
      * Getter for property corpusDisplayTableModel.
      * @return Value of property corpusDisplayTableModel.
      */
     public CorpusTableModel getCorpusDisplayTableModel() {
-        if(corpusDisplayTableModel != null)
+        if (corpusDisplayTableModel != null) {
             return this.corpusDisplayTableModel;
-        else
+        } else {
             return corpusDisplayTableModel = new CorpusTableModel();
+        }
     }
-    
+
     /**
      * Setter for property corpusDisplayTableModel.
      * @param corpusDisplayTableModel New value of property corpusDisplayTableModel.
@@ -2625,5 +2666,4 @@ public class AlloeMain extends javax.swing.JFrame {
     public void setCorpusDisplayTableModel(CorpusTableModel corpusDisplayTableModel) {
         this.corpusDisplayTableModel = corpusDisplayTableModel;
     }
-    
 }

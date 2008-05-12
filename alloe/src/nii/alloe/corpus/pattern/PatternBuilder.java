@@ -306,6 +306,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
         ois.defaultReadObject();
         state = STATE_OK;
         pm = PatternMetricFactory.getPatternMetric(patternMetricName, corpus, termPairSet);
+        pm.setAlpha(alpha);
         PriorityQueue o = (PriorityQueue)ois.readObject();
         patternQueue = new PriorityQueue<Pattern>(100,
                 new Comparator<Pattern>() {
@@ -334,6 +335,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
     public void setPatternMetric(String patternMetric) {
         patternMetricName = patternMetric;
         this.pm = PatternMetricFactory.getPatternMetric(patternMetric, corpus, termPairSet);
+        pm.setAlpha(alpha);
     }
     
     /** @return true is variables like pattern metric should be possible to change */
@@ -463,6 +465,13 @@ public class PatternBuilder extends AlloeProcessAdapter {
             patternQueue.add(p);
             firePatternGenerated(p,d);
         }
+    }
+    
+    private double alpha = 1;
+    public void setMetricAlpha(double alpha) {
+        if(pm != null)
+            pm.setAlpha(alpha);
+        this.alpha = alpha;
     }
     
     void writeObject(ObjectOutputStream oos) throws IOException {
