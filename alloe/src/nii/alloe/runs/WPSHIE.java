@@ -26,16 +26,16 @@ public class WPSHIE {
         System.out.println("Number of Hypernym Links = " + hyps.size());
         
         try {
-            ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/bmc-terms"));
+            ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/mesh-terms"));
             TermList termsVec = new TermList(terms);
             oos2.writeObject(termsVec);
             oos2.close();
             
-            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/bmc-syns.atps"));
+            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/mesh-syns.atps"));
             oos2.writeObject(syns);
             oos2.close();
             
-            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/bmc-hyps.atps"));
+            oos2 = new ObjectOutputStream(new FileOutputStream("/home/john/wpshie/mesh-hyps.atps"));
             oos2.writeObject(hyps);
             oos2.close();
             
@@ -59,7 +59,7 @@ public class WPSHIE {
     void loadSyns() {
         syns = new TermPairSet();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/bmc-syns"));
+            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/mesh-syns"));
             String s = in.readLine();
             while(s != null) {
                 if(!s.matches(".*\\w.*")) {
@@ -84,7 +84,7 @@ public class WPSHIE {
     void loadHyps() {
         hyps = new TermPairSet();
         try {
-            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/bmc-hyps"));
+            BufferedReader in = new BufferedReader(new FileReader("/home/john/wpshie/mesh-hyps"));
             String s = in.readLine();
             while(s != null) {
                 String[] ss = s.split(" < " );
