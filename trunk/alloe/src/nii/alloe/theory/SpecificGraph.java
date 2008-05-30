@@ -105,7 +105,21 @@ public class SpecificGraph implements Graph, Serializable {
         }
 
     }
-    
+  
+    public void setVal(int i, int j, double val) {
+	if(val == 1) {
+	    add(i,j);
+	} else if(val == 0) {
+	    remove(i,j);
+	} else {
+	    throw new UnsupportedOperationException("Specific graph cannot take arbitary values");
+	}
+    }
+
+    public double getVal(int i, int j) {
+	return isConnected(i,j) ?  1.0 : 0.0;
+    }
+  
     public int linkCount() {
         return links.size();
     }

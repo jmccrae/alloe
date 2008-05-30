@@ -55,4 +55,15 @@ public interface Graph {
      */
     public Graph createCopy();
 
+    /**
+     * Sets the value of a link. Not setVal(i,j,1) =~ add(i,j) and setVal(i,j,0) =~ remove(i,j)
+     * @throws UnsupportedOperationException If the graph cannot take values
+     */
+    public void setVal(int i, int j, double v);
+
+    /**
+     * Gets the value of a link. This value should be between 0 and 1, with <.5 corresponding to a removed link and >.5 to an added link
+     */
+    public double getVal(int i, int j);
+
 };
