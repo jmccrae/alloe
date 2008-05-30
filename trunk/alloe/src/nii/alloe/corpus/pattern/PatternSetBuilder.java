@@ -75,6 +75,8 @@ public class PatternSetBuilder extends PatternBuilder {
                 //System.out.println("... replacing " + bestPattern.toString());
                 finishCalculatingPositivesNegatives(pattern);
                 patternScore = (1 + alpha) * ((double) patternPositives.size() / ((double) (patternPositives.size() + patternNegatives.size()) + (double)termPairSet.size() / alpha));
+		finishCalculatingPositiveNegatives();
+		patternScore = 2.0 * ((double)patternPositives.size() / (double)(patternPositives.size() + patternNegatives.size() + termPairSet.size()));
                 boolean b = patternCounter.remove(bestPattern);
                 firePatternDropped(bestPattern);
                 updateCounts(pattern, bestPattern, patternPositives, patternNegatives);
@@ -199,6 +201,7 @@ public class PatternSetBuilder extends PatternBuilder {
             } else {
                 posCounts.put(terms[0] + glue + terms[1], 1);
                 posLoss.put(pattern, posLoss.get(pattern) + 1);
+		posLoss.put(pattern,posLoss.get(pattern)+1);
             }
         }
         TermPairSet bestNegatives = negatives.get(bestPattern);
@@ -224,6 +227,7 @@ public class PatternSetBuilder extends PatternBuilder {
             } else {
                 negCounts.put(terms[0] + glue + terms[1], 1);
                 negLoss.put(pattern, negLoss.get(pattern) + 1);
+		negLoss.put(pattern,negLoss.get(pattern)+1);
             }
         }
     }
@@ -255,10 +259,13 @@ public class PatternSetBuilder extends PatternBuilder {
                 if (posCounts.containsKey(terms[0] + glue + terms[1])) {
                     posCounts.put(terms[0] + glue + terms[1], posCounts.get(terms[0] + glue + terms[1]) + 1);
                     termPairToPattern.remove(terms[0] + glue + terms[1]);
+		    termPairToPattern.remove(terms[0] + glue + terms[1]);
                 } else {
                     posCounts.put(terms[0] + glue + terms[1], 1);
                     termPairToPattern.put(terms[0] + glue + terms[1],
                             entry.getKey());
+		    termPairToPattern.put(terms[0] + glue + terms[1], 
+					  entry.getKey());
                 }
             }
             posLoss.put(entry.getKey(), 0);
@@ -270,10 +277,13 @@ public class PatternSetBuilder extends PatternBuilder {
                 if (negCounts.containsKey(terms[0] + glue + terms[1])) {
                     negCounts.put(terms[0] + glue + terms[1], negCounts.get(terms[0] + glue + terms[1]) + 1);
                     termPairToPattern.remove(terms[0] + glue + terms[1]);
+		    termPairToPattern.remove(terms[0] + glue + terms[1]);
                 } else {
                     negCounts.put(terms[0] + glue + terms[1], 1);
                     termPairToPattern.put(terms[0] + glue + terms[1],
                             entry.getKey());
+		    termPairToPattern.put(terms[0] + glue + terms[1],
+					  entry.getKey());
                 }
             }
             negLoss.put(entry.getKey(), 0);
