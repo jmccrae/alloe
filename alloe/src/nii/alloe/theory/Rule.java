@@ -877,7 +877,7 @@ public class Rule implements Comparable<Rule> {
     
     /** Represents a skolemized function */
     public class FunctionalArgument extends Argument {
-        Argument[] functionArgs;
+        public Argument[] functionArgs;
         FunctionalArgument(int id, Argument[] functionArgs) {
             this.id = id;
             this.functionArgs = functionArgs;

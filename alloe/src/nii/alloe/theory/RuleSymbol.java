@@ -76,6 +76,66 @@ public class RuleSymbol {
         }
         return i;
     }
+
+    public final class FunctionID {
+	final int id;
+	final int[] args;
+	public ModelID(int id, int[] args) {
+	    this.id = id;
+	    this.args = args;
+	}
+    }
+
+    /** Convert a model id to a function id. Also extracts all the arg values
+     * @throws IllegalArgumentException If modelSize &lt; id  || fullModelSize &gt; id 
+     */
+    public FunctionID modelIdToFunctionId(int modelID) {
+	int i = modelSize;
+	for(Map.Entry<Integer,Integer> entry : functions) {
+	    if(modelID >= i && modelID < i + Math.pow(modelSize,entry.getValue())) {
+		int[] args = new int[entry.getValue()];
+		modelID -= i;
+		for(int j = args.length-1; j >= 0; j--) {
+		    args[j] = modelID % modelSize;
+		    modelID = modelID / modelSize;
+		    
+		}
+		return new FunctionID(entry.getKey(),args);		
+	    }
+	    else
+		i += Math.pow(modelSize,entry.getValue());
+	}
+	throw new IllegalArgumentException("Model ID passed not valid");
+    }
+
+    /** Convert a function id to a model id
+     * @throws IllegalArgumentException If function ID has not been added
+     * @throws IllegalArgumentException If the functions arg count is not the length of <code>args</args>
+     */
+    public int functionIdToModelId(int functionID, int [] args) {
+	functionIdToModelId(new FunctionId(functionID, args));
+    }
+
+    /** Convert a function id to a model id
+     * @throws IllegalArgumentException If function ID has not been added
+     * @throws IllegalArgumentException If the functions arg count is not the length of <code>id.args</args>
+     */
+    public int functionIdToModelId(FunctionID id) {
+	int i = modelSize;
+	for(Map.Entry<Integer,Integer> entry : functions) {
+	    if(id.id == entry.getKey()) {
+		if(entry.getValue() != args.length) {
+		    throw new IllegalArgumentException();
+		for(int j = 0; j < args.length; j++) {
+		    i += Math.pow(modelSize, args.length - j - 1) * id.args[j];
+		}
+		return i;
+		}
+	    }
+	}
+	throw new IllegalArgumentException();
+    }
+
     
     /** Get the functions
      */
