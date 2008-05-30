@@ -80,7 +80,7 @@ public class RuleSymbol {
     public final class FunctionID {
 	final int id;
 	final int[] args;
-	public ModelID(int id, int[] args) {
+	public FunctionID(int id, int[] args) {
 	    this.id = id;
 	    this.args = args;
 	}
@@ -91,7 +91,7 @@ public class RuleSymbol {
      */
     public FunctionID modelIdToFunctionId(int modelID) {
 	int i = modelSize;
-	for(Map.Entry<Integer,Integer> entry : functions) {
+	for(Map.Entry<Integer,Integer> entry : functions.entrySet()) {
 	    if(modelID >= i && modelID < i + Math.pow(modelSize,entry.getValue())) {
 		int[] args = new int[entry.getValue()];
 		modelID -= i;
@@ -113,7 +113,7 @@ public class RuleSymbol {
      * @throws IllegalArgumentException If the functions arg count is not the length of <code>args</args>
      */
     public int functionIdToModelId(int functionID, int [] args) {
-	functionIdToModelId(new FunctionId(functionID, args));
+	return functionIdToModelId(new FunctionID(functionID, args));
     }
 
     /** Convert a function id to a model id
@@ -122,15 +122,15 @@ public class RuleSymbol {
      */
     public int functionIdToModelId(FunctionID id) {
 	int i = modelSize;
-	for(Map.Entry<Integer,Integer> entry : functions) {
+	for(Map.Entry<Integer,Integer> entry : functions.entrySet()) {
 	    if(id.id == entry.getKey()) {
-		if(entry.getValue() != args.length) {
+		if(entry.getValue() != id.args.length) {
 		    throw new IllegalArgumentException();
-		for(int j = 0; j < args.length; j++) {
-		    i += Math.pow(modelSize, args.length - j - 1) * id.args[j];
+                }
+		for(int j = 0; j < id.args.length; j++) {
+		    i += Math.pow(modelSize, id.args.length - j - 1) * id.args[j];
 		}
 		return i;
-		}
 	    }
 	}
 	throw new IllegalArgumentException();

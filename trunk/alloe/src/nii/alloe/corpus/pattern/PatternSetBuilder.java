@@ -75,7 +75,6 @@ public class PatternSetBuilder extends PatternBuilder {
                 //System.out.println("... replacing " + bestPattern.toString());
                 finishCalculatingPositivesNegatives(pattern);
                 patternScore = (1 + alpha) * ((double) patternPositives.size() / ((double) (patternPositives.size() + patternNegatives.size()) + (double)termPairSet.size() / alpha));
-		finishCalculatingPositiveNegatives();
 		patternScore = 2.0 * ((double)patternPositives.size() / (double)(patternPositives.size() + patternNegatives.size() + termPairSet.size()));
                 boolean b = patternCounter.remove(bestPattern);
                 firePatternDropped(bestPattern);

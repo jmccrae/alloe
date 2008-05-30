@@ -98,9 +98,9 @@ public class WPSHIEJoint {
                 }
                 if (ss[1].equals("1")) {
                     //System.out.println(termList.get(i));
-                    pg.setPosVal(allTerms.indexOf(terms[0]), allTerms.indexOf(terms[1]), Double.parseDouble(ss[2]));
+                    pg.setVal(allTerms.indexOf(terms[0]), allTerms.indexOf(terms[1]), Double.parseDouble(ss[2]));
                 } else {
-                    pg.setPosVal(allTerms.indexOf(terms[0]), allTerms.indexOf(terms[1]), 1 - Double.parseDouble(ss[2]));
+                    pg.setVal(allTerms.indexOf(terms[0]), allTerms.indexOf(terms[1]), 1 - Double.parseDouble(ss[2]));
                 }
                 i++;
             }
