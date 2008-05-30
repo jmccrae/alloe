@@ -120,7 +120,7 @@ public class Simulate {
             //if(i % n == i / n)
             //    continue;
             if(g.isConnected(i / n, i % n)) {
-                rval.setPosVal(i/n,i%n,ntr_normal.cdf(pos_normal.nextDouble()));
+                rval.setVal(i/n,i%n,ntr_normal.cdf(pos_normal.nextDouble()));
                 if(rval.isConnected(i/n,i%n)) {
                     tp++;
                 } else {
@@ -128,7 +128,7 @@ public class Simulate {
                 }
             } else {
                 if(rand.nextDouble() < sparsePercent) {
-                    rval.setPosVal(i/n,i%n,ntr_normal.cdf(neg_normal.nextDouble()));
+                    rval.setVal(i/n,i%n,ntr_normal.cdf(neg_normal.nextDouble()));
                     if(rval.isConnected(i/n,i%n)) {
                         fp++;
                     } else {

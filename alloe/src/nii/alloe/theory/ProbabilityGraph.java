@@ -45,13 +45,14 @@ public class ProbabilityGraph implements Graph, Serializable {
     
     public void add(int i, int j) {
         Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
-        setPosVal(i,j,1);
+        setVal(i,j,1);
     }
     
     public void remove(int i, int j) {
         Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
-        setPosVal(i,j,0);
+        setVal(i,j,0);
     }
+
     
     public int linkCount() {
         int rval = 0;
@@ -131,9 +132,11 @@ public class ProbabilityGraph implements Graph, Serializable {
     }
     
     /**
+     * Set the probablity value. Setting the value to zero will not remove a
+     * value, neither will setting it to the base value.
      * @param prob The probability, must be between 0 and 1
      */
-    public void setPosVal(int i, int j, double prob) {
+    public void setVal(int i, int j, double prob) {
         if(prob > 0 && prob < 1) {
             pm_pos.put(i*n+j,Math.log(prob));
             pm_neg.put(i*n+j,Math.log(1 - prob));
@@ -144,12 +147,21 @@ public class ProbabilityGraph implements Graph, Serializable {
             pm_pos.put(i*n+j,MIN_PROB);
             pm_neg.put(i*n+j,0.0);
         } else {
-            System.err.println("Invalid probability value!");
+	    throw new IllegalArgumentException("Non-probability value");
         }
+    }
+
+    /**
+     * Get the probability value.
+     * Note it is stored as a logarithm, so there is no guarantee of an exact
+     * conversion.
+     */
+    public double getVal(int i, int j) {
+	return Math.exp(pm_pos.get(i * n + j));
     }
     
     /**
-     * The two log probability values
+     * Set the two log probability values directly
      * @param p The positive value i.e. log(P_ij)
      * @param ng The negative value i.e. log(1 - P_ij)
      */
