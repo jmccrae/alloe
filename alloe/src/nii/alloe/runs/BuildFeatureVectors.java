@@ -13,6 +13,7 @@ import nii.alloe.classify.*;
 import nii.alloe.corpus.*;
 import nii.alloe.corpus.pattern.*;
 import java.io.*;
+import java.util.*;
 import nii.alloe.tools.process.AlloeProgressListener;
 
 /**
@@ -39,7 +40,13 @@ public class BuildFeatureVectors {
             ois = new ObjectInputStream(new FileInputStream(args[2]));
             TermPairSet termPairs = (TermPairSet)ois.readObject();
             ois.close();
-            fvf = new FeatureVectorFormer(args[3],patternSet,corpus,termPairs);
+            Vector<String> rels = new Vector<String>();
+            rels.add(args[3]);
+            Vector<PatternSet> patterns = new Vector<PatternSet>();
+            patterns.add(patternSet);
+            Vector<TermPairSet> tps = new Vector<TermPairSet>();
+            tps.add(termPairs);
+            fvf = new FeatureVectorFormer(rels,patterns,corpus,tps);
             if(args.length == 6) {
                 fvf.setLazyMatching(true);
             }

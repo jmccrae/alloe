@@ -37,6 +37,7 @@
   </SyntheticProperties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
@@ -298,7 +299,9 @@
                               <Component id="corpusDisplayScroll" alignment="0" pref="451" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="openIndexedCorpus" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="129" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="viewContextsButton" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
                                   <Component id="corpusTotalLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -313,6 +316,7 @@
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="openIndexedCorpus" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="corpusTotalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="viewContextsButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="corpusDisplayScroll" pref="209" max="32767" attributes="0"/>
@@ -352,6 +356,14 @@
                     <Property name="text" type="java.lang.String" value="Total Contexts: 0"/>
                   </Properties>
                 </Component>
+                <Component class="javax.swing.JButton" name="viewContextsButton">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="View Contexts"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="viewContextsButtonActionPerformed"/>
+                  </Events>
+                </Component>
               </SubComponents>
             </Container>
           </SubComponents>
@@ -375,18 +387,13 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="jPanel7" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jPanel6" max="32767" attributes="0"/>
-                              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                          </Group>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="jPanel6" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanel7" alignment="0" max="32767" attributes="0"/>
                       </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -421,24 +428,26 @@
                               <Group type="102" attributes="0">
                                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="patternGeneratorRelationship" pref="353" max="32767" attributes="0"/>
+                                  <Component id="patternGeneratorRelationship" pref="346" max="32767" attributes="0"/>
                               </Group>
                               <Component id="patternGeneratorProgressMonitor" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="metricLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="patternBuilderMetric" pref="306" max="32767" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="patternBuilderMetric" min="-2" pref="243" max="-2" attributes="0"/>
+                                  <EmptySpace pref="62" max="32767" attributes="0"/>
                                   <Component id="patternAdvanced" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="termPairSetLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="allPatterns" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Component id="allPatterns" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
+                                          <Component id="bestPatternSet" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="termPairSetLabel" pref="290" max="32767" attributes="0"/>
                                   </Group>
-                                  <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
-                                  <Component id="bestPatternSet" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="35" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                       <Component id="bestPatternSetSize" alignment="0" max="32767" attributes="1"/>
                                       <Component id="openTermPairSet" alignment="0" max="32767" attributes="1"/>
@@ -458,10 +467,10 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="termPairSetLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="openTermPairSet" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="termPairSetLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="12" max="32767" attributes="0"/>
+                          <EmptySpace pref="10" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="allPatterns" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="bestPatternSetSize" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -470,8 +479,8 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="metricLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="patternBuilderMetric" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="patternAdvanced" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="patternBuilderMetric" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="patternGeneratorProgressMonitor" min="-2" max="-2" attributes="0"/>
@@ -641,7 +650,7 @@
                               <Component id="totalPatternsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" pref="180" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="182" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -960,7 +969,7 @@
                               <Component id="classifier" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane2" pref="224" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="226" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="saveClassifierButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1412,7 +1421,7 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="problemMatrixMonitor" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="33" max="32767" attributes="0"/>
+                          <EmptySpace pref="31" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="saveProblemMatrix" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="openProblemMatrix" alignment="3" min="-2" max="-2" attributes="0"/>

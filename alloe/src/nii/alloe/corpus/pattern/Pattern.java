@@ -25,13 +25,18 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
 
     /** The string representation of the pattern */
     private final String val;
-    public static final String word = "[\\w\\*\uff11\uff12]";
-    public static final String wordDBS = "[\\\\w\\\\*\uff11\uff12]";
-    public static final String nonWord = "[^\\w\\*\uff11\uff12]";
-    public static final String nonWordDBS = "[^\\\\w\\\\*\uff11\uff12]";
+    /** Word characters */
+    public static final String word = "[a-zA-Z0-9\\*\uff11\uff12]";
+    /** Word characters, double back slashed */
+    public static final String wordDBS = "[a-zA-Z0-9\\\\*\uff11\uff12]";
+    /** Non-word characters */
+    public static final String nonWord = "[^a-zA-Z0-9\\*\uff11\uff12]";
+    /** Non-wrod character, double back slashed */
+    public static final String nonWordDBS = "[^a-zA-Z0-9\\\\*\uff11\uff12]";
+    /** Meta-character */
     public static final String regexMetachars = "([\\.\\[\\]\\^\\$\\|\\?\\(\\)\\\\\\+\\{\\}\uff0a])";
     public static final Collection<String> stopWords;
-
+    
     static {
         stopWords = new TreeSet<String>();
         for (int i = 0; i < AlloeAnalyzer.STOP_WORDS.length; i++) {
@@ -186,6 +191,7 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         return matches(str, term1, term2, false);
     }
 
+    
     /** Does this pattern match. 
      * @return true if this pattern matches str, with the capturers replaced by term1 and term2
      * @param term1 the left hand side of the relation
@@ -198,10 +204,17 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         term2 = cleanTerm(term2);
         if (matchesCacheOr == 0 || Math.abs(matchesCacheOr) == (lazy ? 1 : 2)) {
             regex = val.replaceAll(regexMetachars, "\\\\$1");
+            Matcher m = java.util.regex.Pattern.compile(".*((\\* ){3,}).*").matcher(regex);
+            // Replace "* * * * " with "(* ){4}", helps prevent the java regex engine breaking
+            while(m.matches()) {
+                regex = regex.replaceAll("(\\* ){3,}", "(" + wordDBS +
+                        nonWordDBS + "){" + (lazy ? "0," : "") + (m.group(1).length() / 2) + "}");
+                m = java.util.regex.Pattern.compile(".*((\\* ){3,}).*").matcher(regex);
+            }
             regex = regex.replaceAll("\\*", wordDBS + (lazy ? "*" : "+"));
             regex = regex.replaceAll("\\s+", nonWordDBS + (lazy ? "*" : "+"));
             regex = ".*" + regex + ".*";
-            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.*)([12])(.*)([12])(.*)").matcher(regex);
+            m = java.util.regex.Pattern.compile("(.*)([12])(.*)([12])(.*)").matcher(regex);
             if (!m.matches()) {
                 assert false;
             }
@@ -222,10 +235,10 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         } else {
             regex = matchesCache1 + term2 + matchesCache2 + term1 + matchesCache3;
         }
-
         return str.matches(regex);
     }
 
+      
     /** Can this pattern match the context for any term pair.
      * @return true if this pattern matches str, with captureres replaced with .+
      * @param lazy use lazy matching
