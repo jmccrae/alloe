@@ -39,6 +39,14 @@ public class EquivalenceGraph implements Graph, Serializable {
     public void remove(int i, int j) {
 	throw new UnsupportedOperationException("Attempted remove on non-mutable equivalence graph");
     }
+    
+    public void setVal(int i, int j, double val) {
+	throw new UnsupportedOperationException("Attempted setVal on non-mutable graph");
+    }
+
+    public double getVal(int i, int j) {
+	return isConnected(i,j) ? 1.0 : 0.0;
+    }
 
     public int linkCount() { return 0; }
 
