@@ -61,9 +61,9 @@ public class WPSHIEJoint {
     private static final String glue = " => ";
 
     private static void buildModels() throws Exception {
-        String[] names = {"syns", "hyps"};
+        String[] names = {"mesh-syns", "mesh-hyps"};
         String[] rels = {"r2", "r1"};
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path + "terms"));
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path + "mesh-terms"));
         TermList allTerms = (TermList) ois.readObject();
         ois.close();
         shLogic.ruleSymbols.setModelSize(allTerms.size());
@@ -74,8 +74,8 @@ public class WPSHIEJoint {
             ois = new ObjectInputStream(new FileInputStream(path + names[n] + ".afv"));
             DataSet ds = (DataSet) ois.readObject();
             ois.close();
-            Vector<String> termList = ds.getTerms(names[n].substring(0, names[n].length() - 1));
-            int m = ds.instances.get(names[n].substring(0, names[n].length() - 1)).numInstances();
+            Vector<String> termList = ds.getTerms(names[n].substring(5, names[n].length() - 1));
+            int m = ds.instances.get(names[n].substring(5, names[n].length() - 1)).numInstances();
             ds = null;
 
             BufferedReader dists = new BufferedReader(new FileReader(path + names[n] + ".dist"));
@@ -118,16 +118,16 @@ public class WPSHIEJoint {
     }
 
     private static void buildTrueModels() throws Exception {
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path + "terms"));
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path + "mesh-terms"));
         TermList terms = (TermList) ois.readObject();
-        ois = new ObjectInputStream(new FileInputStream(path + "syns.atps"));
+        ois = new ObjectInputStream(new FileInputStream(path + "mesh-syns.atps"));
         TermPairSet synPairs = (TermPairSet) ois.readObject();
         shLogic.ruleSymbols.setModelSize(terms.size());
         trueModel = new Model(shLogic);
         trueModel.addBasicGraphs(shLogic);
         trueModel.addSpecificGraph("r2");
         trueModel.setGraphAs("r2", synPairs, terms);
-        ois = new ObjectInputStream(new FileInputStream(path + "hyps.atps"));
+        ois = new ObjectInputStream(new FileInputStream(path + "mesh-hyps.atps"));
         TermPairSet hypPairs = (TermPairSet) ois.readObject();
         trueModel.addSpecificGraph("r1");
         trueModel.setGraphAs("r1", hypPairs, terms);
@@ -164,11 +164,15 @@ public class WPSHIEJoint {
     }
 
     private static void solveModels() throws Exception {
+        System.out.print("Hyp pre: ");
         compareModels(trueModelHyp, probModelHyp);
+        System.out.print("Syn pre: ");
         compareModels(trueModelSyn, probModelSyn);
+        System.out.print("SH  pre: ");
         compareModels(trueModel, probModel);
         GrowingSolver gs = new GrowingSolver(hypLogic, probModelHyp);
         gs.solve();
+        System.out.print("Hyp hyp: ");
         compareModels(trueModelHyp, gs.soln);
         Collection<Model> models = probModelSyn.splitByComponents();
         LinkedList<Model> solns = new LinkedList<Model>();
@@ -177,6 +181,7 @@ public class WPSHIEJoint {
             gs.solve();
             solns.add(gs.soln);
         }
+        System.out.print("Syn syn: ");
         compareModels(trueModelSyn, Model.joinModels(solns,synLogic));
         models = probModel.splitByComponents();
         solns = new LinkedList<Model>();
@@ -189,9 +194,12 @@ public class WPSHIEJoint {
         TreeMap<String, Graph> graphs = new TreeMap<String, Graph>();
         graphs.put("e", shSoln.getGraphByName("e"));
         graphs.put("r1", shSoln.getGraphByName("r1"));
+        System.out.print("Hyp sh : ");
         compareModels(trueModelHyp, new Model(graphs, trueModelHyp.logic));
         graphs.put("r1", shSoln.getGraphByName("r2"));
+        System.out.print("Syn sh : ");
         compareModels(trueModelSyn, new Model(graphs, trueModelSyn.logic));
+        System.out.print("SH  sh : ");
         compareModels(trueModel, shSoln);
     }
 }
