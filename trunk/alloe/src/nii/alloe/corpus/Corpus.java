@@ -124,6 +124,7 @@ public class Corpus {
         }
     }
     
+    // TODO: Why is this private??? and copied a dozen lines below???
     private HitsIterator queryTerms(String term1, String term2) {
         TreeSet<Integer> h1 = queryTerm(term1).hits;
         TreeSet<Integer> h2 = queryTerm(term2).hits;
@@ -138,6 +139,11 @@ public class Corpus {
             return queryTerm(term).hits.size();
         } else
             return (int)((long)queryTerm(term).hits.size() * (long)trueContextNumber / (long)sketchSize.get(term.toLowerCase()));
+    }
+    
+    /** Get all contexts containing term1 and term2 */
+    public Iterator<Hit> getContextsForTerm(String term) {
+        return queryTerm(term);
     }
     
     /** Get all contexts containing term1 and term2 */

@@ -164,7 +164,7 @@ public class ProbModelBuilder implements AlloeProcess, Serializable, Runnable {
                     String s = termList.get(i);
                     String[] ss = s.split(dataSet.glue);
                     dist = classif.distributionForInstance(is.instance(i));
-                    pg.setPosVal(termToNum.indexOf(ss[0]), termToNum.indexOf(ss[1]), dist[1]);
+                    pg.setVal(termToNum.indexOf(ss[0]), termToNum.indexOf(ss[1]), dist[1]);
                 }
                 fireNewProgressChange((relationCount / relationTotal) * ((double) i / instTotal));
             } catch (Exception x) {

@@ -52,12 +52,12 @@ public class PatternSetBuilder extends PatternBuilder {
             patternQueue.add(pattern);
             return;
         }
-        
+        System.out.print(pattern.toString());
         calculateEnoughPositivesNegatives(pattern);
 
         double patternScore;
         if (patternCounter.size() < getMaxPatterns()) {
-            //System.out.println("");
+            System.out.println("");
             finishCalculatingPositivesNegatives(pattern);
             patternScore = (1 + alpha) * ((double) patternPositives.size() / ((double)(patternPositives.size() + patternNegatives.size()) + (double)termPairSet.size() / alpha));
             patternScores.put(pattern, patternScore);
@@ -72,7 +72,7 @@ public class PatternSetBuilder extends PatternBuilder {
             }
             Pattern bestPattern = findBestReplacement();
             if (bestPattern != null) {
-                //System.out.println("... replacing " + bestPattern.toString());
+                System.out.println("... replacing " + bestPattern.toString());
                 finishCalculatingPositivesNegatives(pattern);
                 patternScore = (1 + alpha) * ((double) patternPositives.size() / ((double) (patternPositives.size() + patternNegatives.size()) + (double)termPairSet.size() / alpha));
 		patternScore = 2.0 * ((double)patternPositives.size() / (double)(patternPositives.size() + patternNegatives.size() + termPairSet.size()));
@@ -86,7 +86,7 @@ public class PatternSetBuilder extends PatternBuilder {
                 negatives.put(pattern, patternNegatives);
                 firePatternGenerated(pattern, patternScore);
             } else {
-                //System.out.println("... no good");
+                System.out.println("... no good");
                 patternScore = (1 + alpha) * ((double) patternPositives.size() / sketchAmount / ((double) (patternPositives.size() + patternNegatives.size()) / sketchAmount + termPairSet.size() / alpha));
                 patternScores.put(pattern, patternScore);
                 patternQueue.add(pattern);
