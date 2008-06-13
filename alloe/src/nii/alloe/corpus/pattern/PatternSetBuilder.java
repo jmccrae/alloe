@@ -87,7 +87,7 @@ public class PatternSetBuilder extends PatternBuilder {
                 firePatternGenerated(pattern, patternScore);
             } else {
                 System.out.println("... no good");
-                patternScore = (1 + alpha) * ((double) patternPositives.size() / sketchAmount / ((double) (patternPositives.size() + patternNegatives.size()) / sketchAmount + termPairSet.size() / alpha));
+                patternScore = (1 + alpha) * ((double) patternPositives.size() * sketchAmount / ((double) (patternPositives.size() + patternNegatives.size()) * sketchAmount + termPairSet.size() / alpha));
                 patternScores.put(pattern, patternScore);
                 patternQueue.add(pattern);
             }
@@ -238,8 +238,8 @@ public class PatternSetBuilder extends PatternBuilder {
         Pattern bestPattern = null;
         currentFM = (1.0 + alpha) * ((double) posCounts.size() / ((double) (posCounts.size() + negCounts.size()) + (double)termPairSet.size() / alpha));
         for (Pattern p2 : patternCounter) {
-            double posGain2 = (double) posGain / sketchAmount - (double) posLoss.get(p2) + (double) posBothLoss.get(p2) / sketchAmount;
-            double negGain2 = (double) negGain / sketchAmount - (double) negLoss.get(p2) + (double) negBothLoss.get(p2) / sketchAmount;
+            double posGain2 = (double) posGain * sketchAmount - (double) posLoss.get(p2) + (double) posBothLoss.get(p2) * sketchAmount;
+            double negGain2 = (double) negGain * sketchAmount - (double) negLoss.get(p2) + (double) negBothLoss.get(p2) * sketchAmount;
             double newFM = (1.0 + alpha) * (((double) posCounts.size() + posGain2) / ((double) (posCounts.size() + posGain2 + negCounts.size() + negGain2) + (double)termPairSet.size() / alpha));
             if (newFM - currentFM > bestImprov) {
                 bestImprov = newFM - currentFM;

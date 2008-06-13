@@ -170,8 +170,9 @@ public class Pattern implements java.io.Serializable, Comparable<Pattern> {
         }
         String[] s = split();
         for (int i = 0; i < s.length; i++) {
-            if (s[i].matches(word + "*") && !stopWords.contains(s[i]) &&
-                    !s[i].equals("1") && !s[i].equals("2") && !s[i].equals("*")) {
+            if (s[i].matches(word + "*") &&
+                    !s[i].equals("1") && !s[i].equals("2") && !s[i].equals("*")
+                     && !stopWords.contains(s[i])) {
                 return false;
             }
             if (s[i].matches(nonWord + "*") && !s[i].matches("\\s*")) {
