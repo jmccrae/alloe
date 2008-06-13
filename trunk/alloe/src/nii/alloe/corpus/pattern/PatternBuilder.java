@@ -1,4 +1,5 @@
 package nii.alloe.corpus.pattern;
+
 import nii.alloe.corpus.Corpus;
 import nii.alloe.corpus.EachTermPairAction;
 import nii.alloe.corpus.TermPairSet;
@@ -35,11 +36,10 @@ import nii.alloe.tools.struct.MultiSet;
  * @author John McCrae, National Institute of Informatics
  */
 public class PatternBuilder extends AlloeProcessAdapter {
-    
+
     transient PriorityQueue<Pattern> patternQueue;
     /** Same as return value of buildPatterns */
     public PatternSet patternScores;
-    ConcurrentLinkedList<Pattern> usedPatterns;
     int maxIterations;
     Corpus corpus;
     TermPairSet termPairSet;
@@ -49,8 +49,9 @@ public class PatternBuilder extends AlloeProcessAdapter {
     String basePatternResume;
     transient MultiSet<Pattern> patternCounter;
     transient PatternMetric pm;
+    HashMap<String, List<Pattern>> patternsByElems;
     static final int STATE_BASE = 3;
-    
+
     /** Creates a new instance of PatternBuilder
      * @param corpus The corpus
      * @param termPairSet The term pairs
@@ -66,8 +67,9 @@ public class PatternBuilder extends AlloeProcessAdapter {
         state = STATE_OK;
         iterations = 0;
         basePatternResume = null;
+        patternsByElems = new HashMap<String, List<Pattern>>();
     }
-    
+
     /** Build patterns
      * @return A map whose keys are the patterns and values there score as evaluated by the
      * PatternMetric passed to the constructor */
@@ -75,94 +77,132 @@ public class PatternBuilder extends AlloeProcessAdapter {
         run();
         return patternScores;
     }
-    
+
     public void run() {
         //corpus.initTermsInCorpusCache();
         state = STATE_BASE;
-        if(patternQueue == null || basePatternResume != null)
+        if (patternQueue == null || basePatternResume != null) {
             buildBasePatterns();
-        if(state == STATE_BASE && !isGenerateBaseOnly())
+        }
+        if (state == STATE_BASE && !isGenerateBaseOnly()) {
             state = STATE_OK;
-        else {
-            if(isGenerateBaseOnly())
+        } else {
+            if (isGenerateBaseOnly()) {
                 fireFinished();
+            }
             return;
         }
-        
-        if(usedPatterns == null)
-            usedPatterns = new ConcurrentLinkedList();
-        
-        while(patternQueue.peek() != null && iterations < maxIterations && state == STATE_OK) {
+
+
+        while (patternQueue.peek() != null && iterations < maxIterations && state == STATE_OK) {
+            System.out.print("1");
             Pattern pattern = patternQueue.poll();
-            
-            Iterator<Pattern> unifIter = usedPatterns.iterator();
-            while(unifIter.hasNext()) {
-                Pattern unifier = unifIter.next();
-                if(unifier == null)
-                    break;
-                Pattern unification = unify(pattern, unifier);
-                if(unification == null)
-                    continue;
-                unification = unification.getMostDominant();
-                if(unification != null && patternScores.get(unification) == null) {
-                    addPattern(unification, pattern.toString(), unifier.toString());
+
+            String[] elems = pattern.split();
+            int capture1 = -1, capture2 = -1;
+            for(int i = 0; i < elems.length; i++) {
+                if(elems[i].equals("1") || elems[i].equals("2")) {
+                    if(capture1 == -1) {
+                        capture1 = i;
+                    } else {
+                        capture2 = i;
+                    }
                 }
             }
-            usedPatterns.add(pattern);
+            for (int i = 0; i < elems.length; i++) {
+                String where = i < capture1 ? (i > capture2 ? "+" + (i - capture1) : "=" + (i - capture1)) : "-" + (capture1 - i);
+                if(patternsByElems.get(where + elems[i]) == null)
+                    continue;
+                System.out.print("2");
+                for (Pattern unifier : patternsByElems.get(where + elems[i])) {
+                    if (unifier == null) {
+                        break;
+                    }
+                    Pattern unification = unify(pattern, unifier);
+                    if (unification == null) {
+                        continue;
+                    }
+                    unification = unification.getMostDominant();
+                    System.out.print("3");
+                    if (unification != null && patternScores.get(unification) == null) {
+                        addPattern(unification, pattern.toString(), unifier.toString());
+                    }
+                }
+            }
+            System.out.print("4");
+            
+            for (int i = 0; i < elems.length; i++) {
+                if(i == capture1 || i == capture2)
+                    continue;
+                String where = i < capture1 ? (i > capture2 ? "+" + (i - capture1) : "=" + (i - capture1)) : "-" + (capture1 - i);
+                if (patternsByElems.get(where + elems[i]) != null) {
+                    patternsByElems.get(where + elems[i]).add(pattern);
+                } else {
+                    List<Pattern> l = new ConcurrentLinkedList<Pattern>();
+                    l.add(pattern);
+                    patternsByElems.put(where + elems[i], l);
+                }
+            }
             iterations++;
-            if(maxIterations == Integer.MAX_VALUE)
-                fireNewProgressChange((double)iterations / (double)(iterations + patternQueue.size()));
-            else
-                fireNewProgressChange((double)iterations / (double)maxIterations);
-        }
-        if(getMaxPatterns() > 0) {
-            Iterator<Pattern> psIter = patternScores.keySet().iterator();
-            while(psIter.hasNext()) {
-                Pattern p2  = psIter.next();
-                if(!patternCounter.contains(p2))
-                    psIter.remove();
+            if (maxIterations == Integer.MAX_VALUE) {
+                fireNewProgressChange((double) iterations / (double) (iterations + patternQueue.size()));
+            } else {
+                fireNewProgressChange((double) iterations / (double) maxIterations);
             }
         }
-        if(state == STATE_OK)
+        if (getMaxPatterns() > 0) {
+            Iterator<Pattern> psIter = patternScores.keySet().iterator();
+            while (psIter.hasNext()) {
+                Pattern p2 = psIter.next();
+                if (!patternCounter.contains(p2)) {
+                    psIter.remove();
+                }
+            }
+        }
+        if (state == STATE_OK) {
             fireFinished();
-        //corpus.clearTermsInCorpusCache();
+        }
+    //corpus.clearTermsInCorpusCache();
     }
-    
-    
+
     protected void buildBasePatterns() {
         patternQueue = new PriorityQueue<Pattern>(100,
                 new Comparator<Pattern>() {
-            public int compare(Pattern p1, Pattern p2) {
-                return -patternScores.get(p1).compareTo(patternScores.get(p2));
-            }
-            public boolean equals(Object object) {
-                if(object == this) return true; return false;
-            }
-        });
+
+                    public int compare(Pattern p1, Pattern p2) {
+                        return -patternScores.get(p1).compareTo(patternScores.get(p2));
+                    }
+
+                    public boolean equals(Object object) {
+                        if (object == this) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
         patternScores = new PatternSet();
         patternScores.setRelationship(relationship);
-        
+
         termPairSet.forEachPair(new BaseBuilder(), basePatternResume, new PauseSignal() {
+
             public boolean shouldPause() {
                 return state == STATE_STOPPING;
             }
         });
     }
-    
-    
-    
+
     protected Pattern unify(Pattern pattern1, Pattern pattern2) {
-        if(!pattern1.isAlignableWith(pattern2)) {
+        if (!pattern1.isAlignableWith(pattern2)) {
             return null;
         } else {
             String pat = "";
             String[] patternSplit1 = pattern1.getAlignmentWith(pattern2);
             String[] patternSplit2 = pattern2.getAlignmentWith(pattern1);
-            
-            for(int i = 0; i < patternSplit1.length; i++) {
-                if(patternSplit1[i].equals(patternSplit2[i])) {
+
+            for (int i = 0; i < patternSplit1.length; i++) {
+                if (patternSplit1[i].equals(patternSplit2[i])) {
                     pat = pat.concat(patternSplit1[i]);
-                } else if(patternSplit1[i].equals("*") ||
+                } else if (patternSplit1[i].equals("*") ||
                         patternSplit1[i].matches(Pattern.word + "+")) {
                     pat = pat.concat("*");
                 } else {
@@ -173,153 +213,177 @@ public class PatternBuilder extends AlloeProcessAdapter {
             return rpattern.isTrivial() ? null : rpattern;
         }
     }
-    
+
     void addPattern(Pattern p, String f1, String f2) {
-        if(patternScores.get(p) != null)
+        if (patternScores.get(p) != null) {
             return;
-        if(p.isTrivial())
+        }
+        if (p.isTrivial()) {
             return;
+        }
         System.out.println(p.toString());
         double d = pm.scorePattern(p);
-        if(d < 0 || d > 1 || Double.isInfinite(d) || Double.isNaN(d)) {
+        if (d < 0 || d > 1 || Double.isInfinite(d) || Double.isNaN(d)) {
             Output.err.println(p.toString());
             Output.err.println("From 1: " + f1);
             Output.err.println("From 2: " + f2);
         }
-        if(getMaxPatterns() > 0 && patternCounter.size() == getMaxPatterns()) {
-            if(patternScores.get(patternCounter.first()) >= d)
+        if (getMaxPatterns() > 0 && patternCounter.size() == getMaxPatterns()) {
+            if (patternScores.get(patternCounter.first()) >= d) {
                 return;
-            else {
+            } else {
                 Pattern drop = patternCounter.first();
-                if(!patternQueue.remove(drop))
-                    usedPatterns.remove(drop);
+                if (!patternQueue.remove(drop)) {
+                    String[] dropElems = drop.split();
+                    for (int i = 0; i < dropElems.length; i++) {
+                        // TODO: Fix Here
+                        if (patternsByElems.get(dropElems[i]) == null) // Unlikely but possible
+                        {
+                            continue;
+                        }
+                        patternsByElems.get(dropElems[i]).remove(drop);
+                        if (patternsByElems.get(dropElems[i]).isEmpty()) {
+                            patternsByElems.remove(dropElems[i]);
+                        }
+                    }
+                }
                 firePatternDropped(drop);
                 patternCounter.remove(drop);
                 patternScores.remove(drop);
             }
         }
-        if(d < getScoreFilter())
+        if (d < getScoreFilter()) {
             return;
-        patternScores.put(p,d);
+        }
+        patternScores.put(p, d);
         patternQueue.add(p);
-        if(getMaxPatterns() > 0)
+        if (getMaxPatterns() > 0) {
             patternCounter.add(p);
-        
+        }
+
         //System.out.println(p.toString() + " {" + patternScores.get(p) + "}");
-        firePatternGenerated(p,patternScores.get(p));
+        firePatternGenerated(p, patternScores.get(p));
     }
-    
+
     class BaseBuilder implements EachTermPairAction {
+
         public void doAction(String term1, String term2) {
-            if(isIgnoreReflexives() && term1.equals(term2))
+            if (isIgnoreReflexives() && term1.equals(term2)) {
                 return;
-            Iterator<Corpus.Hit> learnData = corpus.getContextsForTerms(term1,term2);
-            while(learnData.hasNext()) {
+            }
+            Iterator<Corpus.Hit> learnData = corpus.getContextsForTerms(term1, term2);
+            while (learnData.hasNext()) {
                 String s1 = learnData.next().getText();
                 s1 = Pattern.makeSafe(s1);
                 String[] splitsByTerm1 = s1.split("\\b" + Pattern.cleanTerm(term1) + "\\b");
-                if(splitsByTerm1.length < 2)
+                if (splitsByTerm1.length < 2) {
                     continue;
+                }
                 String s2;
-                for(int i = 1; i < splitsByTerm1.length; i++) {
+                for (int i = 1; i < splitsByTerm1.length; i++) {
                     s2 = "";
-                    for(int j = 0; j < i; j++) {
+                    for (int j = 0; j < i; j++) {
                         s2 = s2 + splitsByTerm1[j];
-                        if(j + 1 < i) {
+                        if (j + 1 < i) {
                             s2 = s2 + Pattern.cleanTerm(term1).toLowerCase();
                         }
                     }
                     s2 = s2 + "1";
-                    for(int j = i; j < splitsByTerm1.length; j++) {
+                    for (int j = i; j < splitsByTerm1.length; j++) {
                         s2 = s2 + splitsByTerm1[j];
-                        if(j + 1 < splitsByTerm1.length) {
+                        if (j + 1 < splitsByTerm1.length) {
                             s2 = s2 + Pattern.cleanTerm(term1).toLowerCase();
                         }
                     }
                     String[] splitsByTerm2 = s2.split("\\b" + Pattern.cleanTerm(term2) + "\\b");
-                    if(splitsByTerm2.length < 2)
+                    if (splitsByTerm2.length < 2) {
                         continue;
-                    for(int k = 1; k < splitsByTerm2.length; k++) {
+                    }
+                    for (int k = 1; k < splitsByTerm2.length; k++) {
                         s2 = "";
-                        for(int j = 0; j < k; j++) {
+                        for (int j = 0; j < k; j++) {
                             s2 = s2 + splitsByTerm2[j];
-                            if(j + 1 < k) {
+                            if (j + 1 < k) {
                                 s2 = s2 + Pattern.cleanTerm(term2).toLowerCase();
                             }
                         }
                         s2 = s2 + "2";
-                        for(int j = k; j < splitsByTerm2.length; j++) {
+                        for (int j = k; j < splitsByTerm2.length; j++) {
                             s2 = s2 + splitsByTerm2[j];
-                            if(j + 1 < splitsByTerm2.length) {
+                            if (j + 1 < splitsByTerm2.length) {
                                 s2 = s2 + Pattern.cleanTerm(term2).toLowerCase();
                             }
                         }
-                        addPattern(new Pattern(s2),term1,term2);
+                        addPattern(new Pattern(s2), term1, term2);
                     }
                 }
             }
-            fireNewProgressChange(termPairSet.getForEachPairProgress(term1,term2));
+            fireNewProgressChange(termPairSet.getForEachPairProgress(term1, term2));
         }
     }
-    
-    
+
     void firePatternGenerated(Pattern p, double d) {
         Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
-        while(apliter.hasNext()) {
+        while (apliter.hasNext()) {
             AlloeProgressListener apl = apliter.next();
-            if(apl instanceof PatternSetListener) {
-                ((PatternSetListener)apl).patternGenerated(p,d);
+            if (apl instanceof PatternSetListener) {
+                ((PatternSetListener) apl).patternGenerated(p, d);
             }
         }
     }
-    
-    
+
     void firePatternDropped(Pattern p) {
         Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
-        while(apliter.hasNext()) {
+        while (apliter.hasNext()) {
             AlloeProgressListener apl = apliter.next();
-            if(apl instanceof PatternSetListener) {
-                ((PatternSetListener)apl).patternDropped(p);
+            if (apl instanceof PatternSetListener) {
+                ((PatternSetListener) apl).patternDropped(p);
             }
         }
     }
-    
+
     void fireClearPatterns() {
         Iterator<AlloeProgressListener> apliter = aplListeners.iterator();
-        while(apliter.hasNext()) {
+        while (apliter.hasNext()) {
             AlloeProgressListener apl = apliter.next();
-            if(apl instanceof PatternSetListener) {
-                ((PatternSetListener)apl).clearPatterns();
+            if (apl instanceof PatternSetListener) {
+                ((PatternSetListener) apl).clearPatterns();
             }
         }
     }
-    
-    
+
     public String getStateMessage() {
-        if(state == STATE_BASE)
+        if (state == STATE_BASE) {
             return "Building Base Patterns: ";
-        else
+        } else {
             return "Generating Patterns: ";
+        }
     }
-    
+
     void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         state = STATE_OK;
         pm = PatternMetricFactory.getPatternMetric(patternMetricName, corpus, termPairSet);
         pm.setAlpha(alpha);
-        PriorityQueue o = (PriorityQueue)ois.readObject();
+        PriorityQueue o = (PriorityQueue) ois.readObject();
         patternQueue = new PriorityQueue<Pattern>(100,
                 new Comparator<Pattern>() {
-            public int compare(Pattern p1, Pattern p2) {
-                return -patternScores.get(p1).compareTo(patternScores.get(p2));
-            }
-            public boolean equals(Object object) {
-                if(object == this) return true; return false;
-            }
-        });
+
+                    public int compare(Pattern p1, Pattern p2) {
+                        return -patternScores.get(p1).compareTo(patternScores.get(p2));
+                    }
+
+                    public boolean equals(Object object) {
+                        if (object == this) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
         patternQueue.addAll(o);
-        if(getMaxPatterns() > 0) {
+        if (getMaxPatterns() > 0) {
             patternCounter = new MultiSet<Pattern>(new Comparator<Pattern>() {
+
                 public int compare(Pattern obj1, Pattern obj2) {
                     return patternScores.get(obj1).compareTo(patternScores.get(obj2));
                 }
@@ -327,7 +391,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
             patternCounter.addAll(patternQueue);
         }
     }
-    
+
     /** Set the pattern metric
      * @throws PatternMetricUnknown If the pattern metric is not recognissed but PatternMetricFactory
      * @see PatternMetricFactory
@@ -337,18 +401,21 @@ public class PatternBuilder extends AlloeProcessAdapter {
         this.pm = PatternMetricFactory.getPatternMetric(patternMetric, corpus, termPairSet);
         pm.setAlpha(alpha);
     }
-    
+
     /** @return true is variables like pattern metric should be possible to change */
-    public boolean isRunning() { return state == STATE_OK; }
-    
+    public boolean isRunning() {
+        return state == STATE_OK;
+    }
+
     /** Get the relationship name */
-    public String getRelationship() { return relationship; }
-    
+    public String getRelationship() {
+        return relationship;
+    }
     /**
      * Holds value of property generateBaseOnly.
      */
     boolean generateBaseOnly = false;
-    
+
     /**
      * Getter for property generateBaseOnly.
      * @return Value of property generateBaseOnly.
@@ -356,7 +423,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
     public boolean isGenerateBaseOnly() {
         return this.generateBaseOnly;
     }
-    
+
     /**
      * Setter for property generateBaseOnly.
      * @param generateBaseOnly New value of property generateBaseOnly.
@@ -364,12 +431,11 @@ public class PatternBuilder extends AlloeProcessAdapter {
     public void setGenerateBaseOnly(boolean generateBaseOnly) {
         this.generateBaseOnly = generateBaseOnly;
     }
-    
     /**
      * Holds value of property scoreFilter.
      */
     double scoreFilter = 0;
-    
+
     /**
      * Getter for property scoreFilter.
      * @return Value of property scoreFilter.
@@ -377,7 +443,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
     public double getScoreFilter() {
         return this.scoreFilter;
     }
-    
+
     /**
      * Setter for property scoreFilter. Setting this value will cause the system
      * to ignore patterns whose score is less than scoreFilter. Setting zero accepts
@@ -387,12 +453,11 @@ public class PatternBuilder extends AlloeProcessAdapter {
     public void setScoreFilter(double scoreFilter) {
         this.scoreFilter = scoreFilter;
     }
-    
     /**
      * Holds value of property maxPatterns.
      */
     int maxPatterns = -1;
-    
+
     /**
      * Getter for property maxPatterns.
      * @return Value of property maxPatterns.
@@ -400,15 +465,16 @@ public class PatternBuilder extends AlloeProcessAdapter {
     public int getMaxPatterns() {
         return this.maxPatterns;
     }
-    
+
     /**
      * Setter for property maxPatterns.
      * @param maxPatterns New value of property maxPatterns.
      */
     public void setMaxPatterns(int maxPatterns) {
         this.maxPatterns = maxPatterns;
-        if(maxPatterns > 0) {
+        if (maxPatterns > 0) {
             patternCounter = new MultiSet<Pattern>(new Comparator<Pattern>() {
+
                 public int compare(Pattern obj1, Pattern obj2) {
                     return patternScores.get(obj1).compareTo(patternScores.get(obj2));
                 }
@@ -416,82 +482,101 @@ public class PatternBuilder extends AlloeProcessAdapter {
         } else {
             patternCounter = null;
         }
-        
+
     }
-    
+
     /**
      * Set the base patterns
      */
     public void setBasePatterns(PatternSet patternSet) {
-        if(patternSet == null) {
+        if (patternSet == null) {
             patternScores = null;
             patternQueue = null;
             fireClearPatterns();
             return;
         }
-        if(patternScores == null)
+        if (patternScores == null) {
             patternScores = patternSet;
-        else {
+        } else {
             patternScores.putAll(patternSet);
         }
-        if(patternQueue == null) {
+        if (patternQueue == null) {
             patternQueue = new PriorityQueue<Pattern>(100,
                     new Comparator<Pattern>() {
-                public int compare(Pattern p1, Pattern p2) {
-                    return -patternScores.get(p1).compareTo(patternScores.get(p2));
-                }
-                public boolean equals(Object object) {
-                    if(object == this) return true; return false;
-                }
-            });
+
+                        public int compare(Pattern p1, Pattern p2) {
+                            return -patternScores.get(p1).compareTo(patternScores.get(p2));
+                        }
+
+                        public boolean equals(Object object) {
+                            if (object == this) {
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
         }
         Iterator<Pattern> patIter = patternSet.keySet().iterator();
-        while(patIter.hasNext()) {
+        while (patIter.hasNext()) {
             Pattern p = patIter.next();
             double d = patternScores.get(p);
-            if(getMaxPatterns() > 0 && patternCounter.size() == getMaxPatterns()) {
-                if(patternScores.get(patternCounter.first()) >= d)
+            if (getMaxPatterns() > 0 && patternCounter.size() == getMaxPatterns()) {
+                if (patternScores.get(patternCounter.first()) >= d) {
                     continue;
-                else {
+                } else {
                     patternScores.remove(patternCounter.first());
-                    if(!patternQueue.remove(patternCounter.first()))
-                        usedPatterns.remove(patternCounter.first());
+                    if (!patternQueue.remove(patternCounter.first())) {
+                        Pattern drop = patternCounter.first();
+                        String[] dropElems = drop.split();
+                        for (int i = 0; i < dropElems.length; i++) {
+                            // TODO: Fix here
+                            if (patternsByElems.get(dropElems[i]) == null) // Unlikely but possible
+                            {
+                                continue;
+                            }
+                            patternsByElems.get(dropElems[i]).remove(drop);
+                            if (patternsByElems.get(dropElems[i]).isEmpty()) {
+                                patternsByElems.remove(dropElems[i]);
+                            }
+                        }
+                    }
                     firePatternDropped(patternCounter.first());
                     patternCounter.remove(patternCounter.first());
                 }
             }
-            if(d < getScoreFilter())
+            if (d < getScoreFilter()) {
                 continue;
+            }
             patternQueue.add(p);
-            firePatternGenerated(p,d);
+            firePatternGenerated(p, d);
         }
     }
-    
     private double alpha = 1;
+
     public void setMetricAlpha(double alpha) {
-        if(pm != null)
+        if (pm != null) {
             pm.setAlpha(alpha);
+        }
         this.alpha = alpha;
     }
-    
+
     void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
         oos.writeObject(new PriorityQueue(patternQueue));
     }
-    
+
     public void setMaxIterations(int maxIteration) {
         this.maxIterations = maxIterations;
     }
-    
+
     public void unsetMaxIterations() {
         this.maxIterations = Integer.MAX_VALUE;
     }
-    
     /**
      * Holds value of property ignoreReflexives.
      */
     boolean ignoreReflexives;
-    
+
     /**
      * Getter for property ignoreReflexives.
      * @return Value of property ignoreReflexives.
@@ -499,7 +584,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
     public boolean isIgnoreReflexives() {
         return this.ignoreReflexives;
     }
-    
+
     /**
      * Setter for property ignoreReflexives.
      * @param ignoreReflexives New value of property ignoreReflexives.

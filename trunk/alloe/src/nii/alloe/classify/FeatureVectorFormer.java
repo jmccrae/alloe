@@ -57,7 +57,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                 dataSet.prepRelation(relation.get(ri), getAttNames(patterns.get(ri)));
             }
 
-            fireNewProgressChange((double) i / (double) patterns.size());
+            fireNewProgressChange((double) i / (double) patterns.get(ri).size());
 
 
             Iterator<Pattern> patIter = patterns.get(ri).keySet().iterator();
@@ -88,7 +88,7 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                     }
                 }
                 i++;
-                fireNewProgressChange((double) i / (double) patterns.size() * (ri + 1) / relation.size());
+                fireNewProgressChange((double) i / (double) patterns.get(ri).size() * (ri + 1) / relation.size());
             }
             corpus.clearTermsInCorpusCache();
 
@@ -104,15 +104,16 @@ public class FeatureVectorFormer implements AlloeProcess, Serializable, Runnable
                 if (termPairs != null) {
                     inst.setValue(patterns.get(ri).size(), dataSet.getClassVal(termPairs.get(ri).contains(term1, term2)));
                 } else {
-                    inst.setValue(patterns.size(), dataSet.getClassVal(false));
+                    inst.setValue(patterns.get(ri).size(), dataSet.getClassVal(false));
                 }
                 dataSet.addInstance(inst,
                         relation.get(ri), term1, term2);
                 entryIter.remove();
             }
 
-            fireFinished();
         }
+        
+            fireFinished();
 
         return dataSet;
     }
