@@ -32,8 +32,8 @@ public class RunPatternGenerator {
      */
     public static void main(String[] args) {
          try {
-            if(args.length != 4) {
-                System.err.println("Invalid arguments\n corpusFile termPairFile relationship outputFile");
+            if(args.length != 5) {
+                System.err.println("Invalid arguments\n corpusFile termPairFile relationship outputFile bias");
                 System.exit(-1);
             }
             Corpus c = Corpus.openCorpus(new File(args[0]));
@@ -43,6 +43,7 @@ public class RunPatternGenerator {
             file = args[3];
             //pb = new PatternBuilder(c,tps,PatternMetricFactory.MIN_SUP_PREC,args[2]);
             pb = new PatternSetBuilder(c,tps,args[2],350);
+            pb.setMetricAlpha(Math.pow(1.15,Integer.parseInt(args[4])));
             pb.setIgnoreReflexives(true);
             pb.addProgressListener(new AlloeProgressListener() {
                 public void progressChange(double newProgress) {

@@ -551,7 +551,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
             firePatternGenerated(p, d);
         }
     }
-    private double alpha = 1;
+    protected double alpha = 1;
 
     public void setMetricAlpha(double alpha) {
         if (pm != null) {
