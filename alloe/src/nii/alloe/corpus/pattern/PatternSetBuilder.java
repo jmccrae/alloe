@@ -21,7 +21,6 @@ public class PatternSetBuilder extends PatternBuilder {
     Map<Pattern, Integer> negBothLoss;
     int posGain;
     int negGain;
-    private double alpha = 1;
 
     /** Creates a new instance of PatternSetBuilder */
     public PatternSetBuilder(Corpus corpus, TermPairSet termPairSet, String relationship, int maxPatterns) {
@@ -351,5 +350,5 @@ public class PatternSetBuilder extends PatternBuilder {
     
     public void setAlpha(double alpha) {
         this.alpha = Math.pow(1.15,alpha);
-    }
+    }  
 }
