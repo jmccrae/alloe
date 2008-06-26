@@ -39,8 +39,6 @@ public class MatchPairTest extends TestCase {
         Collection<List<MatchPair>> result = instance.joinWith(mp2);
         assertEquals(expResult, result);
         
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**

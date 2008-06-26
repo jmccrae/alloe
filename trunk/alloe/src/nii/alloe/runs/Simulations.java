@@ -22,7 +22,7 @@ import nii.alloe.tools.strings.Strings;
  */
 public class Simulations {
     
-    private static final int VEC = 11;
+    private static final int VEC = 5;
     
     /** Creates a new instance of Simulations */
     public Simulations() {
@@ -32,11 +32,11 @@ public class Simulations {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        String []newArgs = { "logics/hypernym.logic","test","50" };
+        String []newArgs = { "logics/hypernym.logic","test","20" };
         args = newArgs;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("results-" + args[1]));
-            bw.write("connect,time_complete,fm_pre,fm_post_complete,rows,cols,cm1,cm2,cm3,cm4,cm5,cm6\n");
+            bw.write("grow_time,pre,grow_post,resfree_time,resfree_post\n");
             for(int n = Integer.parseInt(args[2]); n < 4000; n += 50) {
                 double[] res = new double[VEC];
                 for(int i = 0; i < 1; i++) {
@@ -98,14 +98,15 @@ public class Simulations {
             rval[0] = (double)time / 1000000000.0;
             rval[1] = 2.0 * (double)presolve[0] / (double)(2 * presolve[0] + presolve[1] + presolve[2]);
             rval[2] = 2.0 * (double)postsolve[0] / (double)(2 * postsolve[0] + postsolve[1] + postsolve[2]);
-            rval[3] = gs.getMatrix().getRowCount();
-            rval[4] = gs.getMatrix().getColumnCount();
-            rval[5] = presolve[0];
-            rval[6] = presolve[1];
-            rval[7] = presolve[2];
-            rval[8] = postsolve[0];
-            rval[9] = postsolve[1];
-            rval[10] = postsolve[2];
+            ResFreeSolver rfs = new ResFreeSolver(new Logic(new File(logicFile)),s.probModel);
+            time = System.nanoTime();
+            rfs.solve();
+            time = System.nanoTime() - time;
+            postsolve = rfs.soln.computeComparison(s.trueModel);
+            rval[3] = (double)time / 1000000000.0;
+             rval[4] = 2.0 * (double)postsolve[0] / (double)(2 * postsolve[0] + postsolve[1] + postsolve[2]);
+            
+            
             /*if(Math.abs(rval[7] - rval[2]) > 0.005) {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("disagreement.model"));
                 oos.writeObject(s.probModel);

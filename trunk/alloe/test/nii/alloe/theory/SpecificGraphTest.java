@@ -37,12 +37,14 @@ public class SpecificGraphTest extends TestCase {
      * Test of makeRandom method, of class nii.alloe.theory.SpecificGraph.
      */
     public void testMakeRandom() {
-        System.out.println("makeRandom");
+        System.out.println("makeRandom (note this test fails 0.01% of the time)");
         
-        double prob = 0.0;
-        SpecificGraph instance = null;
+        double prob = 0.5;
+        SpecificGraph instance = new SpecificGraph(100,"r");
         
         instance.makeRandom(prob);
+        
+        
         
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

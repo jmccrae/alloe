@@ -35,21 +35,23 @@ public class GreedySatTest extends TestCase {
     public void testSolve() {
         try {
             System.out.println("solve");
-            Model m = new Model(4);
+            
             Logic logic = new Logic(new File("logics/hypernym.logic"));
+            logic.setModelSize(4);
+            Model m = new Model(logic);
             ProbabilityGraph g = m.addProbabilityGraph("r1");
             g.setBaseVal(0.02);
-            g.setPosVal(0,1,0.99);
-            g.setPosVal(1,2,0.8);
-            g.setPosVal(2,3,0.99);
-            g.setPosVal(0,2,.45);
-            g.setPosVal(1,3,.45);
-            g.setPosVal(0,3,.01);
+            g.setVal(0,1,0.99);
+            g.setVal(1,2,0.8);
+            g.setVal(2,3,0.99);
+            g.setVal(0,2,.45);
+            g.setVal(1,3,.45);
+            g.setVal(0,3,.01);
             GreedySat instance = new GreedySat(logic,m);
             
             instance.solve();
             
-            Model expModel = new Model(4);
+            Model expModel = new Model(logic);
             expModel = m.createSpecificCopy();
             expModel.remove(expModel.id("r1",1,2));
             

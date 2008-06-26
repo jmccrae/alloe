@@ -419,7 +419,7 @@ public class Logic {
                 if(rule.premiseCount != rule.length() -1)
                     return true;
                 
-                return !m.add(m.id(rule.relations.get(rule.premiseCount),
+                return !m.add((Integer)m.id(rule.relations.get(rule.premiseCount),
                         rule.terms.get(rule.premiseCount)[0].getAssignment(),
                         rule.terms.get(rule.premiseCount)[1].getAssignment()));
             }

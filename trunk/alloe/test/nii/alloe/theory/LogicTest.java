@@ -18,7 +18,7 @@ import java.util.*;
  */
 public class LogicTest extends TestCase {
     Model model;
-    String eqLogic = "r = \"syn\" -1\nr(1,2); r(2,3) -> r(1,3)\n-> r(1,1)\nr(1,2) -> r(2,1)\n";
+    String eqLogic = "r(1,2); r(2,3) -> r(1,3)\n-> r(1,1)\nr(1,2) -> r(2,1)\n";
     
     public LogicTest(String testName) {
         super(testName);
@@ -44,7 +44,9 @@ public class LogicTest extends TestCase {
     }
     
     protected void setUp() throws Exception {
-        model = new Model(5);
+        Logic l = new Logic("");
+        l.setModelSize(5);
+        model = new Model(l);
         SpecificGraph g = model.addSpecificGraph("r");
         g.add(1,2);
         g.add(2,3);
@@ -66,7 +68,7 @@ public class LogicTest extends TestCase {
      */
     public void testConsistCheck() {
         System.out.println("consistCheck");
-        Rule r = Rule.loadRule("r(1,2); r(2,3) -> r(1,3)");
+        Rule r = Rule.loadRule("r(1,2); r(2,3) -> r(1,3)", new RuleSymbol());
         r.terms.get(0)[0].setAssignment(1);
         r.terms.get(0)[1].setAssignment(2);
         r.terms.get(1)[1].setAssignment(3);
@@ -82,7 +84,7 @@ public class LogicTest extends TestCase {
      */
     public void testPremiseSearch() {
         System.out.println("premiseSearch");
-       Rule r = Rule.loadRule("r(1,2); r(2,3) -> r(1,3)");
+       Rule r = Rule.loadRule("r(1,2); r(2,3) -> r(1,3)",new RuleSymbol());
         r.terms.get(0)[0].setAssignment(1);
         r.terms.get(0)[1].setAssignment(2);
         r.terms.get(1)[1].setAssignment(3);
@@ -105,7 +107,7 @@ public class LogicTest extends TestCase {
         Logic instance = new Logic(eqLogic);
         
         instance.findAllPotentialResolvers(model, resolvePoints, potentialResolvers);
-        Rule r = Rule.loadRule("r(1,2); r(2,3) -> r(1,3)");
+        Rule r = Rule.loadRule("r(1,2); r(2,3) -> r(1,3)", new RuleSymbol());
         r.terms.get(0)[0].setAssignment(1);
         r.terms.get(0)[1].setAssignment(2);
         r.terms.get(1)[1].setAssignment(4);
@@ -119,8 +121,8 @@ public class LogicTest extends TestCase {
         System.out.println("getCompulsoryModel");
         
         Logic instance = new Logic(eqLogic);
-        
-        Model expResult = new Model(5);
+        instance.setModelSize(5);
+        Model expResult = new Model(instance);
         SpecificGraph g = expResult.addSpecificGraph("r");
         g.add(0,0);
         g.add(1,1);
@@ -137,16 +139,15 @@ public class LogicTest extends TestCase {
     public void testGetNegativeModel() {
         System.out.println("getNegativeModel");
         
-        Logic instance = new Logic("r1 = \"hyp\" -1\nr(1,2); r(2,3) -> r(1,3)\nr(1,1) -> ");
-        
-        Model expResult = new Model(5);
-        SpecificGraph g = expResult.addSpecificGraph("r");
-        g.add(0,0);
-        g.add(1,1);
-        g.add(2,2);
-        g.add(3,3);
-        g.add(4,4);
-        Model result = instance.getCompulsoryModel(model);
+        Logic instance = new Logic("r(1,2); r(2,3) -> r(1,3)\nr(1,1) -> ");
+        instance.setModelSize(5);
+        List<Integer> expResult = new LinkedList<Integer>();
+        expResult.add(0);
+        expResult.add(6);
+        expResult.add(12);
+        expResult.add(18);
+        expResult.add(24);
+             List<Integer> result = instance.getNegativeModel(model);
         assertEquals(expResult, result);
     }
     

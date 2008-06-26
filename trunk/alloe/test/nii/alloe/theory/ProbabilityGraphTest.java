@@ -42,14 +42,14 @@ public class ProbabilityGraphTest extends TestCase {
         
         int i = 0;
         int j = 0;
-        ProbabilityGraph instance = null;
+        ProbabilityGraph instance = new ProbabilityGraph(4);
+        instance.setVal(0, 0, .9);
+        instance.setVal(0, 1, .1);
         
         boolean expResult = true;
         boolean result = instance.isConnected(i, j);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(instance.isConnected(0,1),false);
     }
 
     /**
@@ -60,14 +60,11 @@ public class ProbabilityGraphTest extends TestCase {
         
         int i = 0;
         int j = 0;
-        ProbabilityGraph instance = null;
+        ProbabilityGraph instance = new ProbabilityGraph(4);
         
         boolean expResult = true;
         boolean result = instance.mutable(i, j);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -78,12 +75,9 @@ public class ProbabilityGraphTest extends TestCase {
         
         int i = 0;
         int j = 0;
-        ProbabilityGraph instance = null;
+        ProbabilityGraph instance = new ProbabilityGraph(4);
         
         instance.add(i, j);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -94,12 +88,9 @@ public class ProbabilityGraphTest extends TestCase {
         
         int i = 0;
         int j = 0;
-        ProbabilityGraph instance = null;
+        ProbabilityGraph instance = new ProbabilityGraph(4);
         
         instance.remove(i, j);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -108,45 +99,26 @@ public class ProbabilityGraphTest extends TestCase {
     public void testLinkCount() {
         System.out.println("linkCount");
         
-        ProbabilityGraph instance = null;
-        
-        int expResult = 0;
+        ProbabilityGraph instance = new ProbabilityGraph(4);
+        instance.setVal(0, 0, .9);
+        instance.setVal(0, 1, .1);
+        int expResult = 1;
         int result = instance.linkCount();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
      * Test of dumpToDot method, of class nii.alloe.theory.ProbabilityGraph.
      */
     public void testDumpToDot() {
-        System.out.println("dumpToDot");
-        
-        String dotFile = "";
-        ProbabilityGraph instance = null;
-        
-        instance.dumpToDot(dotFile);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("dumpToDot (no test)");
     }
 
     /**
      * Test of createCopy method, of class nii.alloe.theory.ProbabilityGraph.
      */
     public void testCreateCopy() {
-        System.out.println("createCopy");
-        
-        ProbabilityGraph instance = null;
-        
-        Graph expResult = null;
-        Graph result = instance.createCopy();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("createCopy (no test)");
     }
 
     /**
@@ -155,16 +127,14 @@ public class ProbabilityGraphTest extends TestCase {
     public void testPosVal() {
         System.out.println("posVal");
         
-        int i = 0;
-        int j = 0;
-        ProbabilityGraph instance = null;
+        int i = 1;
+        int j = 3;
+        ProbabilityGraph instance = new ProbabilityGraph(4);
+        double expResult = 0.9;
+        instance.setVal(i, j, expResult);
         
-        double expResult = 0.0;
         double result = instance.posVal(i, j);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -172,17 +142,7 @@ public class ProbabilityGraphTest extends TestCase {
      */
     public void testNegVal() {
         System.out.println("negVal");
-        
-        int i = 0;
-        int j = 0;
-        ProbabilityGraph instance = null;
-        
-        double expResult = 0.0;
-        double result = instance.negVal(i, j);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -190,17 +150,7 @@ public class ProbabilityGraphTest extends TestCase {
      */
     public void testAddVal() {
         System.out.println("addVal");
-        
-        int i = 0;
-        int j = 0;
-        ProbabilityGraph instance = null;
-        
-        double expResult = 0.0;
-        double result = instance.addVal(i, j);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -208,34 +158,15 @@ public class ProbabilityGraphTest extends TestCase {
      */
     public void testRemoveVal() {
         System.out.println("removeVal");
-        
-        int i = 0;
-        int j = 0;
-        ProbabilityGraph instance = null;
-        
-        double expResult = 0.0;
-        double result = instance.removeVal(i, j);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
      * Test of setPosVal method, of class nii.alloe.theory.ProbabilityGraph.
      */
-    public void testSetPosVal() {
-        System.out.println("setPosVal");
-        
-        int i = 0;
-        int j = 0;
-        double prob = 0.0;
-        ProbabilityGraph instance = null;
-        
-        instance.setPosVal(i, j, prob);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testSetVal() {
+        System.out.println("setVal");
+ 
     }
 
     /**
@@ -243,17 +174,7 @@ public class ProbabilityGraphTest extends TestCase {
      */
     public void testSetPosNegVal() {
         System.out.println("setPosNegVal");
-        
-        int i = 0;
-        int j = 0;
-        double p = 0.0;
-        double ng = 0.0;
-        ProbabilityGraph instance = null;
-        
-        instance.setPosNegVal(i, j, p, ng);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -261,63 +182,6 @@ public class ProbabilityGraphTest extends TestCase {
      */
     public void testSetBaseVal() {
         System.out.println("setBaseVal");
-        
-        double prob = 0.0;
-        ProbabilityGraph instance = null;
-        
-        instance.setBaseVal(prob);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
-    /**
-     * Test of len method, of class nii.alloe.theory.ProbabilityGraph.
-     */
-    public void testLen() {
-        System.out.println("len");
-        
-        ProbabilityGraph instance = null;
-        
-        int expResult = 0;
-        int result = instance.len();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
-
-    /**
-     * Test of writeToFile method, of class nii.alloe.theory.ProbabilityGraph.
-     */
-    public void testWriteToFile() {
-        System.out.println("writeToFile");
-        
-        String out_fname = "";
-        Graph g = null;
-        ProbabilityGraph instance = null;
-        
-        instance.writeToFile(out_fname, g);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of iterator method, of class nii.alloe.theory.ProbabilityGraph.
-     */
-    public void testIterator() {
-        System.out.println("iterator");
-        
-        int n = 0;
-        ProbabilityGraph instance = null;
-        
-        Iterator<Integer> expResult = null;
-        Iterator<Integer> result = instance.iterator(n);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
 }

@@ -494,6 +494,8 @@ public class Model extends AbstractSet<Integer> implements Serializable {
      */
     public void setGraphAs(String name, TermPairSet termPairs, TermList termList) {
         Graph g = getGraphByName(name);
+        if(g == null)
+            g = addSpecificGraph(name);
         Iterator<Integer> iter = g.iterator(getFullModelSize());
         while (iter.hasNext()) {
             Integer i = iter.next();
@@ -597,19 +599,7 @@ public class Model extends AbstractSet<Integer> implements Serializable {
         return rval;
     }
 
-    /**
-     * Remove all elements of another graph into this one. Note these graphs must have the same indexing.
-     */
-    public boolean remove(Model m) {
-        Iterator<Integer> i = m.iterator();
-        boolean rval = false;
-        while (i.hasNext()) {
-            rval = remove(i.next()) || rval;
-        }
-        return rval;
-    }
-
-    /**
+       /**
      * Does this graph contain any elements in the list.
      */
     public boolean containsAny(Collection<Integer> ids) {

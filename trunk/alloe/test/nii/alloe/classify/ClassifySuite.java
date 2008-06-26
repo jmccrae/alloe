@@ -30,7 +30,6 @@ public class ClassifySuite extends TestCase {
      */
     public static Test suite() {
         TestSuite suite = new TestSuite("ClassifySuite");
-        suite.addTest(nii.alloe.classify.FeatureVectorFormerTest.suite());
         suite.addTest(nii.alloe.classify.DataSetTest.suite());
         return suite;
     }

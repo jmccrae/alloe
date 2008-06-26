@@ -57,19 +57,23 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
         }
         cp.addProgressListener(this);
         cs.addProgressListener(this);
+        SparseMatrix m = null;
         while(state == STATE_OK) {
             state = STATE_MATRIX;
             //System.out.println("Building matrix");
-            SparseMatrix m = cp.buildGrowingProblemMatrix(candidate);
+            int oldMatrixSize =  (m != null ? m.getColumnCount() : 0);
+            m = cp.buildGrowingProblemMatrix(candidate);
+            //if(m != null)
+            //    m.printMatrix(System.out);
             if(iteration > 500) {
                 System.out.println(probModel.toString());
                 System.out.println(candidate.toString());
                 m.printMatrix(System.out);
                 System.out.println(cp.getBases(candidate));
-                System.err.println("Iteartion limit reached");
+                System.err.println("Iteration limit reached");
                 System.exit(-1);
             }
-            if(m == null) {
+            if(m == null || m.getColumnCount() == oldMatrixSize) {
                 state = STATE_OK;
                 break;
             }

@@ -44,14 +44,15 @@ public class ConsistProblemTest extends TestCase {
             System.exit(-1);
             return;
         }
-        Model m = new Model(5);
+        l.setModelSize(5);
+        Model m = new Model(l);
         ProbabilityGraph g = m.addProbabilityGraph("r1");
         g.setBaseVal(0.02);
-        g.setPosVal(0,1,.99);
-        g.setPosVal(1,2,.99);
-        g.setPosVal(2,4,.99);
-        g.setPosVal(4,2,.99);
-        g.setPosVal(1,3,.99);
+        g.setVal(0,1,.99);
+        g.setVal(1,2,.99);
+        g.setVal(2,4,.99);
+        g.setVal(4,2,.99);
+        g.setVal(1,3,.99);
         ConsistProblem instance = new ConsistProblem(l,m);
         
         
@@ -60,7 +61,7 @@ public class ConsistProblemTest extends TestCase {
         expResult.setElem(1,0,Math.log(.99) - Math.log(.01));
         expResult.setElem(1,5);
         expResult.setElem(1,3);
-        expResult.setElem(1,6);
+        //expResult.setElem(1,6);
         expResult.setElem(2,0,Math.log(.98) - Math.log(.02));
         expResult.setElem(2,5);
         expResult.setElem(3,0,Math.log(.98) - Math.log(.02));
@@ -70,14 +71,14 @@ public class ConsistProblemTest extends TestCase {
         expResult.setElem(7,0,Math.log(.99) - Math.log(.01));
         expResult.setElem(7,5);
         expResult.setElem(7,4);
-        expResult.setElem(7,6);
+        //expResult.setElem(7,6);
         //expResult.setElem(8,0,Math.log(.99) - Math.log(.01));
         //expResult.setElem(8,2);
         expResult.setElem(9,0,Math.log(.98) - Math.log(.02));
         expResult.setElem(9,4);
         expResult.setElem(14,0,Math.log(.99) - Math.log(.01));
         expResult.setElem(14,4);
-        expResult.setElem(14,6);
+        //expResult.setElem(14,6);
         expResult.setElem(14,2);
         expResult.setElem(22,0,Math.log(.99) - Math.log(.01));
         expResult.setElem(22,2);
@@ -99,6 +100,15 @@ public class ConsistProblemTest extends TestCase {
             System.exit(-1);
             return;
         }
+        l2.setModelSize(5);
+        m = new Model(l2);
+        g = m.addProbabilityGraph("r1");
+        g.setBaseVal(0.02);
+        g.setVal(0,1,.99);
+        g.setVal(1,2,.99);
+        g.setVal(2,4,.99);
+        g.setVal(4,2,.99);
+        g.setVal(1,3,.99);
         m.addBasicGraphs(l2);
         ConsistProblem instance2 = new ConsistProblem(l2,m);
         result = instance2.buildProblemMatrix();
@@ -115,17 +125,17 @@ public class ConsistProblemTest extends TestCase {
                 result.getRow(22).size() == 5 &&
                 result.getRow(23).size() == 2);
         
-        g.setPosVal(0,1,.73);
-        g.setPosVal(0,2,.18);
-        g.setPosVal(0,3,.18);
-        g.setPosVal(0,4,.18);
-        g.setPosVal(1,2,.73);
-        g.setPosVal(1,3,.82);
-        g.setPosVal(1,4,.18);
-        g.setPosVal(2,2,.18);
-        g.setPosVal(2,4,.95);
-        g.setPosVal(4,2,.73);
-        g.setPosVal(4,4,.18);
+        g.setVal(0,1,.73);
+        g.setVal(0,2,.18);
+        g.setVal(0,3,.18);
+        g.setVal(0,4,.18);
+        g.setVal(1,2,.73);
+        g.setVal(1,3,.82);
+        g.setVal(1,4,.18);
+        g.setVal(2,2,.18);
+        g.setVal(2,4,.95);
+        g.setVal(4,2,.73);
+        g.setVal(4,4,.18);
         
         expResult = new SparseMatrix();
         result = instance.buildProblemMatrix();
@@ -169,9 +179,10 @@ public class ConsistProblemTest extends TestCase {
             System.exit(-1);
             return;
         }
-        Model m = new Model(100);
+        l.setModelSize(100);
+        Model m = new Model(l);
         SpecificGraph g = m.addSpecificGraph("r1");
-        Model m2 = new Model(100);
+        Model m2 = new Model(l);
         ConsistProblem p = new ConsistProblem(l,m);
         
         for(int i = 0; i <= 100; i++) {

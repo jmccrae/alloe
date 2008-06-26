@@ -208,8 +208,6 @@ public class ProbabilityGraph implements Graph, Serializable {
         baseValNeg = ng;
     }
     
-    public int len() { return n; }
-    
     /**
      * Deprecated prefer serialization
      */

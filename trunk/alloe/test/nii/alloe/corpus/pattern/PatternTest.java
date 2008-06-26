@@ -144,7 +144,7 @@ public class PatternTest extends TestCase {
         
         Pattern instance = new Pattern("* * 1 2 * *");
         
-        instance.makeMostDominant();
+        instance = instance.getMostDominant();
         
         assertTrue(instance.getVal().equals("1 2"));
     }
@@ -196,7 +196,7 @@ public class PatternTest extends TestCase {
         
         Pattern instance = new Pattern("hi * 1 but, 3 2");
         
-        String expResult = "hi     but, 3  ";
+        String expResult = "hi * * but, 3 *";
         String result = instance.getQuery();
         assertEquals(expResult, result);
         
@@ -229,27 +229,7 @@ public class PatternTest extends TestCase {
         String result = instance.getVal();
         assertEquals(expResult, result);
     }
-    
-    /**
-     * Test of setVal method, of class nii.aloe.corpus.pattern.Pattern.
-     */
-    public void testSetVal() {
-        System.out.println("setVal");
-        
-        String s = "1 * hi, 2";
-        Pattern instance = new Pattern();
-        
-        instance.setVal(s);
-        
-        boolean ok = false;
-        
-        try {
-            instance.setVal("hi1 * 3");
-        } catch(IllegalArgumentException x) {
-            ok = true;
-        }
-        assertTrue(ok);
-    }
+ 
 
     /**
      * Test of isTrivial method, of class nii.alloe.corpus.pattern.Pattern.
@@ -257,7 +237,7 @@ public class PatternTest extends TestCase {
     public void testIsTrivial() {
         System.out.println("isTrivial");
         
-        Pattern instance = new Pattern("of 1 * * * * * 2");
+        Pattern instance = new Pattern("are 1 * * * * * 2");
         
         boolean expResult = true;
         boolean result = instance.isTrivial();

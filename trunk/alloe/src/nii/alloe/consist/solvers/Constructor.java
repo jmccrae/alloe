@@ -336,7 +336,7 @@ public class Constructor {
         public void add(int newLink) {
             if(model.contains(newLink))
                 throw new RuntimeException();
-            model.add(newLink);
+            model.add((Integer)newLink); 
             double c = ((ProbabilityGraph)probModel.getGraphByID(newLink)).removeVal(
                     model.iByID(newLink),model.jByID(newLink));
             cost -= c;
