@@ -1,14 +1,11 @@
 /*
- * GrowingSolverTest.java
- * JUnit based test
- *
- * Created on February 15, 2008, 1:51 AM
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
 
 package nii.alloe.consist;
 
-import junit.framework.*;
-import java.util.*;
+import junit.framework.TestCase;
 import nii.alloe.theory.*;
 import java.io.*;
 
@@ -16,20 +13,24 @@ import java.io.*;
  *
  * @author john
  */
-public class GrowingSolverTest extends TestCase {
+public class ResFreeSolverTest extends TestCase {
     
-    public GrowingSolverTest(String testName) {
+    public ResFreeSolverTest(String testName) {
         super(testName);
-    }
-    
+    }            
+
+    @Override
     protected void setUp() throws Exception {
+        super.setUp();
     }
-    
+
+    @Override
     protected void tearDown() throws Exception {
+        super.tearDown();
     }
-    
+
     /**
-     * Test of solve method, of class nii.alloe.consist.GrowingSolver.
+     * Test of solve method, of class ResFreeSolver.
      */
     public void testSolve() {
         try {
@@ -45,7 +46,7 @@ public class GrowingSolverTest extends TestCase {
             g.setVal(0,2,.45);
             g.setVal(1,3,.45);
             g.setVal(0,3,.01);
-            GrowingSolver instance = new GrowingSolver(l,m);
+            ResFreeSolver instance = new ResFreeSolver(l,m);
             
             instance.solve();
             
@@ -61,4 +62,5 @@ public class GrowingSolverTest extends TestCase {
             fail(x.getMessage());
         }
     }
+
 }

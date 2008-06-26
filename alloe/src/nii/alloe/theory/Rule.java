@@ -31,12 +31,13 @@ public class Rule implements Comparable<Rule> {
     private Rule() { arguments = new TreeMap<Argument,Argument>(); }
     
     /** Create a rule with assignments */
-    public Rule(List<Integer> positives, List<Integer> negatives, Model model) {
-        relations = new Vector<String>(positives.size() + negatives.size());
+    public Rule(List<Integer> neg, List<Integer> pos, Model model) {
+        relations = new Vector<String>(neg.size() + pos.size());
         terms = new Vector<Argument[]>();
-        premiseCount = positives.size();
-        List<Integer> ts = new LinkedList<Integer>(positives);
-        ts.addAll(negatives);
+        premiseCount = neg.size();
+        List<Integer> ts = new LinkedList<Integer>(neg);
+        ts.addAll(pos);
+        arguments = new TreeMap<Argument,Argument>();
         
         for(Integer id : ts) {
             relations.add(model.relationByID(id));
@@ -49,7 +50,6 @@ public class Rule implements Comparable<Rule> {
         }
         ruleSymbols = model.logic.ruleSymbols;
         
-        arguments = new TreeMap<Argument,Argument>();
         addArguments();
     }
     
@@ -90,7 +90,7 @@ public class Rule implements Comparable<Rule> {
     }
     
     // NB for r(2,3) group 1 captures (2,3), group 2 captures 2
-    private static String argumentRegex = "\\d+(|\\(\\s*\\)|\\((\\s*\\d+\\s*,)*\\s*\\d\\s*\\)|\".*\")";
+    private static String argumentRegex = "\\d+(|\\(\\s*\\)|\\((\\s*\\d+\\s*,)*\\s*\\d\\s*\\))|\".*\"";
     
     private void loadFromString(String rule) throws IllegalArgumentException {
         String []pc = rule.split("->",-1);
@@ -186,7 +186,7 @@ public class Rule implements Comparable<Rule> {
     /**
      * Find the terms involving a particular argument.
      * @param arg An argument
-     * @return a list of the arguments that arg is involved in
+     * @return a list of the argument indexes that arg is involved in
      */
     public LinkedList<Integer> statementsForArgument(Argument arg) {
         LinkedList<Integer> rval = new LinkedList<Integer>();
@@ -299,8 +299,8 @@ public class Rule implements Comparable<Rule> {
         }
         
         
-        for(int i = 0; i < premiseCount; i++) {
-            for(int k = length() + rule.premiseCount; k < newRule.length(); k++) {
+        for(int i = 0; i < newRule.premiseCount; i++) {
+            for(int k = newRule.premiseCount; k < newRule.length(); k++) {
                 if(newRule.relations.get(i).equals(newRule.relations.get(k)) &&
                         newRule.terms.get(i)[0].getAssignment() == newRule.terms.get(k)[0].getAssignment() &&
                         newRule.terms.get(i)[1].getAssignment() == newRule.terms.get(k)[1].getAssignment()) {
@@ -487,7 +487,7 @@ public class Rule implements Comparable<Rule> {
      * @see #canResolveWith(Rule)
      */
     public static boolean canResolve(Rule rule1, Rule rule2) {
-        return rule1.canResolveWith(rule2) || rule1.canResolveWith(rule1);
+        return rule1.canResolveWith(rule2) || rule2.canResolveWith(rule1);
     }
     
     /**
@@ -622,7 +622,7 @@ public class Rule implements Comparable<Rule> {
     
     /**
      * Remove a lit of terms
-     */
+     
     public void removeAllTerms(List<Integer> terms) {
         if(terms.isEmpty())
             return;
@@ -645,7 +645,7 @@ public class Rule implements Comparable<Rule> {
     
     /**
      * Add a term
-     */
+     
     public void addTerm(String rel, Argument[] term, boolean premise) {
         if(premise) {
             relations.insertElementAt(rel, premiseCount);
@@ -657,7 +657,7 @@ public class Rule implements Comparable<Rule> {
         }
         arguments.put(term[0],term[0]);
         arguments.put(term[1],term[1]);
-    }
+    }*/
     
     
     /**
@@ -759,7 +759,7 @@ public class Rule implements Comparable<Rule> {
      * Used for testing and debugging.
      */
     public boolean isOK() {
-        if(arguments.size() != terms.size() || premiseCount < 0 || premiseCount > length())
+        if(relations.size() != terms.size() || premiseCount < 0 || premiseCount > length())
             return false;
         
         Iterator<Argument[]> aiter = terms.iterator();
@@ -836,7 +836,9 @@ public class Rule implements Comparable<Rule> {
             if(hasAssignment()) {
                 throw new IllegalStateException("Tried to set already assigned argument");
             } else {
+                arguments.remove(this); // Momentary Blink
                 assignment = assign;
+                arguments.put(this, this);
             }
         }
         
@@ -844,7 +846,9 @@ public class Rule implements Comparable<Rule> {
          * @throws IllegalStateException  if the argument does not have an assignment */
         public void unsetAssignment() {
             if(hasAssignment()) {
+                arguments.remove(this);
                 assignment = -1;
+                arguments.put(this,this);
             } else {
                 throw new IllegalStateException("Attempting to unset already set assignment");
             }

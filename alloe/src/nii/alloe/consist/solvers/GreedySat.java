@@ -60,7 +60,7 @@ public class GreedySat {
                 greedySats.put(newNode, getGreedySatNode(newNode, !candidate.contains(newNode)));
             }
             if(candidate.isConnected(maxID))
-                candidate.remove(maxID);
+                candidate.remove((Integer)maxID);
             else
                 candidate.add(maxID);
             if(MULTI_PASS) {

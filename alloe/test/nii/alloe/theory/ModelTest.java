@@ -42,11 +42,12 @@ public class ModelTest extends TestCase {
             System.exit(-1);
             return;
         }
-        Model instance = new Model(10);
+        l.setModelSize(10);
+        Model instance = new Model(l);
         
         instance.addBasicGraphs(l);
         
-        if(!instance.graphs.containsKey("e") || !instance.graphs.containsKey("in_1")) {
+        if(!instance.graphs.containsKey("e")) {
             fail("Oh noes!");
         }
     }
@@ -58,7 +59,9 @@ public class ModelTest extends TestCase {
         System.out.println("addSpecificGraph");
         
         String name = "r1";
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         
         
         SpecificGraph result = instance.addSpecificGraph(name);
@@ -75,7 +78,9 @@ public class ModelTest extends TestCase {
         System.out.println("addProbabilityGraph");
         
         String name = "r1";
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         
         
         ProbabilityGraph result = instance.addProbabilityGraph(name);
@@ -92,7 +97,9 @@ public class ModelTest extends TestCase {
         String relation = "r1";
         int i = 5;
         int j = 6;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         instance.addSpecificGraph("r1");
         
         int expResult = 56;
@@ -107,7 +114,9 @@ public class ModelTest extends TestCase {
         System.out.println("relationByID");
         
         int id = 56;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         instance.addSpecificGraph("r1");
         try {
         instance.addBasicGraphs(new Logic(new File("logics/single-hyp.logic")));
@@ -133,7 +142,9 @@ public class ModelTest extends TestCase {
         System.out.println("iByID");
         
         int id = 56;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         instance.addSpecificGraph("r1");
         
         int expResult = 5;
@@ -149,7 +160,9 @@ public class ModelTest extends TestCase {
         System.out.println("jByID");
         
         int id = 56;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         instance.addSpecificGraph("r1");
         
         int expResult = 6;
@@ -164,7 +177,9 @@ public class ModelTest extends TestCase {
         System.out.println("getGraphByID");
         
         int id = 56;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         SpecificGraph graph = instance.addSpecificGraph("r1");
         
         Graph result = instance.getGraphByID(id);
@@ -178,7 +193,9 @@ public class ModelTest extends TestCase {
         System.out.println("isConnected");
         
         Integer id = 56;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         SpecificGraph graph = instance.addSpecificGraph("r1");
         graph.add(5,6);
         
@@ -197,7 +214,9 @@ public class ModelTest extends TestCase {
         System.out.println("mutable");
         
         Integer id = 56;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         instance.addSpecificGraph("r1");
         try {
         instance.addBasicGraphs(new Logic(new File("logics/hypernym.logic")));
@@ -222,7 +241,9 @@ public class ModelTest extends TestCase {
         System.out.println("add");
         
         Integer id = 56;
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         instance.addSpecificGraph("r1");
         
         instance.add(id);
@@ -245,7 +266,9 @@ public class ModelTest extends TestCase {
         TreeSet<Integer> rels = new TreeSet<Integer>();
         rels.add(12);
         rels.add(34);
-        Model instance = new Model(10);
+        Logic l = new Logic("");
+        l.setModelSize(10);
+        Model instance = new Model(l);
         Graph g  = instance.addSpecificGraph("r1");
         g.add(1,2);
         g.add(7,8);
@@ -261,14 +284,18 @@ public class ModelTest extends TestCase {
     public void testCreateSpecificCopy() {
         System.out.println("createSpecificCopy");
         
-        Model instance = null;
+        Logic l = new Logic("r(1,1) ->");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        Graph g = instance.addProbabilityGraph("r");
+        g.add(0,1);
+        g.add(2,3);
+        g.add(1,2);
         
-        Model expResult = null;
+        Model expResult = instance;
         Model result = instance.createSpecificCopy();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -277,16 +304,18 @@ public class ModelTest extends TestCase {
     public void testCreateProbabilityCopy() {
         System.out.println("createProbabilityCopy");
         
-        double posProb = 0.0;
-        double negProb = 0.0;
-        Model instance = null;
+         Logic l = new Logic("r(1,1) ->");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        Graph g = instance.addSpecificGraph("r");
+        g.add(0,1);
+        g.add(2,3);
+        g.add(1,2);
         
-        Model expResult = null;
-        Model result = instance.createProbabilityCopy(posProb, negProb);
+        Model expResult = instance;
+        Model result = instance.createProbabilityCopy(0.9,0.1);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -295,14 +324,16 @@ public class ModelTest extends TestCase {
     public void testGetCompulsoryCount() {
         System.out.println("getCompulsoryCount");
         
-        Model instance = null;
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        instance.addSpecificGraph("r");
+        instance.addCompulsorys(l);
         
-        int expResult = 0;
+        int expResult = 4;
         int result = instance.getCompulsoryCount();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -311,14 +342,16 @@ public class ModelTest extends TestCase {
     public void testCreateCopy() {
         System.out.println("createCopy");
         
-        Model instance = null;
+       Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+      
         
-        Model expResult = null;
+        Model expResult = instance;
         Model result = instance.createCopy();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -327,14 +360,16 @@ public class ModelTest extends TestCase {
     public void testCreateBlankSpecificCopy() {
         System.out.println("createBlankSpecificCopy");
         
-        Model instance = null;
+         Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+      
         
-        Model expResult = null;
-        Model result = instance.createBlankSpecificCopy();
+        Model expResult = instance;
+        Model result = instance.createCopy();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -343,15 +378,20 @@ public class ModelTest extends TestCase {
     public void testSetGraphAs() {
         System.out.println("setGraphAs");
         
-        String name = "";
-        TermPairSet termPairs = null;
-        TermList termList = null;
-        Model instance = null;
+        Logic l = new Logic("r(1,1) ->");
+        l.setModelSize(4);
+        String name = "r";
+        TermPairSet termPairs = new TermPairSet();
+        termPairs.add("term1","term2");
+        termPairs.add("term2","term3");
+        TermList termList = new TermList();
+        termList.add("term1");
+        termList.add("term2");
+        termList.add("term3");
+        Model instance = new Model(l);
         
         instance.setGraphAs(name, termPairs, termList);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.isConnected(instance.id("r",0,1)));
     }
 
     /**
@@ -360,48 +400,40 @@ public class ModelTest extends TestCase {
     public void testCreateImmutableCopy() {
         System.out.println("createImmutableCopy");
         
-        Model instance = null;
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        instance.addSpecificGraph("r");
+      
         
-        Model expResult = null;
-        Model result = instance.createImmutableCopy();
+        Model expResult = instance;
+        Model result = instance.createCopy();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.mutable(instance.id("r",1,2)));
     }
 
-    /**
-     * Test of remove method, of class nii.alloe.theory.Model.
-     */
-    public void testRemove() {
-        System.out.println("remove");
-        
-        Model m = null;
-        Model instance = null;
-        
-        boolean expResult = true;
-        boolean result = instance.remove(m);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
-    /**
+     /**
      * Test of containsAny method, of class nii.alloe.theory.Model.
      */
     public void testContainsAny() {
         System.out.println("containsAny");
         
-        Collection<Integer> ids = null;
-        Model instance = null;
+        Collection<Integer> ids = new LinkedList<Integer>();
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        Graph g = instance.addSpecificGraph("r");
+        g.add(1,2);
+        ids.add(instance.id("r", 1,2));
+        ids.add(instance.id("r",0,2));
+       
         
         boolean expResult = true;
         boolean result = instance.containsAny(ids);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -410,13 +442,27 @@ public class ModelTest extends TestCase {
     public void testSymmDiffAll() {
         System.out.println("symmDiffAll");
         
-        Collection<Integer> c = null;
-        Model instance = null;
+        Collection<Integer> c = new TreeSet<Integer>();
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        Graph g = instance.addSpecificGraph("r");
+        g.add(1,2);
+        g.add(2,3);
+        g.add(0,2);
+             
+        c.add(instance.id("r",1,2));
+        c.add(instance.id("r",2,0));
         
         instance.symmDiffAll(c);
         
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        c.add(instance.id("r",2,3));
+        c.add(instance.id("r",0,2));
+        c.remove(instance.id("r",1,2));
+        
+        assertTrue(instance.size() == 3);
+        assertTrue(instance.containsAll(c));
     }
 
     /**
@@ -424,16 +470,26 @@ public class ModelTest extends TestCase {
      */
     public void testComputeComparison() {
         System.out.println("computeComparison");
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
         
-        Model m = null;
-        Model instance = null;
+        Model m = new Model(l);
+        m.addBasicGraphs(l);
+        Graph g = m.addSpecificGraph("r");
+        g.add(2,1);
+        g.add(2,3);
+        g.add(0,2);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        g = instance.addSpecificGraph("r");
+        g.add(1,2);
+        g.add(2,3);
+        g.add(0,2);
         
-        int[] expResult = null;
+        int[] expResult = { 2, 1, 1 };
         int[] result = instance.computeComparison(m);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        for(int i  = 0; i < 3; i++) 
+            assertEquals(expResult[i], result[i]);
     }
 
     /**
@@ -442,32 +498,22 @@ public class ModelTest extends TestCase {
     public void testSize() {
         System.out.println("size");
         
-        Model instance = null;
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        Graph g = instance.addSpecificGraph("r");
+        g.add(1,2);
+        g.add(2,3);
+        g.add(0,2);
         
-        int expResult = 0;
+        int expResult = 3;
         int result = instance.size();
         assertEquals(expResult, result);
         
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of getGraphIDByName method, of class nii.alloe.theory.Model.
-     */
-    public void testGetGraphIDByName() {
-        System.out.println("getGraphIDByName");
-        
-        String name = "";
-        Model instance = null;
-        
-        int expResult = 0;
-        int result = instance.getGraphIDByName(name);
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+   
 
     /**
      * Test of getGraphByName method, of class nii.alloe.theory.Model.
@@ -475,15 +521,19 @@ public class ModelTest extends TestCase {
     public void testGetGraphByName() {
         System.out.println("getGraphByName");
         
-        String name = "";
-        Model instance = null;
+        String name = "r";
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        Graph g = instance.addSpecificGraph("r");
+        g.add(1,2);
+        g.add(2,3);
+        g.add(0,2);
         
-        Graph expResult = null;
+        Graph expResult = g;
         Graph result = instance.getGraphByName(name);
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -492,61 +542,19 @@ public class ModelTest extends TestCase {
     public void testGetGraphNames() {
         System.out.println("getGraphNames");
         
-        Model instance = null;
+        Logic l = new Logic("-> r(1,1)");
+        l.setModelSize(4);
+        Model instance = new Model(l);
+        instance.addBasicGraphs(l);
+        Graph g = instance.addSpecificGraph("r");
+        g.add(1,2);
+        g.add(2,3);
+        g.add(0,2);
         
-        Vector<String> expResult = null;
+        Vector<String> expResult = new Vector<String>();
+        expResult.add("e");
+        expResult.add("r");
         Vector<String> result = instance.getGraphNames();
         assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of addCompulsorys method, of class nii.alloe.theory.Model.
-     */
-    public void testAddCompulsorys() {
-        System.out.println("addCompulsorys");
-        
-        Logic logic = null;
-        Model instance = null;
-        
-        instance.addCompulsorys(logic);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of graphNameIterator method, of class nii.alloe.theory.Model.
-     */
-    public void testGraphNameIterator() {
-        System.out.println("graphNameIterator");
-        
-        Model instance = null;
-        
-        Iterator<String> expResult = null;
-        Iterator<String> result = instance.graphNameIterator();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of iterator method, of class nii.alloe.theory.Model.
-     */
-    public void testIterator() {
-        System.out.println("iterator");
-        
-        Model instance = null;
-        
-        Iterator<Integer> expResult = null;
-        Iterator<Integer> result = instance.iterator();
-        assertEquals(expResult, result);
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
+    }    
 }

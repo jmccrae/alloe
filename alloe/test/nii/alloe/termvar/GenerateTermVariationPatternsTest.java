@@ -34,8 +34,9 @@ public class GenerateTermVariationPatternsTest extends TestCase {
      */
     public void testGetTermVariationPatterns() {
         System.out.println("getTermVariationPatterns");
+        fail("no test file");
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/syns-short.atps"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/syns.atps"));
             TermPairSet tps = (TermPairSet)ois.readObject();
             ois.close();
             /*GenerateTermVariationPatterns instance = new GenerateTermVariationPatterns(tps);

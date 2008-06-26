@@ -96,14 +96,48 @@ public class ResFreeSolver extends AlloeProcessAdapter {
 	    }
 	    solnRow.add(solnVal);
 	}
+        addCosts();
 	return false;
     }
-
+    
+    private double costForRow(Integer row) {
+        ProbabilityGraph pg = (ProbabilityGraph)probModel.getGraphByID(row);
+        int i = probModel.iByID(row);
+        int j = probModel.jByID(row);
+        if(pg.isConnected(i,j)) {
+            return pg.removeVal(i,j);
+        } else {
+            return pg.addVal(i,j);
+        }
+    }
+    
+     private void addCosts() {
+        for(Integer row : matrix.rows.keySet()) {
+            matrix.setElem(row,0,costForRow(row));
+        }
+        applyPerturbations();
+    }
+    
+    /** Size of maximum random perturbation, set to zero to disable perturbations */
+    public static double PERTURBATION_SIZE = 1.0e-6;
+    /** Random Permuations prevents the simplex algorithm from cycling */
+    private void applyPerturbations() {
+        Vector<Set<Integer>> eqSets = matrix.rowEqualitySets(0);
+        Random r = new Random();
+        for(Set<Integer> eqSet : eqSets) {
+            if(eqSet.size() == 1)
+                continue;
+            for(Integer ii : eqSet) {
+                double v = matrix.elemVal(ii,0);
+                matrix.setElem(ii,0,v + r.nextDouble() * v * PERTURBATION_SIZE);
+            }
+        }
+    }
     class InconsistencyFinder implements InconsistentAction {
 	LinkedList<Rule> inc;
 	InconsistencyFinder(LinkedList<Rule> inc) { this.inc = inc; }
 	public boolean doAction(Logic logic, Model m, Rule r) {
-	    Rule r2  = Rule.simplify(r,m);
+	    Rule r2  = Rule.simplify(new Rule(r),m);
 	    if(r2 != null)
 		inc.add(r2);
 	    return true;

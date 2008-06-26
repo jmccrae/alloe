@@ -96,7 +96,7 @@ public class MembershipGraphTest extends TestCase {
         
         int i = 0;
         int j = 0;
-        MembershipGraph instance = null;
+        MembershipGraph instance = new MembershipGraph(new TreeSet<Integer>());
         
         try {
             instance.remove(i, j);
@@ -112,7 +112,12 @@ public class MembershipGraphTest extends TestCase {
     public void testLinkCount() {
         System.out.println("linkCount");
         
-        MembershipGraph instance = null;
+        TreeSet<Integer> set = new TreeSet<Integer>();
+        set.add(0);
+        set.add(1);
+        set.add(2);
+        MembershipGraph instance = new MembershipGraph(set);
+        
         
         int expResult = 3;
         int result = instance.linkCount();

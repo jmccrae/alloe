@@ -133,7 +133,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     public LinkedList<Rule> getBases(Model generatedModel) {
         baseRules = new LinkedList<Rule>();
         
-        logic.consistCheck(generatedModel,new BaseRuleBuilder(false));
+        logic.consistCheck(generatedModel,new BaseRuleBuilder(probModel,false));
         
         return baseRules;
     }
@@ -148,7 +148,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     public SparseMatrix buildGrowingProblemMatrix(Model generatedModel) {
         baseRules = new LinkedList<Rule>();
         TreeSet<Rule> oldRules = new TreeSet<Rule>();
-        logic.consistCheck(generatedModel,new BaseRuleBuilder(false));
+        logic.consistCheck(generatedModel,new BaseRuleBuilder(generatedModel,false));
         if(mat == null) {
             mat = new SparseMatrix();
             if(baseRules.size() == 0)
@@ -252,7 +252,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
         fireNewProgressChange(-1);
         
         baseRules = new LinkedList<Rule>();
-        logic.premiseSearch(completeModel,new BaseRuleBuilder());
+        logic.premiseSearch(completeModel,new BaseRuleBuilder(probModel,true));
         
         baseRulesFormed = true;
         if(state == STATE_BASE)
@@ -683,10 +683,11 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
     }
     
     private class BaseRuleBuilder implements InconsistentAction {
-        boolean limitToCompleteModel = true;
-        public BaseRuleBuilder(){}
-        public BaseRuleBuilder(boolean limitToCompleteModel) {
+        final boolean limitToCompleteModel;
+        final Model checkModel;
+        public BaseRuleBuilder(Model checkModel, boolean limitToCompleteModel) {
             this.limitToCompleteModel = limitToCompleteModel;
+            this.checkModel = checkModel;
         }
         public boolean doAction(Logic logic,
                 Model m,
@@ -695,9 +696,7 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             if(limitToCompleteModel)
                 r.limitToModel(completeModel);
             r = Rule.simplify(r,probModel);
-            if(r.isRuleSatisfied(probModel))
-                return true;
-            if(r != null && r.length() > 0) {
+            if(r != null && !r.isRuleSatisfied(checkModel) && r.length() > 0) {
                 baseRules.add(r);
             }
             return true;

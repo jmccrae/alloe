@@ -40,18 +40,19 @@ public class ConstructorTest extends TestCase {
             fail();
             return;
         }
-        Model probModel = new Model(4);
+        logic.setModelSize(4);
+        Model probModel = new Model(logic);
         probModel.addBasicGraphs(logic);
         ProbabilityGraph pg = probModel.addProbabilityGraph("r1");
         pg.setBaseVal(.1);
-        pg.setPosVal(0,2,.7);
-        pg.setPosVal(2,0,.7);
-        pg.setPosVal(1,2,.3);
-        pg.setPosVal(2,1,.3);
-        pg.setPosVal(0,1,.9);
-        pg.setPosVal(1,0,.9);
-        pg.setPosVal(2,3,.6);
-        pg.setPosVal(3,2,.6);
+        pg.setVal(0,2,.7);
+        pg.setVal(2,0,.7);
+        pg.setVal(1,2,.3);
+        pg.setVal(2,1,.3);
+        pg.setVal(0,1,.9);
+        pg.setVal(1,0,.9);
+        pg.setVal(2,3,.6);
+        pg.setVal(3,2,.6);
         
         Constructor instance = new Constructor(Constructor.ADD_NODES_MOST_CENTRAL,Constructor.METHOD_ASTAR);
         

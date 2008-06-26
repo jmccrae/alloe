@@ -29,7 +29,7 @@ public class PseudoFMMetricTest extends TestCase {
 
     protected void setUp() throws Exception {
         try {
-            corpus = Corpus.openCorpus(new File("/home/john/wpshie/corpus-short.idx"));
+            corpus = Corpus.openCorpus(new File("/home/john/wpshie/corpus.idx"));
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/john/wpshie/hyps.atps"));
             tps = (TermPairSet)ois.readObject();
             ois.close();

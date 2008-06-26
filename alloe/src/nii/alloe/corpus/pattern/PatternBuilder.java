@@ -95,7 +95,6 @@ public class PatternBuilder extends AlloeProcessAdapter {
 
 
         while (patternQueue.peek() != null && iterations < maxIterations && state == STATE_OK) {
-            System.out.print("1");
             Pattern pattern = patternQueue.poll();
 
             String[] elems = pattern.split();
@@ -113,7 +112,6 @@ public class PatternBuilder extends AlloeProcessAdapter {
                 String where = i < capture1 ? (i > capture2 ? "+" + (i - capture1) : "=" + (i - capture1)) : "-" + (capture1 - i);
                 if(patternsByElems.get(where + elems[i]) == null)
                     continue;
-                System.out.print("2");
                 for (Pattern unifier : patternsByElems.get(where + elems[i])) {
                     if (unifier == null) {
                         break;
@@ -123,14 +121,14 @@ public class PatternBuilder extends AlloeProcessAdapter {
                         continue;
                     }
                     unification = unification.getMostDominant();
-                    System.out.print("3");
-                    if (unification != null && patternScores.get(unification) == null) {
+                   if (unification != null && patternScores.get(unification) == null) {
+                        iterations++;  
+                        System.out.print(iterations + ": ");
                         addPattern(unification, pattern.toString(), unifier.toString());
                     }
                 }
             }
-            System.out.print("4");
-            
+             
             for (int i = 0; i < elems.length; i++) {
                 if(i == capture1 || i == capture2)
                     continue;
@@ -143,7 +141,6 @@ public class PatternBuilder extends AlloeProcessAdapter {
                     patternsByElems.put(where + elems[i], l);
                 }
             }
-            iterations++;
             if (maxIterations == Integer.MAX_VALUE) {
                 fireNewProgressChange((double) iterations / (double) (iterations + patternQueue.size()));
             } else {
@@ -566,7 +563,7 @@ public class PatternBuilder extends AlloeProcessAdapter {
     }
 
     public void setMaxIterations(int maxIteration) {
-        this.maxIterations = maxIterations;
+        this.maxIterations = maxIteration;
     }
 
     public void unsetMaxIterations() {
