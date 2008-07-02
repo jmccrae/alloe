@@ -36,7 +36,7 @@ public class Simulations {
         args = newArgs;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("results-" + args[1]));
-            bw.write("grow_time,pre,grow_post,resfree_time,resfree_post\n");
+            bw.write("n,grow_time,pre,grow_post,resfree_time,resfree_post\n");
             for(int n = Integer.parseInt(args[2]); n < 4000; n += 50) {
                 double[] res = new double[VEC];
                 for(int i = 0; i < 1; i++) {
@@ -90,6 +90,7 @@ public class Simulations {
             
             double []rval = new double[VEC];
             GrowingSolver gs = new GrowingSolver(new Logic(new File(logicFile)),s.probModel);
+            System.out.println("grow");
             long time = System.nanoTime();
             gs.solve();
             time = System.nanoTime() - time;
@@ -99,6 +100,7 @@ public class Simulations {
             rval[1] = 2.0 * (double)presolve[0] / (double)(2 * presolve[0] + presolve[1] + presolve[2]);
             rval[2] = 2.0 * (double)postsolve[0] / (double)(2 * postsolve[0] + postsolve[1] + postsolve[2]);
             ResFreeSolver rfs = new ResFreeSolver(new Logic(new File(logicFile)),s.probModel);
+            System.out.println("resfree");
             time = System.nanoTime();
             rfs.solve();
             time = System.nanoTime() - time;
