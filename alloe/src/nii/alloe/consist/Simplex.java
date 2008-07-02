@@ -71,7 +71,9 @@ public class Simplex {
             success = true;
             return;
         }
-            
+        
+        System.out.println("Simple in (" + m.rows.size() + ")");
+        
         Integer slackBegin = m.cols.lastKey() + 1;
         Integer solnRow = m.rows.lastKey() + 1;
         success = true;
@@ -181,6 +183,7 @@ public class Simplex {
             cost = m.elemVal(solnRow,0);
         pivots = null;
         
+        System.out.println("Simple out (" + m.rows.size() + ")");
     }
     
     private void pushPivot(int row, int col) {

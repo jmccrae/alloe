@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="stormcloud" name="nii.alloe.consist.ResFreeSolverTest" tests="1" time="0.393" timestamp="2008-06-26T21:50:34">
+  <properties>
+    <property name="default.javac.source" value="1.6" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="profiler.settings.profile.underlying.framework" value="false" />
+    <property name="javac.source" value="1.5" />
+    <property name="netbeans.system_http_proxy" value="DIRECT" />
+    <property name="java.home" value="/usr/lib/jvm/java-6-sun-1.6.0.06/jre" />
+    <property name="test.src.dir" value="test" />
+    <property name="profiler.info.jvmargs.agent" value="-agentpath:/home/john/.netbeans/6.0/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/john/.netbeans/6.0/lib,5140,10" />
+    <property name="javadoc.version" value="false" />
+    <property name="libs.DetRegExp.classpath" value="/usr/lib/automaton/automaton.jar" />
+    <property name="libs.CopyLibs.classpath" value="/usr/share/netbeans/6.0.1/java1/ant/extra/org-netbeans-modules-java-j2seproject-copylibstask.jar" />
+    <property name="libs.javac-api.src" value="" />
+    <property name="libs.WEKA.src" value="" />
+    <property name="java.endorsed.dirs" value="/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/endorsed" />
+    <property name="libs.junit.maven-pom" value="" />
+    <property name="src.dir" value="src" />
+    <property name="nbplatform.default.harness.dir" value="/usr/share/netbeans/6.0.1/harness" />
+    <property name="debug-args-line" value="-Xdebug" />
+    <property name="netbeans.hash.code" value="unique=NBUBU01c781855-cb94-44f3-beb8-5a1a4278eb54" />
+    <property name="build.sysclasspath" value="ignore" />
+    <property name="have.sources" value="true" />
+    <property name="includes" value="**" />
+    <property name="source.encoding" value="UTF-8" />
+    <property name="libs.swing-app-framework.javadoc" value="" />
+    <property name="profiler.session.working.dir" value="/home/john" />
+    <property name="profiler.settings.threads.monitoring.enabled" value="false" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="profiler.settings.cpu.quick.filterprofiler.simple.filter.type" value="1" />
+    <property name="libs.Lucene.javadoc" value="" />
+    <property name="java.version" value="1.6.0_06" />
+    <property name="profiler.settings.profiling.type" value="16" />
+    <property name="ant.file.ALLOE" value="/home/john/alloe/build.xml" />
+    <property name="ant.file.-profiler-impl" value="/home/john/alloe/nbproject/profiler-build-impl.xml" />
+    <property name="javac.debug" value="true" />
+    <property name="org.openide.major.version" value="IDE/1" />
+    <property name="run.classpath" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar:build/classes" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="netbeans.autoupdate.variant" value="" />
+    <property name="libs.absolutelayout.javadoc" value="" />
+    <property name="libs.junit_4.maven-pom" value="" />
+    <property name="netbeans.buildnumber" value="080320" />
+    <property name="libs.WEKA.maven-pom" value="" />
+    <property name="manifest.file" value="manifest.mf" />
+    <property name="libs.WEKA.javadoc" value="" />
+    <property name="libs.swing-app-framework.maven-pom" value="" />
+    <property name="user.name" value="john" />
+    <property name="manifest.available+main.class+mkdist.available" value="true" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="application.vendor" value="john" />
+    <property name="jdk.home" value="/usr/lib/jvm/java-6-sun" />
+    <property name="netbeans.autoupdate.version" value="1.23" />
+    <property name="org.openide.TopManager" value="org.netbeans.core.NonGui" />
+    <property name="netbeans.dirs" value="/usr/share/netbeans/6.0.1/nb6.0:/usr/share/netbeans/6.0.1/ide8:/usr/share/netbeans/6.0.1/java1:/usr/share/netbeans/6.0.1/apisupport1:/usr/share/netbeans/6.0.1/harness:" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="javadoc.author" value="false" />
+    <property name="user.timezone" value="Japan" />
+    <property name="netbeans.system_http_non_proxy_hosts" value="" />
+    <property name="manifest.available" value="true" />
+    <property name="libs.swing-layout.maven-pom" value="" />
+    <property name="libs.junit.javadoc" value="" />
+    <property name="org.openide.specification.version" value="6.2" />
+    <property name="path.separator" value=":" />
+    <property name="version-output" value="java version &quot;1.6" />
+    <property name="profiler.settings.run.gc.on.get.results.in.memory.profiling" value="true" />
+    <property name="libs.COLT.javadoc" value="" />
+    <property name="libs.absolutelayout.classpath" value="/usr/share/netbeans/6.0.1/java1/modules/ext/AbsoluteLayout.jar" />
+    <property name="netbeans.accept_license_class" value="org.netbeans.license.AcceptLicense" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="dist.javadoc.dir" value="dist/javadoc" />
+    <property name="platforms.JDK_1.6__update_6_.home" value="/usr/lib/jvm/java-6-sun-1.6.0.06" />
+    <property name="https.nonProxyHosts" value="localhost|127.0.0.1|stormcloud" />
+    <property name="libs.junit.src" value="" />
+    <property name="profiler.settings.cpu.quick.filterprofiler.simple.filter.name" value="Quick filter..." />
+    <property name="profiler.info.jvmargs" value="-Xmx2000m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/john/alloe/nbproject/private/profiler " />
+    <property name="ant.file" value="/home/john/alloe/build.xml" />
+    <property name="profiler.settings.sort.results.by.thread.cpu.time" value="false" />
+    <property name="libs.DetRegExp.src" value="" />
+    <property name="libs.junit_4.src" value="" />
+    <property name="profiler.settings.override.working.dir" value="" />
+    <property name="netbeans.autoupdate.language" value="en" />
+    <property name="do.jar" value="true" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="build.test.results.dir" value="build/test/results" />
+    <property name="user.language" value="en" />
+    <property name="line.separator" value="
+" />
+    <property name="profiler.settings.profilingpoints.enabled" value="true" />
+    <property name="profiler.settings.n.profiled.threads.limit" value="32" />
+    <property name="apple.laf.useScreenMenuBar" value="true" />
+    <property name="profiler.session.port.no" value="5140" />
+    <property name="libs.absolutelayout.src" value="" />
+    <property name="platforms.JDK_1.6__update_6_.bootclasspath" value="/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/resources.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/rt.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/jsse.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/jce.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/charsets.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/classes:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/ext/dnsns.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/ext/localedata.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/ext/sunjce_provider.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/ext/sunpkcs11.jar" />
+    <property name="javac.compilerargs" value="" />
+    <property name="libs.Lucene.classpath" value="/home/john/alloe_lib/lucene-core-2.2.0.jar" />
+    <property name="profiler.settings.instrument.empty.methods" value="false" />
+    <property name="jar.compress" value="false" />
+    <property name="profiler.settings.instr.scheme" value="1" />
+    <property name="profiler.settings.istrument.getter.setter.methods" value="false" />
+    <property name="javac.compilerargs.jaxws" value="" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="libs.javac-api.maven-pom" value="" />
+    <property name="javadoc.private" value="false" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="build.test.classes.dir" value="build/test/classes" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="profiler.settings.instrument.method.invoke" value="true" />
+    <property name="profiler.settings.cpu.profiling.type" value="0" />
+    <property name="jaxws.endorsed.dir" value="C:\Program Files\NetBeans 6.0.1\java1\modules\ext\jaxws21\api" />
+    <property name="profiler.settings.obj.alloc.stack.sampling.depth" value="0" />
+    <property name="netbeans.dynamic.classpath" value="/usr/share/netbeans/6.0.1/platform7/core/org-openide-filesystems.jar:/usr/share/netbeans/6.0.1/platform7/core/core.jar:/usr/share/netbeans/6.0.1/nb6.0/core/org-netbeans-upgrader.jar:/usr/share/netbeans/6.0.1/nb6.0/core/locale/core_nb.jar" />
+    <property name="manifest.available+main.class" value="true" />
+    <property name="libs.beans-binding.javadoc" value="" />
+    <property name="profiler.settings.instrumentation.filter.selectedprofiler.simple.filter.type" value="2" />
+    <property name="platform.active" value="default_platform" />
+    <property name="javac.includes.binary" value="/home/john/alloe/build/test/classes/nii/alloe/consist/ResFreeSolverTest.class" />
+    <property name="libs.COLT.maven-pom" value="" />
+    <property name="http.nonProxyHosts" value="localhost|127.0.0.1|stormcloud" />
+    <property name="libs.junit_4.javadoc" value="" />
+    <property name="javac.includes" value="nii/alloe/consist/ResFreeSolverTest.java" />
+    <property name="netbeans.autoupdate.country" value="GB" />
+    <property name="profiler.settings.instrument.spawned.threads" value="false" />
+    <property name="profiler.session.args" value="" />
+    <property name="libs.beans-binding.maven-pom" value="" />
+    <property name="javadoc.encoding" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="profiler.settings.override.jvm.args" value="" />
+    <property name="dist.jar" value="dist/ALLOE.jar" />
+    <property name="meta.inf.dir" value="src/META-INF" />
+    <property name="libs.Lucene.src" value="" />
+    <property name="profiler.settings.code.region.cpu.res.buf.size" value="1000" />
+    <property name="profiler.info.javaPlatform" value="default_platform" />
+    <property name="profiler.settigns.ispreset" value="true" />
+    <property name="ant.version" value="Apache Ant version 1.7.0 compiled on August 29 2007" />
+    <property name="netbeans.home" value="/usr/share/netbeans/6.0.1/platform7" />
+    <property name="javadoc.nonavbar" value="false" />
+    <property name="user.properties.file" value="/home/john/.netbeans/6.0/build.properties" />
+    <property name="profiler.settings.instrumentation.marker.methods.size" value="0" />
+    <property name="netbeans.importclass" value="org.netbeans.upgrade.AutoUpgrade" />
+    <property name="profiler.settings.instrumentation.root.methods.size" value="1" />
+    <property name="libs.CopyLibs.maven-pom" value="" />
+    <property name="build.generated.dir" value="build/generated" />
+    <property name="profiler.info.jvm" value="/usr/lib/jvm/java-6-sun/bin/java" />
+    <property name="netbeans.home+have.tests" value="true" />
+    <property name="os.name" value="Linux" />
+    <property name="profiler.settings.instrumentation.filter.selectedprofiler.simple.filter.value" value="nii.alloe.termvar. nii.alloe.theory. nii.alloe.tools.getopts. nii.alloe.tools.lattice. nii.alloe.classify. nii.alloe.consist. nii.alloe.consist.solvers. nii.alloe.corpus. nii.alloe.corpus.pattern. nii.alloe.corpus.analyzer. nii.alloe.runs. nii.alloe.tools.process. nii.alloe.tools.struct. nii.alloe.tools.strings. nii.alloe.gui. nii.alloe.simulate." />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.test.classpath" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar:build/classes:/usr/share/netbeans/6.0.1/java1/modules/ext/junit-3.8.2.jar:build/test/classes" />
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM" />
+    <property name="libs.CopyLibs.src" value="" />
+    <property name="org.openide.version" value="deprecated" />
+    <property name="profiler.settings.instrumentation.filter.selectedprofiler.filter.type" value="profiler.simple.filter" />
+    <property name="libs.beans-binding.src" value="" />
+    <property name="libs.junit.classpath" value="/usr/share/netbeans/6.0.1/java1/modules/ext/junit-3.8.2.jar" />
+    <property name="java.library.path" value="/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/amd64/server:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/amd64:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/../lib/amd64:/usr/java/packages/lib/amd64:/lib:/usr/lib" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="javadoc.noindex" value="false" />
+    <property name="java.class.version" value="50.0" />
+    <property name="basedir" value="/home/john/alloe" />
+    <property name="sun.awt.exception.handler" value="org.netbeans.core.startup.TopLogging$AWTHandler" />
+    <property name="profiler.settings.instrumentation.filter.selectedprofiler.simple.filter.name" value="Profile only project classes" />
+    <property name="javac.test.classpath" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar:build/classes:/usr/share/netbeans/6.0.1/java1/modules/ext/junit-3.8.2.jar" />
+    <property name="ant.home" value="/usr/share/netbeans/6.0.1/java1/ant" />
+    <property name="libs.DetRegExp.maven-pom" value="" />
+    <property name="javadoc.splitindex" value="true" />
+    <property name="profiler.session.java.version" value="jdk16" />
+    <property name="libs.javac-api.javadoc" value="" />
+    <property name="profiler.info.dir" value="/home/john/alloe" />
+    <property name="javadoc.preview" value="true" />
+    <property name="profiler.info.single.file" value="/home/john/alloe/test/nii/alloe/consist/ResFreeSolverTest.java" />
+    <property name="libs.CopyLibs.javadoc" value="" />
+    <property name="libs.junit_4.classpath" value="/usr/share/netbeans/6.0.1/java1/modules/ext/junit-4.1.jar" />
+    <property name="libs.WEKA.classpath" value="/home/john/alloe_lib/weka.jar" />
+    <property name="build.dir" value="build" />
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/amd64" />
+    <property name="application.title" value="ALLOE" />
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Server Compiler" />
+    <property name="libs.swing-app-framework.classpath" value="/usr/share/netbeans/6.0.1/java1/modules/ext/appframework-1.0.3.jar:/usr/share/netbeans/6.0.1/java1/modules/ext/swing-worker-1.1.jar" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="javadoc.encoding.used" value="UTF-8" />
+    <property name="profiler.session.class.path" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar:build/classes" />
+    <property name="javadoc.windowtitle" value="" />
+    <property name="profiler.settings.override" value="false" />
+    <property name="run.jvmargs" value="-Xmx2000m" />
+    <property name="build.compiler.emacs" value="true" />
+    <property name="ant.project.name" value="ALLOE" />
+    <property name="libs.swing-layout.classpath" value="/usr/share/netbeans/6.0.1/platform7/modules/ext/swing-layout-1.0.3.jar" />
+    <property name="org.openide.awt.SwingBrowserImpl.do-not-block-awt" value="false" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="ant.file.ALLOE-impl" value="/home/john/alloe/nbproject/build-impl.xml" />
+    <property name="libs.COLT.src" value="" />
+    <property name="work.dir" value="/home/john/alloe" />
+    <property name="javadoc.use" value="true" />
+    <property name="sun.cpu.isalist" value="" />
+    <property name="profiler.settings.obj.alloc.stack.sampling.interval" value="10" />
+    <property name="java.ext.dirs" value="/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="os.version" value="2.6.24-19-generic" />
+    <property name="excludes" value="" />
+    <property name="user.home" value="/home/john" />
+    <property name="org.xml.sax.driver" value="com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser" />
+    <property name="javax.xml.parsers.DocumentBuilderFactory" value="org.netbeans.core.startup.DOMFactoryImpl" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="libs.absolutelayout.maven-pom" value="" />
+    <property name="profile.class" value="nii.alloe.consist.ResFreeSolverTest" />
+    <property name="org.openide.TopManager.GUI" value="true" />
+    <property name="user.dir" value="/home/john/alloe" />
+    <property name="libs.DetRegExp.javadoc" value="/usr/lib/automaton/doc" />
+    <property name="profiler.settings.cpu.quick.filterprofiler.filter.type" value="profiler.simple.filter" />
+    <property name="application.args" value="" />
+    <property name="profiler.session.class.name" value="nii.alloe.gui.AlloeMain" />
+    <property name="profiler.settings.sampling.interval" value="10" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="profiler.settings.istrumentation.root.methods-0" value="nii.alloe.consist.ResFreeSolver,solve,()V" />
+    <property name="platforms.JDK_1.6__update_6_.compiler" value="modern" />
+    <property name="profiler.session.jvm.args" value="-Xmx2000m" />
+    <property name="java.vm.version" value="10.0-b22" />
+    <property name="profiler.session.java.executable" value="/usr/lib/jvm/java-6-sun/bin/java" />
+    <property name="java.class.path" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar:/home/john/alloe/build/classes:/usr/share/netbeans/6.0.1/java1/modules/ext/junit-3.8.2.jar:/home/john/alloe/build/test/classes:/usr/share/netbeans/6.0.1/java1/ant/lib/junit.jar:/usr/share/netbeans/6.0.1/java1/ant/lib/ant-launcher.jar:/usr/share/netbeans/6.0.1/java1/ant/lib/ant.jar:/usr/share/netbeans/6.0.1/java1/ant/lib/ant-junit.jar" />
+    <property name="javax.xml.parsers.SAXParserFactory" value="org.netbeans.core.startup.SAXFactoryImpl" />
+    <property name="os.arch" value="amd64" />
+    <property name="profiler.info.oomeprotection" value="yes" />
+    <property name="javac.deprecation" value="false" />
+    <property name="nbplatform.default.netbeans.dest.dir" value="/usr/share/netbeans/6.0.1" />
+    <property name="build.classes.excludes" value="**/*.java,**/*.form" />
+    <property name="dist.dir" value="dist" />
+    <property name="debug.classpath" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar:build/classes" />
+    <property name="netbeans.user" value="/home/john/.netbeans/6.0" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="libs.Lucene.maven-pom" value="" />
+    <property name="ant.core.lib" value="/usr/share/netbeans/6.0.1/java1/ant/lib/ant.jar" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="do.depend" value="false" />
+    <property name="file.separator" value="/" />
+    <property name="java.runtime.version" value="1.6.0_06-b02" />
+    <property name="profiler.settings.cpu.exclude.wait.time" value="true" />
+    <property name="sun.boot.class.path" value="/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/resources.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/rt.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/jsse.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/jce.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/lib/charsets.jar:/usr/lib/jvm/java-6-sun-1.6.0.06/jre/classes:/home/john/.netbeans/6.0/lib/jfluid-server.jar:/home/john/.netbeans/6.0/lib/jfluid-server-15.jar" />
+    <property name="debug.test.classpath" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar:build/classes:/usr/share/netbeans/6.0.1/java1/modules/ext/junit-3.8.2.jar:build/test/classes" />
+    <property name="libs.beans-binding.classpath" value="/usr/share/netbeans/6.0.1/java1/modules/ext/beansbinding-1.2.1.jar" />
+    <property name="main.class" value="nii.alloe.gui.AlloeMain" />
+    <property name="have.tests" value="true" />
+    <property name="java.util.logging.config.class" value="org.netbeans.core.startup.TopLogging" />
+    <property name="profiler.settings.settings.name" value="Analyze Performance" />
+    <property name="libs.javac-api.classpath" value="/usr/share/netbeans/6.0.1/java1/modules/ext/javac-api.jar" />
+    <property name="profiler.settings.cpu.quick.filterprofiler.simple.filter.value" value="" />
+    <property name="user.country" value="GB" />
+    <property name="javadoc.notree" value="false" />
+    <property name="profiler.info.oomeprotection.dumppath" value="/home/john/alloe/nbproject/private/profiler" />
+    <property name="default.javac.target" value="1.6" />
+    <property name="javadoc.additionalparam" value="" />
+    <property name="javac.classpath" value="/home/john/alloe_lib/colt.jar:/home/john/alloe_lib/weka.jar:/home/john/alloe_lib/lucene-core-2.2.0.jar:/usr/lib/automaton/automaton.jar" />
+    <property name="profiler.info.project.dir" value="/home/john/alloe" />
+    <property name="build.classes.dir" value="build/classes" />
+    <property name="libs.swing-layout.javadoc" value="" />
+    <property name="libs.swing-layout.src" value="" />
+    <property name="javac.target" value="1.5" />
+    <property name="profiler.settings.thread.cpu.timer.on" value="false" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="libs.COLT.classpath" value="/home/john/alloe_lib/colt.jar" />
+    <property name="libs.swing-app-framework.src" value="" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="sun.arch.data.model" value="64" />
+    <property name="profiler.session.java.architecture" value="64" />
+  </properties>
+  <testcase classname="nii.alloe.consist.ResFreeSolverTest" name="testSolve" time="0.263" />
+  <system-out><![CDATA[solve
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

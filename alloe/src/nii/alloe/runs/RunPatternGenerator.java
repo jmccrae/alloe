@@ -41,8 +41,9 @@ public class RunPatternGenerator {
             TermPairSet tps = (TermPairSet)ois.readObject();
             ois.close();
             file = args[3];
-            //pb = new PatternBuilder(c,tps,PatternMetricFactory.MIN_SUP_PREC,args[2]);
-            pb = new PatternSetBuilder(c,tps,args[2],500);
+            pb = new PatternBuilder(c,tps,PatternMetricFactory.PSEUDO_FM,args[2]);
+            pb.setMaxPatterns(500);
+            //pb = new PatternBuilder(c,tps,args[2],500);
             pb.setMetricAlpha(Math.pow(1.15,Double.parseDouble(args[4])));
             pb.setIgnoreReflexives(true);
             pb.setMaxIterations(500000);
