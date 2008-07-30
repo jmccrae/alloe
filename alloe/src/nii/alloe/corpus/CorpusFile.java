@@ -14,4 +14,6 @@ public interface CorpusFile {
      * Get how far we are through the corpus file
      */
     public double getProgress();
+    
+    public boolean isEndOfDocument();
 }

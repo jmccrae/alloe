@@ -1,0 +1,233 @@
+12: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=punctuation;position=endpunct;
+
+11: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=punctuation;position=startpunct;
+
+74: null 74 75 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+77: null 77 75 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+69: null 76 69 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+26: null null 43 null null null null null null null null null null null null null 25 null null 26 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=lowercase;kind=word;
+
+39: null 57 39 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+18: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=symbol;
+
+7: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: SpaceToken;kind=space;
+
+71: null 71 61 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+20: null 31 32 null null null null null null null null null null null null null 33 null null 34 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=upperInitial;kind=word;
+
+1: null 19 20 null null null null null null null null null null null null null 21 null null 22 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=upperInitial;kind=word;
+
+31: null 51 52 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+46: null 65 66 null null null null null null null null null null null null null 46 null null 47 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+72: null 72 73 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+38: null 38 39 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+22: null 37 null null null null null null null null null null null null null null 21 null null 22 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+35: null 35 null null null null null null null null null null null null null null 55 null null 56 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+40: null 57 39 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+68: null 68 69 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+63: null 72 73 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+19: null 27 28 null null null null null null null null null null null null null 29 null null 30 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+25: null null 43 null null null null null null null null null null null null null 25 null null 26 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=lowercase;kind=word;
+
+42: null 58 59 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+10: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=punctuation;subkind=dashpunct;
+
+13: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=punctuation;
+
+66: null 65 66 null null null null null null null null null null null null null 46 null null 47 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+24: null 42 24 null null null null null null null null null null null null null 25 null null 26 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=lowercase;kind=word;
+
+56: null 35 null null null null null null null null null null null null null null 55 null null 56 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+2: null 23 24 null null null null null null null null null null null null null 25 null null 26 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=lowercase;kind=word;
+
+36: null 35 null null null null null null null null null null null null null null 21 null null 36 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+59: null 70 59 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+47: null 65 66 null null null null null null null null null null null null null 46 null null 47 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+0: null 1 2 null null 3 4 null 5 6 null null 7 null null 8 9 null null 10 11 12 13 14 15 16 17 18 null null null null null null null null null null null null null null null null 
+rhs: null
+
+73: null 72 73 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+33: null null 54 null null null null null null null null null null null null null 33 null null 34 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=upperInitial;kind=word;
+
+43: null null 43 null null null null null null null null null null null null null 25 null null 26 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=lowercase;kind=word;
+
+55: null 35 null null null null null null null null null null null null null null 55 null null 56 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+37: null 48 49 null null null null null null null null null null null null null 29 null null 50 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+52: null 67 52 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+17: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=symbol;
+
+58: null 58 59 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+4: null null null null null 3 4 null 5 null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=word;type=other;
+
+64: null 74 75 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+5: null null null null null 3 4 null 5 null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=word;type=other;
+
+41: null 57 39 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+76: null 76 69 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+53: null 68 69 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+15: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=symbol;
+
+45: null 64 45 null null null null null null null null null null null null null 46 null null 47 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+70: null 70 59 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+6: null null null null null null null null null 6 null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=number;
+
+61: null 71 61 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+23: null 38 39 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+62: null 72 73 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+50: null 48 49 null null null null null null null null null null null null null 29 null null 50 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+49: null 65 66 null null null null null null null null null null null null null 46 null null 47 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+65: null 65 66 null null null null null null null null null null null null null 46 null null 47 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+3: null null null null null 3 4 null 5 null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=word;type=other;
+
+30: null 48 49 null null null null null null null null null null null null null 29 null null 30 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+34: null null 54 null null null null null null null null null null null null null 33 null null 34 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=upperInitial;kind=word;
+
+48: null 48 49 null null null null null null null null null null null null null 29 null null 50 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+32: null 53 32 null null null null null null null null null null null null null 33 null null 34 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=upperInitial;kind=word;
+
+27: null 27 28 null null null null null null null null null null null null null 29 null null 30 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+75: null 77 75 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+9: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=punctuation;subkind=dashpunct;
+
+29: null 48 49 null null null null null null null null null null null null null 29 null null 50 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+67: null 67 52 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+14: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=punctuation;
+
+8: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: SpaceToken;kind=control;
+
+51: null 51 52 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+28: null 44 45 null null null null null null null null null null null null null 46 null null 47 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+16: null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;kind=symbol;symbolkind=currency;
+
+21: null 35 null null null null null null null null null null null null null null 21 null null 36 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=allCaps;kind=word;
+
+60: null 60 61 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+57: null 57 39 null null null null null null null null null null null null null 40 null null 41 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+44: null 60 61 null null null null null null null null null null null null null 62 null null 63 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=mixedCaps;kind=word;
+
+54: null null 54 null null null null null null null null null null null null null 33 null null 34 null null null null null null null null null null null null null null null null null null null null null null null null 
+rhs: Token;orth=upperInitial;kind=word;
