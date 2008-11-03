@@ -15,5 +15,5 @@ public interface CorpusFile {
      */
     public double getProgress();
     
-    public boolean isEndOfDocument();
+ //   public boolean isEndOfDocument();
 }
