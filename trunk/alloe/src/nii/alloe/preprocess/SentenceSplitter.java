@@ -20,8 +20,9 @@ public class SentenceSplitter {
     static int POST_EXC = 3;
     static int BOTH_EXC = 4;
     static int NEW_LINE = 5;
-    static int OTHER = 6;
-    static int TOKEN_TYPES = 7;
+    static int CLOSING_PUNCT = 6;
+    static int OTHER = 7;
+    static int TOKEN_TYPES = 8;
     
     HashSet<String> knownAbbreviations; 
     
@@ -37,7 +38,7 @@ public class SentenceSplitter {
        }
        buildDFSM();
     }
-    
+           
     private void buildDFSM() {
         DFSMState state0 = new DFSMState();
         DFSMState state1 = new DFSMState();
@@ -46,6 +47,7 @@ public class SentenceSplitter {
         state1.trans[PRE_EXC] = state1;
         state1.trans[BOTH_EXC] = state1;
         state0.trans[POST_EXC] = state0;
+        state0.trans[CLOSING_PUNCT] = state0;
         state0.trans[OTHER] = state0;
         for(int i = 0; i < TOKEN_TYPES; i++) {
             state1.trans[i] = state0;
@@ -54,29 +56,23 @@ public class SentenceSplitter {
         DFSMState state3 = new DFSMState();
         DFSMState state4 = new DFSMState();
         DFSMState state5 = new DFSMState();
-        DFSMState state6 = new DFSMState();
         DFSMState stateF = new DFSMState();
         state0.trans[FULL_STOP] = state2;
-        state0.trans[PUNCT] = state5;
-        state0.trans[NEW_LINE] = state6;
+        state0.trans[PUNCT] = state4;
+        state0.trans[NEW_LINE] = state5;
         for(int i = 0; i < TOKEN_TYPES; i++) {
             state2.trans[i] = stateF;
             state3.trans[i] = stateF;
             state4.trans[i] = stateF;
-            state5.trans[i] = stateF;
-            state6.trans[i] = state0;
+            state5.trans[i] = state0;
         }
-        state2.trans[FULL_STOP] = state3;
+        state2.trans[FULL_STOP] = state0;
         state2.trans[POST_EXC] = state0;
         state2.trans[BOTH_EXC] = state0;
-        state3.trans[FULL_STOP] = state4;
-        state3.trans[POST_EXC] = state0;
-        state3.trans[BOTH_EXC] = state0;
-        state4.trans[FULL_STOP] = state0;
-        state4.trans[POST_EXC] = state0;
-        state4.trans[BOTH_EXC] = state0;
-        state5.trans[PUNCT] = state5;
-        state6.trans[NEW_LINE] = stateF;
+        state2.trans[CLOSING_PUNCT] = state3;
+        state3.trans[CLOSING_PUNCT] = state3;
+        state4.trans[PUNCT] = state4;
+        state5.trans[NEW_LINE] = stateF;
         initial = state0;
         terminating = stateF;
     }
@@ -117,19 +113,22 @@ public class SentenceSplitter {
      }
      
     private int getType(String s) {
-        if(s.equals(".")) {
+        if(s.equals(".") || s.equals("\u3002") || s.equals("\uff61") || s.equals("\uff0e")) { // Include CJK full-stop and full-width full-stop
             return FULL_STOP;
-        } else if(s.equals("!") || s.equals("?")) {
+        } else if(s.equals("?") || s.equals("\uff1f") ||
+                s.equals("!") || s.equals("\uff01")) { // Other terminating punctuation
             return PUNCT;
-        } else if(s.matches("\\p{Ll}.*") || s.matches("\\p{Lu}\\p{Lu}+")) {
+        } else if(s.matches("\\p{Ll}.*") || s.matches("\\p{Lu}\\p{Lu}+")) { // Starts with lowercase or is all uppercase
             return POST_EXC;
-        } else if(s.matches("\\p{Lu}")) {
+        } else if(s.matches("\\p{Lu}")) { // Single uppercase
             return BOTH_EXC;
-        } else if(s.matches("\\p{Nd}+") || knownAbbreviations.contains(s)) {
+        } else if(s.matches("\\p{Nd}+") || knownAbbreviations.contains(s)) { // Numbers or known abbreviation
             return PRE_EXC;
-        } else if(s.matches("\n") || s.matches("\r")) {
+        } else if(s.matches("\n") || s.matches("\r")) { // New line
             return NEW_LINE;
-        } else
+        } else if(s.matches("\\p{Pe}+") || s.matches("\\p{Pf}+")) // Closing punctuation e.g., ) } "
+            return CLOSING_PUNCT;
+        else
             return OTHER;
     }
 }
