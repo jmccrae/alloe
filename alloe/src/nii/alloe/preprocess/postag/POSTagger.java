@@ -286,7 +286,7 @@ public class POSTagger {
     }
 
     //no lexical entry for the word. Try to guess
-    if ('A' <= wd.charAt(0) && wd.charAt(0) <= 'Z') return deflex_NNP;
+    if (wd.length() == 0 || ('A' <= wd.charAt(0) && wd.charAt(0) <= 'Z')) return deflex_NNP;
 
     for (int i=1 ; i < wd.length()-1 ; i++)
       if (wd.charAt(i) == '-') return deflex_JJ;

@@ -60,7 +60,7 @@ public class Tokeniser {
 		throw new IllegalArgumentException("RHS malformed: " + in);
 	    }
 	    annotations.put(idx,in.substring(5,in.length()));
-	    System.out.println("Read state " + idx);
+	    //System.out.println("Read state " + idx);
 	    in = br.readLine();
 	}
 	for(Integer idx : states.keySet()) {
@@ -131,7 +131,10 @@ public class Tokeniser {
 	    if(state.getTransition(type) == null) {
 		rval.add(currentToken);
 		currentToken = "";
-		state = initialState;
+                if(state == initialState)
+                    currentChar++;
+                else
+                    state = initialState;
 		continue;
 	    } else {
 		currentToken = currentToken + s1.charAt(currentChar);
