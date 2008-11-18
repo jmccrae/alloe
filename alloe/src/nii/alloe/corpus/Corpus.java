@@ -95,6 +95,12 @@ public class Corpus {
             }
         }
         
+        if(d instanceof RAMDirectory) {
+            d = new RAMDirectory();
+        } else {
+            d = FSDirectory.getDirectory(indexFile);
+        }
+        
         indexSearcher = new IndexSearcher(d);
         indexWriter = null;
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile.getAbsolutePath() + "/info"));

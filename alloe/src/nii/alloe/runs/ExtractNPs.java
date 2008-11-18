@@ -4,6 +4,7 @@
  */
 package nii.alloe.runs;
 
+import nii.alloe.preprocess.postag.POSTagger;
 import nii.alloe.preprocess.*;
 import nii.alloe.preprocess.postag.*;
 import java.io.*;

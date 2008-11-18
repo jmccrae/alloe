@@ -14,6 +14,8 @@
 
 package nii.alloe.preprocess.postag.rules;
 
+import nii.alloe.preprocess.postag.POSTagger;
+import nii.alloe.preprocess.postag.Rule;
 import nii.alloe.preprocess.postag.*;
 
 
