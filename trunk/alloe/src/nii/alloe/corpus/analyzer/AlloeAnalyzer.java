@@ -35,7 +35,7 @@ public class AlloeAnalyzer extends Analyzer {
   /** An array containing some common English words that are usually not
   useful for searching. */
   
-  public static final String[] STOP_WORDS = {"a", "an", /*"and",*/ "are", "as", "at", 
+  public static final String[] STOP_WORDS = {"a", "an", /*"and",*/ "are", /*"as",*/ "at", 
   "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", /*"of",*/ 
   "on", /*"or",*/ "s", /*"such",*/ "t", "that", "the", "their", "then", "there", "these", 
   "they", "this", "to", "was", "will", "with", ","};
