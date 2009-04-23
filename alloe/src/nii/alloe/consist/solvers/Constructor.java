@@ -43,7 +43,7 @@ public class Constructor {
         solutions.add(new Solution(baseCost,-baseCost,emptyModel,-1));
         logic.consistCheck(emptyModel, new ConclusionBranchingInconsistentAction(new TreeSet<Solution>(),solutions.peek()));
         while(solutions.peek() != null) {
-            System.out.println(solutions);
+            //System.out.println(solutions);
             Solution soln = solutions.poll();
             if(soln.prevNode >= 0 && !nextNode.hasNext(soln.prevNode)) {
                 solvedModel = soln.model;
@@ -86,7 +86,15 @@ public class Constructor {
                     cbs.addAll(conclusionBranchingSolutions(soln2,newLink));
                 }
             }
+            if(cbs.isEmpty()) {
+                System.err.println("csb empty");
+            }
             rval.addAll(cbs);
+        }
+        if(rval.isEmpty()) {
+            TreeSet<Solution> temp =  new TreeSet<Solution>();
+            temp.add(soln);
+            return temp;
         }
         return rval;
     }

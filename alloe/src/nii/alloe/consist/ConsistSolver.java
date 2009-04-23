@@ -145,12 +145,28 @@ public class ConsistSolver implements AlloeProcess,java.io.Serializable,Runnable
             iterationDepth++;
             if(branch.branchType == ADD) {
                 partCost += m.elemVal(branch.row,0);
+                Set<Integer> cols = m.getRow(branch.row);
+                double[] solnCosts = new double[cols.size()-1];
+                int i = 0;
+                for(int col : cols) {
+                    if(col == 0)
+                        continue;
+                    solnCosts[i++] = solnRows.get(col - 1);
+                    solnRows.set(col - 1, solnRows.get(col-1) + m.elemVal(branch.row, col));
+                }
                 m.selectRow(branch.row);
                 partSoln.add(branch.row);
                 Output.out.println("Branching: ADD " + branch.row);
                 solve2(m);
                 partSoln.remove(branch.row);
                 m.restitch();
+                cols = m.getRow(branch.row);
+                i = 0;
+                for(int col : cols) {
+                    if(col == 0)
+                        continue;
+                    solnRows.set(col - 1, solnCosts[i++]);
+                }
             }
             if(state != STATE_OK)
                 return;

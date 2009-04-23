@@ -11,7 +11,7 @@ import nii.alloe.theory.Model;
 import nii.alloe.theory.ProbabilityGraph;
 import nii.alloe.theory.SpecificGraph;
 
-public class Simulate {
+public class Simulate implements Serializable {
     public int n;
     public double p;
     public double r;
@@ -36,15 +36,17 @@ public class Simulate {
     
     
     public void createModels() {
-        GrowingSolver gs;
+        //GrowingSolver gs;
         //do {
         l.ruleSymbols.setModelSize(n);
             trueModel = makeGraphs(l);
             //l.consistCheck(trueModel, new MakeConsistent());
             Model gsModel = trueModel.createProbabilityCopy(.73,.27);
-            gs = new GrowingSolver(l,gsModel);
-            gs.setApproxSolve(true);
+            //gs = new GrowingSolver(l,gsModel);
+            //gs.setApproxSolve(true);
         //} while(!gs.solve());
+            //gs.solve();
+            GreedySat gs  = new GreedySat(l, gsModel);
             gs.solve();
         trueModel = gs.soln;
         probModel = makeProbGraphs(trueModel);

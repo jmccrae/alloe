@@ -376,6 +376,10 @@ public class ConsistProblem implements AlloeProcess,java.io.Serializable,Runnabl
             if(Rule.canResolve(r,r2)) {
                 Rule newR = r.resolve(r2,probModel);
                 
+                if(newR != null && newR.length() == 0) {
+                    System.out.println(r.toString() + " + " + r2.toString());
+                }
+                
                 if(newR != null && !isSubsumed(newR,r)) {
                     scoreRule(newR);
                     tempQueue.add(newR);

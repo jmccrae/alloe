@@ -1,4 +1,5 @@
 package nii.alloe.theory;
+import java.io.Serializable;
 import java.util.*;
 
 /** Tracks all the constants and functions used in a Logic.
@@ -9,7 +10,7 @@ import java.util.*;
  * Note that constants are consecutively numbered from zero and functions
  * are numbered by the number as in the logic
  */
-public class RuleSymbol {
+public class RuleSymbol implements Serializable {
     Vector<String> constants;
     HashMap<Integer,Integer> functions;
     int modelSize;
