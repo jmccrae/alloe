@@ -46,13 +46,15 @@ public class GreedySat {
                     break;
                 maxID = findCheapest();
                 if(maxID /*still*/ == -1) {
-                    System.out.println(probModel.toString());
+                   /* System.out.println(probModel.toString());
                     System.out.println(candidate.toString());
                     System.out.println(greedySats.toString());
                     System.out.println("FAIL");
-                    return false;                    
+                    return false;                    */
+                    maxID = findRandom();
                 }
             }
+            System.out.println(maxID);
             cost += Math.abs(((ProbabilityGraph)probModel.getGraphByID(maxID)).addVal(probModel.iByID(maxID),probModel.jByID(maxID)));
             
             Collection<Integer> newNodes = greedySats.flip(maxID);
@@ -91,6 +93,16 @@ public class GreedySat {
             }
         }
         return maxID;
+    }
+    
+    private static Random random = new Random();
+    
+    private int findRandom() {
+        LinkedList<Integer> ids = new LinkedList<Integer>();
+        for(Map.Entry<Integer,GreedySatNode> entry : greedySats.entrySet()) {
+            ids.add(entry.getKey());
+        }
+        return ids.get(random.nextInt(ids.size()));
     }
     
     private void buildInitialSet(Model model) {

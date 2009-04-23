@@ -363,6 +363,28 @@ public class SparseMatrix implements Serializable {
         }
     }
     
+    /** Print the matrix in simplified form with values e.g.
+     * <br>
+     * <code>
+     * 1: [ 1=0.5, 4=1 ] <br>
+     * 2: [ 2=1, 3=1, 4=-1 ] <br>
+     * 4: [ 1=1 ]
+     * </code>
+     */
+    public void printMatrixValued(PrintStream out) {
+         Iterator<Map.Entry<Integer, SparseNode>> i = rows.entrySet().iterator();
+        while(i.hasNext()) {
+            Map.Entry<Integer, SparseNode> e = i.next();
+            out.print(e.getKey() + ": [ ");
+            for(SparseNode n = e.getValue(); n != null; n = n.right) {
+                out.print(n.j + "=" + n.val + (n.right != null ? ", " : " "));
+            }
+            out.println("]");
+        }
+    }
+            
+    
+    
     /** Print the matrix in full form to out e.g.
      * <br>
      * <code>
@@ -678,33 +700,42 @@ public class SparseMatrix implements Serializable {
     
     private class Operation implements Serializable {
         SparseNode n;
-        boolean row;
-        Operation(SparseNode n, boolean row) { this.n = n; this.row = row; }
+        //boolean row;
+        int type;
+        public static final int ROW = 0;
+        public static final int COL = 1;
+        public static final int ELEM = 2;
+        Operation(SparseNode n, int type) { this.n = n; this.type = type; }
     }
     
     private Stack<Operation> operations;
     
     void unstitchRow(Integer idx) {
-        operations.push(new Operation(rows.get(idx),true));
+        operations.push(new Operation(rows.get(idx),Operation.ROW));
         for(SparseNode n = rows.get(idx); n != null; n = n.right) {
             removeElem(n);
         }
     }
     
     void unstitchCol(Integer idx) {
-        operations.push(new Operation(cols.get(idx),false));
+        operations.push(new Operation(cols.get(idx),Operation.COL));
         for(SparseNode n = cols.get(idx); n != null; n = n.down) {
             removeElem(n);
         }
     }
     
     void selectRow(Integer idx) {
-        operations.push(new Operation(rows.get(idx),true));
+        operations.push(new Operation(rows.get(idx),Operation.ROW));
         for(SparseNode n = rows.get(idx); n != null;) {
             Integer i = n.j;
+            double val = n.val;
+            SparseNode oldN = n;
             n = n.right;
-            if(!i.equals(0)) {
+            if(!i.equals(0) && val == 1.0) {
                 unstitchCol(i);
+            } else if(i != 0) {
+                operations.push(new Operation(oldN,Operation.ELEM));
+                removeElem(oldN);
             }
         }
         rows.remove(idx);
@@ -712,18 +743,22 @@ public class SparseMatrix implements Serializable {
     
     void restitch() {
         Operation o = operations.pop();
-        if(o.row) {
+        if(o.type == Operation.ROW) {
             for(SparseNode n = o.n; n != null;) {
                 SparseNode temp = n.right;
                 addElem(n);
                 n = temp;
             }
         } else {
-            while(!o.row) {
-                for(SparseNode n = o.n; n != null;) {
-                    SparseNode temp = n.down;
-                    addElem(n);
-                    n = temp;
+            while(o.type != Operation.ROW) {
+                if(o.type == Operation.COL) {
+                    for(SparseNode n = o.n; n != null;) {
+                        SparseNode temp = n.down;
+                        addElem(n);
+                        n = temp;
+                    }
+                } else if(o.type == Operation.ELEM) {
+                    addElem(o.n);
                 }
                 o = operations.pop();
             }

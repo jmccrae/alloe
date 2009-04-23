@@ -72,7 +72,7 @@ public class Simplex {
             return;
         }
         
-        System.out.println("Simple in (" + m.rows.size() + ")");
+        //System.out.println("Simple in (" + m.rows.size() + ")");
         
         Integer slackBegin = m.cols.lastKey() + 1;
         Integer solnRow = m.rows.lastKey() + 1;
@@ -183,6 +183,7 @@ public class Simplex {
             cost = m.elemVal(solnRow,0);
         pivots = null;
         
+       
         System.out.println("Simple out (" + m.rows.size() + ")");
     }
     

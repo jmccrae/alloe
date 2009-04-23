@@ -1,6 +1,10 @@
 package nii.alloe.theory;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.regex.*;
 import java.util.*;
+import nii.alloe.consist.ConsistProblem;
 
 /**
  * A rule in the logic.
@@ -14,18 +18,18 @@ import java.util.*;
  * NB Constants are not yet supported but will be soon (hopefully) <br>
  * NB Skolemized arguments are not yet implemented either
  */
-public class Rule implements Comparable<Rule> {
+public class Rule implements Comparable<Rule>, java.io.Serializable {
     /** The list of relationship names for each term */
-    public Vector<String> relations;
+    transient public Vector<String> relations;
     /** The arguments of each term. The array is always two-dimensional */
-    public Vector<Argument[]> terms;
+    transient public Vector<Argument[]> terms;
     /** The number of premises. Premises are always first */
-    public int premiseCount;
+    transient public int premiseCount;
     /** A map of all the arguments in the rule, each value maps to itself */
-    public TreeMap<Argument,Argument> arguments;
+    transient public TreeMap<Argument,Argument> arguments;
     /** Scores which can be attached to the rule.
      * @see ConsistProblem */
-    public Integer score, maxScore;
+    transient public Integer score, maxScore;
     RuleSymbol ruleSymbols;
     
     private Rule() { arguments = new TreeMap<Argument,Argument>(); }
@@ -298,7 +302,7 @@ public class Rule implements Comparable<Rule> {
             newRule.relations.add(rule.relations.get(i));
         }
         
-        
+        boolean first = false;
         for(int i = 0; i < newRule.premiseCount; i++) {
             for(int k = newRule.premiseCount; k < newRule.length(); k++) {
                 if(newRule.relations.get(i).equals(newRule.relations.get(k)) &&
@@ -310,7 +314,11 @@ public class Rule implements Comparable<Rule> {
                     newRule.terms.remove(k-1);
                     newRule.premiseCount--;
                     i--;
-                    break;
+                    if(!first) {
+                        first = true;
+                        break;
+                    } else
+                        return null; // The rule created is a tautology
                 }
             }
         }
@@ -773,6 +781,22 @@ public class Rule implements Comparable<Rule> {
                 return false;
         }
         return true;
+    }
+    
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeObject(this.toString());
+    }
+    
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        arguments = new TreeMap<Argument,Argument>();
+        Object o = ois.readObject();
+        if(!(o instanceof String)) {
+            throw new IOException("Stream read error!");
+        }
+        
+        loadFromString((String)o);
     }
     
     /**

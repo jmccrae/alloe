@@ -12,6 +12,8 @@ import nii.alloe.tools.struct.MultiIterator;
  */
 public class Model extends AbstractSet<Integer> implements Serializable {
 
+    public static final long serialVersionUID = -9116832530781926109l;
+    
     /**
      * The graphs indexed by their id string
      */
@@ -584,6 +586,19 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     }
 
     /**
+     * Add a graph with the specific ID (expert: Errors may occur if graph is not suitable (i.e., has wrong number of terms)
+     * @throws IllegalArgumentException The graph already contains a graph with this name
+     */
+    public void addGraph(String name, Graph g) throws IllegalArgumentException {
+        if(graphs.containsKey(name))
+            throw new IllegalArgumentException("Name already occurs in graph");
+        if(relationIdx.indexOf(name) == -1) {
+            relationIdx.add(name);
+        }
+        graphs.put(name, g);
+    }
+    
+    /**
      * Add all elements of another graph into this one. Note these graphs must have the same indexing,
      * ie, created by subModel, createSpecificCopy, createImmutableCopy etc.
      */
@@ -721,8 +736,8 @@ public class Model extends AbstractSet<Integer> implements Serializable {
     /**
      * Same as <code>Graph.get(iByID(id),jByID(id),val)</code>
      */
-    public void getVal(int id) {
-        graphs.get(relationByID(id)).getVal(iByID(id), jByID(id));
+    public double getVal(int id) {
+        return graphs.get(relationByID(id)).getVal(iByID(id), jByID(id));
     }
 
     /**

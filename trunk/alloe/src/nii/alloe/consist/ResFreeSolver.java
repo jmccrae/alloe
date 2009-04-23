@@ -56,6 +56,7 @@ public class ResFreeSolver extends AlloeProcessAdapter {
 		fireFinished();
 		return;
 	    }		
+            System.out.println("Matrix size: " + matrix.getColumnCount());
 
 	    if(state != STATE_MATRIX)
 		break;
@@ -81,6 +82,7 @@ public class ResFreeSolver extends AlloeProcessAdapter {
 	if(inconsistencies.isEmpty())
 	    return true;
 	for(Rule r : inconsistencies) {
+            System.out.println(r.toString());
 	    int newColumn = matrix.cols.isEmpty() ? 1 : 
 		matrix.cols.lastKey() + 1;
 	    double solnVal = -1;

@@ -9,7 +9,7 @@ import java.util.*;
  *
  * @author John McCrae, National Institute of Informatics */
 
-public class Logic {
+public class Logic implements Serializable {
     /** The set of rules that constitute this logic */
     public LinkedList<Rule> rules;
     /** Names of relations used in the rules */

@@ -77,12 +77,12 @@ public class GrowingSolver extends AlloeProcessAdapter implements AlloeProgressL
                 state = STATE_OK;
                 break;
             }
-            m = m.createCopy();
-            ConsistProblem.reduceMatrix(m);
+            SparseMatrix m2 = m.createCopy();
+            ConsistProblem.reduceMatrix(m2);
             if(state != STATE_MATRIX)
                 break;
             state = STATE_SOLVING;
-            cs.solve(m);
+            cs.solve(m2);
             if(state == STATE_SOLVING)
                 state = STATE_OK;
             

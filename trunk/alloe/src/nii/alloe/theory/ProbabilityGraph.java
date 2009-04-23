@@ -44,12 +44,12 @@ public class ProbabilityGraph implements Graph, Serializable {
     }
     
     public void add(int i, int j) {
-        Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
+    //    Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
         setVal(i,j,1);
     }
     
     public void remove(int i, int j) {
-        Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
+     //   Output.err.println("WARNING: Adding link (" + i + " -> " + j + " with absolute probability!");
         setVal(i,j,0);
     }
 
@@ -157,7 +157,10 @@ public class ProbabilityGraph implements Graph, Serializable {
      * conversion.
      */
     public double getVal(int i, int j) {
-	return Math.exp(pm_pos.get(i * n + j));
+        if(pm_pos.containsKey(i * n + j))
+            return Math.exp(pm_pos.get(i * n + j));
+        else
+            return Math.exp(baseValPos);
     }
     
     /**
