@@ -36,8 +36,8 @@ public class Simulations {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        //String []newArgs = { "logics/synonym.logic","test","5", "101", "yes", "yes" };
-        //args = newArgs;
+        String []newArgs = { "logics/sh.logic","test","5", "101", "yes", "yes" };
+        args = newArgs;
         includeConstruct = args[4].equals("yes");
         includeSyn = args[5].equals("yes");
         try {
@@ -65,17 +65,18 @@ public class Simulations {
     
     public static double[] doRun(double prec, double recall, int n, String logicFile, double linkDensity, double sparsity) {
         try {
+            System.out.println("Building simulate data");
             double []rval = new double[VEC];
             
-            Simulate s = new Simulate(logicFile,prec,recall,n);
+            /*Simulate s = new Simulate(logicFile,prec,recall,n);
             Iterator<String> relIter = s.relationDensity.keySet().iterator();
             while(relIter.hasNext()) {
                 s.relationDensity.put(relIter.next(),linkDensity);
             }
             s.sparsePercent = sparsity;
             s.createModels();
-            writeSimulation(s,"sim-temp");
-            //Simulate s = readSimulation("sim-temp");
+            writeSimulation(s,"sim-temp");*/
+            Simulate s = readSimulation("sim-temp");
             
             //printModel(s.probModel);
             

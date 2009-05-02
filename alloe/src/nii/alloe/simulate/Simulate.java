@@ -36,18 +36,13 @@ public class Simulate implements Serializable {
     
     
     public void createModels() {
-        //GrowingSolver gs;
-        //do {
+        GreedySat gs;
+        do {
         l.ruleSymbols.setModelSize(n);
             trueModel = makeGraphs(l);
-            //l.consistCheck(trueModel, new MakeConsistent());
             Model gsModel = trueModel.createProbabilityCopy(.73,.27);
-            //gs = new GrowingSolver(l,gsModel);
-            //gs.setApproxSolve(true);
-        //} while(!gs.solve());
-            //gs.solve();
-            GreedySat gs  = new GreedySat(l, gsModel);
-            gs.solve();
+            gs  = new GreedySat(l, gsModel);
+        } while(!gs.solve());
         trueModel = gs.soln;
         probModel = makeProbGraphs(trueModel);
     }

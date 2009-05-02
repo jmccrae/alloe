@@ -32,12 +32,16 @@ public class GreedySat {
     private Logic logic;
     private Model candidate;
     private GreedySatSet greedySats;
+    public boolean canFail = false;
+    public static int iterationLimit = 2000;
     
     public boolean solve() {
         candidate = probModel.createSpecificCopy();
         cost = 0;
         buildInitialSet(probModel);
+        int iter = -1;
         while(!greedySats.isEmpty()) {
+            iter++;
             //System.out.println(greedySats.toString());
             int maxID = findCheapest();
             if(maxID == -1) {
@@ -46,15 +50,19 @@ public class GreedySat {
                     break;
                 maxID = findCheapest();
                 if(maxID /*still*/ == -1) {
-                   /* System.out.println(probModel.toString());
-                    System.out.println(candidate.toString());
-                    System.out.println(greedySats.toString());
-                    System.out.println("FAIL");
-                    return false;                    */
-                    maxID = findRandom();
+                    if(canFail) {
+                         System.out.println(probModel.toString());
+                        System.out.println(candidate.toString());
+                        System.out.println(greedySats.toString());
+                        System.out.println("FAIL");
+                        return false;
+                    } else {
+                        maxID = findRandom();
+                        System.out.println("Random choice");
+                    }
                 }
             }
-            System.out.println(maxID);
+            //System.out.println(maxID);
             cost += Math.abs(((ProbabilityGraph)probModel.getGraphByID(maxID)).addVal(probModel.iByID(maxID),probModel.jByID(maxID)));
             
             Collection<Integer> newNodes = greedySats.flip(maxID);
@@ -71,6 +79,11 @@ public class GreedySat {
                 }
             } else {
                 addNewBreaks(maxID);
+            }
+            if(iter > iterationLimit) {
+                System.out.println("Iteration Limit Reached");
+                soln = candidate;
+                return false;
             }
         }
         soln = candidate;

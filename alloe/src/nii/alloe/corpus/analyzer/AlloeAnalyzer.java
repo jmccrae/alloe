@@ -38,7 +38,7 @@ public class AlloeAnalyzer extends Analyzer {
   public static final String[] STOP_WORDS = {"a", "an", /*"and",*/ "are", /*"as",*/ "at", 
   "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", /*"of",*/ 
   "on", /*"or",*/ "s", /*"such",*/ "t", "that", "the", "their", "then", "there", "these", 
-  "they", "this", "to", "was", "will", "with", ","};
+  "they", "this", "to", "was", "will", "with", ",", ".", ";", ":", "-"};
 
   /** Builds an analyzer with the default stop words ({@link #STOP_WORDS}). */
   public AlloeAnalyzer() {

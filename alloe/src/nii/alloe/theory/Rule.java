@@ -166,6 +166,9 @@ public class Rule implements Comparable<Rule>, java.io.Serializable {
             if(i != premiseCount -1 && i != length() - 1)
                 rval = rval + "; ";
         }
+        if(length() == premiseCount) {
+            rval = rval + " -> ";
+        }
         return rval;
     }
     
