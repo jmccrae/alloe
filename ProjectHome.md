@@ -1,0 +1,1 @@
+The goal of this project is to develop an application that takes an ontology and a corpus and uses information extraction techniques to find new terms and discover relations. Then these terms are converted to a new larger ontology, by use of logical model search.
